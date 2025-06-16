@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="google-site-verification" content="Yu5SrqKysJNrowL7W3-1r6kAGOf6GyertHg2MR-QMvg" />
+  <title data-key="documentTitle">NovaAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"> </head>
+<body>
+
+  <header>
+    <div class="header-left-group">
+      <svg viewBox="0 0 24 24" id="menuIcon" class="icon-btn">
+        <path d="M21 12H9"/><path d="M21 18H7"/><path d="M21 6H3"/>
+      </svg>
+      <svg viewBox="0 0 24 24" id="backIcon" class="icon-btn hidden">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+      <div class="app-brand">
+          <img src="logo.png" alt="NovaAI Logo" class="app-logo"> <div class="app-name">NovaAI</div>
+      </div>
+    </div>
+    <div class="header-right-group">
+        <div id="modelSelectContainer" class="model-select-container">
+            <div class="selected-model-display">Gemini</div>
+            <select id="modelSelect" class="hidden">
+                <option value="gemini">Gemini</option>
+                <option value="cohere">Cohere</option>
+                <option value="copilot">Copilot</option>
+            </select>
+            <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </div>
+
+        <div id="landingThemeToggleContainer" class="theme-toggle-landing">
+            <label class="switch">
+                <input type="checkbox" id="themeToggleLanding">
+                <span class="slider">
+                    <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/>
+                    </svg>
+                </span>
+            </label>
+        </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="welcomeSection" class="page-section active">
+        <h1 data-key="welcomeTitle">Welcome</h1>
+        <p data-key="helpText">Hii, I Can Help You?</p>
+    </section>
+
+    <section id="chatSection" class="page-section hidden">
+        <div id="chatHistory">
+            <div id="thinkingIndicator" class="ai-message hidden">
+                <span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+            </div>
+        </div>
+    </section>
+  </main>
+
+  <div class="quick-complete-container" id="quickCompleteContainer">
+  </div>
+
+  <div id="attachedFilesContainer" class="attached-files-container"></div>
+
+  <div class="input-wrapper">
+    <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
+
+    <button class="btn-circle btn-plus" id="plusButton">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    </button>
+    <button class="btn-circle btn-voice" id="voiceInputButton">
+        <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
+        </svg>
+    </button>
+    <textarea id="messageInput" placeholder="Ask me anything..." rows="1"></textarea>
+    <button class="btn-circle btn-send" id="sendButton">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
+        </svg>
+    </button>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <h2 data-key="settingsTitle">Settings</h2>
+
+    <div class="sidebar-item language-select">
+      <span data-key="languageOption">Language</span>
+      <select id="languageSelect">
+        <option value="en">English</option>
+        <option value="id">Bahasa Indonesia</option>
+      </select>
+    </div>
+
+    <div class="theme-toggle-container">
+        <span data-key="themeMode">Dark / Light Mode</span>
+        <label class="switch">
+            <input type="checkbox" id="themeToggle">
+            <span class="slider">
+                 <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/>
+                </svg>
+            </span>
+        </label>
+    </div>
+
+    <div class="sidebar-item" data-modal-target="privacyPolicy">
+      <a href="#">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+        </svg>
+        <span data-key="privacyPolicy">Privacy Policy</span>
+      </a>
+    </div>
+    <div class="sidebar-item" data-modal-target="termsAndConditions">
+      <a href="#">
+        <svg viewBox="0 0 24 24">
+          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/>
+        </svg>
+        <span data-key="termsAndConditions">Terms & Conditions</span>
+      </a>
+    </div>
+    <div class="sidebar-item" data-modal-target="policy">
+      <a href="#">
+        <svg viewBox="0 0 24 24">
+          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+        <span data-key="policy">Policy</span>
+      </a>
+    </div>
+    <div class="sidebar-item" data-modal-target="aboutUs">
+      <a href="#">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+        </svg>
+        <span data-key="aboutUs">About Us</span>
+      </a>
+    </div>
+  </aside>
+
+  <div class="modal-overlay" id="infoModalOverlay">
+    <div class="modal-content" id="infoModalContent">
+      <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+      <h3 id="modalTitle">Modal Title</h3>
+      <div id="modalBody">
+        </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script> </body>
+</html>

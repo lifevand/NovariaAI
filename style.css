@@ -1,0 +1,993 @@
+/* CSS Variables for Themes */
+:root {
+  /* Dark Mode Defaults */
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --header-bg: #000000;
+  --input-bg: #1c1c1c;
+  --button-bg: #333333;
+  --button-hover-bg: #555555;
+  --placeholder-color: rgba(255, 255, 255, 0.6);
+  --sidebar-bg: #1a1a1a;
+  --sidebar-text: #ffffff;
+  --sidebar-item-hover: #3a3a3a;
+  --ripple-color: rgba(255, 255, 255, 0.4);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --modal-bg: #2a2a2a;
+  --modal-text: #ffffff;
+  --modal-close-button: #555555;
+  --modal-close-button-hover: #777777;
+  --quick-complete-bg: #222222;
+  --quick-complete-text: #ffffff;
+  --quick-complete-hover-bg: #3a3a3a;
+
+  /* Chat Message Colors (No bubbles, just text) */
+  --user-message-color: #ffffff;
+  --ai-message-color: rgba(255, 255, 255, 0.8);
+  --ai-thinking-color: rgba(255, 255, 255, 0.6);
+
+  /* NEW: Attached File Colors */
+  --attached-file-bg: #333333;
+  --attached-file-text: #ffffff;
+  --attached-file-remove-hover: #ff6666; /* Red for remove button on hover */
+
+  /* NEW: AI Response Action Buttons */
+  --action-button-bg: #333333;
+  --action-button-hover-bg: #555555;
+  --action-button-icon-color: #ffffff;
+
+  /* NEW: Code Block Colors */
+  --code-block-bg: #282c34; /* Dark background for code */
+  --code-block-text: #abb2bf; /* Light text for code */
+  --code-block-border: #3a3f4b;
+  --copy-button-bg: #4a4f59;
+  --copy-button-hover-bg: #6a707c;
+  --code-language-tag-bg: #4a4f59;
+  --code-language-tag-text: #ffffff;
+}
+
+/* Light Mode Overrides */
+body.light-mode {
+  --bg-color: #f8f8f8;
+  --text-color: #333333;
+  --header-bg: #f8f8f8;
+  --input-bg: #e0e0e0;
+  --button-bg: #cccccc;
+  --button-hover-bg: #aaaaaa;
+  --placeholder-color: rgba(0, 0, 0, 0.5);
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #333333;
+  --sidebar-item-hover: #f0f0f0;
+  --ripple-color: rgba(0, 0, 0, 0.2);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --modal-bg: #ffffff;
+  --modal-text: #333333;
+  --modal-close-button: #bbbbbb;
+  --modal-close-button-hover: #999999;
+  --quick-complete-bg: #eeeeee;
+  --quick-complete-text: #333333;
+  --quick-complete-hover-bg: #dddddd;
+
+  /* Chat Message Colors (Light Mode) */
+  --user-message-color: #333333;
+  --ai-message-color: rgba(51, 51, 51, 0.8);
+  --ai-thinking-color: rgba(51, 51, 51, 0.6);
+
+  /* NEW: Attached File Colors for Light Mode */
+  --attached-file-bg: #c0c0c0;
+  --attached-file-text: #333333;
+  --attached-file-remove-hover: #ff0000; /* Darker red for light mode */
+
+  /* NEW: AI Response Action Buttons for Light Mode */
+  --action-button-bg: #cccccc;
+  --action-button-hover-bg: #aaaaaa;
+  --action-button-icon-color: #333333;
+
+  /* NEW: Code Block Colors for Light Mode */
+  --code-block-bg: #f0f0f0;
+  --code-block-text: #333333;
+  --code-block-border: #d0d0d0;
+  --copy-button-bg: #c0c0c0;
+  --copy-button-hover-bg: #a0a0a0;
+  --code-language-tag-bg: #d0d0d0;
+  --code-language-tag-text: #333333;
+}
+
+/* General Styles */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow: hidden; /* Hide body overflow, sections will manage theirs */
+  transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove outline for all focusable elements */
+*:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  font-weight: 700;
+  font-size: 1.3em;
+  background-color: var(--header-bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left-group {
+  display: flex;
+  gap: 12px; /* Gap between icon and app brand */
+  align-items: center;
+}
+
+.app-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Gap between logo and app name */
+    font-size: 1.3em;
+    font-weight: 700;
+}
+
+.app-logo {
+    width: 38px; /* Disesuaikan agar sedikit lebih besar, contoh: 38px */
+    height: 38px; /* Pastikan sama dengan width untuk bentuk bulat */
+    object-fit: cover; /* Gunakan 'cover' agar gambar mengisi area dan terpotong jika perlu */
+    border-radius: 50%; /* Membuatnya bulat sempurna */
+    padding: 4px; /* Sedikit padding di dalam lingkaran jika ingin logo tidak terlalu mepet */
+    box-sizing: border-box; /* Agar padding tidak menambah ukuran total */
+    display: block; /* Penting untuk margin auto */
+    /* background-color akan kita atur di bawah untuk masing-masing tema */
+    transition: background-color 0.3s ease; /* Transisi halus saat ganti tema */
+}
+
+/* Latar Belakang Logo untuk Mode Gelap (default) */
+.app-logo {
+    background-color: #333333; /* Warna abu-abu gelap untuk latar logo di mode gelap */
+}
+
+/* Latar Belakang Logo untuk Mode Terang */
+body.light-mode .app-logo {
+    background-color: #e0e0e0; /* Warna abu-abu terang untuk latar logo di mode terang */
+}
+
+}
+body.light-mode .app-logo {
+    background-color: rgba(200, 200, 200, 0.5); /* Placeholder background in light mode */
+}
+
+
+.header-right-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* NEW: Icon Button Style */
+.icon-btn {
+  width: 24px;
+  height: 24px;
+  stroke: var(--text-color);
+  fill: none;
+  stroke-width: 2;
+  cursor: pointer;
+  transition: stroke 0.3s ease;
+}
+
+/* Main Content Area - Container for sections */
+main {
+  position: relative; /* For absolute positioning of sections */
+  flex-grow: 1;
+  overflow: hidden; /* Hide overflow of main, sections manage their own */
+  display: flex; /* This makes sure content stretches vertically */
+  flex-direction: column;
+  padding: 0 20px;
+  padding-top: 20px; /* Space from header */
+  box-sizing: border-box;
+  transition: padding-bottom 0.3s ease; /* Smooth transition for padding */
+}
+
+/* Page Sections (Welcome and Chat) */
+.page-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  position: absolute; /* Stack sections */
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px; /* Re-apply section specific padding */
+  box-sizing: border-box;
+  text-align: center; /* For welcome content centering */
+}
+
+.page-section.active {
+  opacity: 1;
+  transform: translateY(0);
+  position: relative; /* Take up space when active */
+  display: flex; /* Override hidden */
+}
+.page-section.hidden {
+  display: none !important; /* Truly hide elements that are not active */
+}
+
+/* Specific styles for welcome section */
+#welcomeSection {
+    justify-content: flex-start; /* Ganti dari center agar quick complete bisa di atas */
+    align-items: center; /* Center welcome text horizontally */
+    gap: 12px;
+    padding-top: 100px; /* Tambahkan padding atas agar ada ruang untuk welcome text dan quick complete */
+}
+#welcomeSection h1 {
+    font-size: 2.5em;
+    margin: 0;
+    font-weight: 700;
+}
+#welcomeSection p {
+    font-size: 1.3em;
+    margin: 0;
+    font-weight: 400;
+    color: var(--text-color);
+}
+
+/* Specific styles for chat section */
+#chatSection {
+    justify-content: flex-start; /* Messages start from top */
+    align-items: center; /* Center chat history block */
+    overflow-y: auto; /* Enable scrolling for chat history */
+    padding: 0; /* Remove internal padding to allow chat history to manage its own */
+}
+
+/* Chat History Container */
+#chatHistory {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 700px; /* Max width for chat messages */
+    margin: 0 auto; /* Center chat messages */
+    padding: 0 20px; /* Add padding here for chat messages */
+    box-sizing: border-box;
+    gap: 16px; /* Gap between chat messages */
+    flex-grow: 1; /* Allow chat history to grow and fill space */
+    overflow-y: auto; /* Make chat history scrollable */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+/* Chat Message Styles (No bubbles) */
+.chat-message {
+    padding: 4px 0; /* Minimal padding */
+    max-width: 100%; /* Take full width within container */
+    word-wrap: break-word; /* Ensure long words wrap */
+    line-height: 1.6;
+    font-size: 1em;
+    position: relative;
+    opacity: 0; /* For entry animation */
+    transform: translateY(10px); /* For entry animation */
+    animation: message-fade-in 0.3s ease-out forwards;
+    animation-delay: 0.1s; /* Slight delay for each message */
+    text-align: left; /* Align all messages to left */
+}
+
+@keyframes message-fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+    color: var(--user-message-color);
+    font-weight: 500; /* User message bolder */
+}
+
+.ai-message {
+    color: var(--ai-message-color);
+    font-weight: 400; /* AI message regular */
+    display: flex; /* Used for potential action buttons/code blocks */
+    flex-direction: column; /* Stack content vertically */
+    align-items: flex-start; /* Align content to the left */
+    gap: 8px; /* Gap between text and action buttons */
+}
+
+/* NEW: AI Response Action Buttons Container */
+.ai-message-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px; /* Jarak dari teks jawaban AI */
+}
+
+.ai-action-btn {
+  background-color: var(--action-button-bg);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  color: var(--action-button-icon-color); /* Warna ikon */
+}
+
+.ai-action-btn:hover {
+  background-color: var(--action-button-hover-bg);
+}
+
+.ai-action-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--action-button-icon-color);
+  fill: none;
+  stroke-width: 2;
+}
+
+/* AI Thinking Indicator */
+#thinkingIndicator {
+    color: var(--ai-thinking-color);
+    font-style: italic;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 0;
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.3s ease;
+}
+#thinkingIndicator .dot {
+    font-weight: 700;
+    font-size: 1.2em; /* Make dots slightly larger */
+    animation: pulse-dot 1.2s infinite ease-in-out both;
+}
+#thinkingIndicator .dot:nth-child(1) { animation-delay: 0s; }
+#thinkingIndicator .dot:nth-child(2) { animation-delay: 0.2s; }
+#thinkingIndicator .dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse-dot {
+    0%, 80%, 100% { opacity: 0; }
+    40% { opacity: 1; }
+}
+
+/* Quick Complete Suggestions */
+.quick-complete-container {
+  position: absolute; /* Changed to absolute */
+  top: 50%; /* Position relative to main */
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center it */
+  width: calc(100% - 40px);
+  max-width: 700px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 0;
+  z-index: 90;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease, top 0.3s ease, transform 0.3s ease; /* Added top and transform transitions */
+
+  max-height: 120px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 20px;
+}
+
+.quick-complete-container.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.quick-complete-btn {
+  background-color: var(--quick-complete-bg);
+  color: var(--quick-complete-text);
+  border: 1px solid var(--border-color); /* Subtle border */
+  border-radius: 20px;
+  padding: 8px 15px;
+  font-size: 0.95em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap; /* Prevent text wrapping inside button */
+  position: relative; /* For ripple effect */
+  overflow: hidden; /* For ripple effect */
+}
+
+.quick-complete-btn:hover {
+  background-color: var(--quick-complete-hover-bg);
+  border-color: var(--quick-complete-hover-bg); /* Match hover background */
+}
+
+/* NEW: Attached Files Container */
+.attached-files-container {
+  position: fixed;
+  /* bottom will be set by JS dynamically */
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px); /* Sama dengan lebar input-wrapper */
+  max-width: 700px; /* Sama dengan max-width input-wrapper */
+  padding: 10px;
+  background-color: var(--input-bg); /* Sama dengan background input */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column; /* Stack files vertically */
+  gap: 8px; /* Jarak antar item file */
+  z-index: 92; /* Di bawah input-wrapper (95), di atas quick-complete (90) */
+  max-height: 150px; /* Batasi tinggi daftar file */
+  overflow-y: auto; /* Aktifkan scroll jika terlalu banyak file */
+  box-sizing: border-box;
+  transition: bottom 0.3s ease, background-color 0.3s ease;
+}
+
+/* Hide container when it's empty AND not specifically set to display */
+.attached-files-container:empty:not([style*="display: flex"]) {
+  display: none;
+}
+
+.attached-file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--attached-file-bg); /* Warna latar belakang item file */
+  color: var(--attached-file-text); /* Warna teks item file */
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease;
+}
+
+.attached-file-item .file-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex-grow: 1;
+  word-break: break-all; /* Agar nama file panjang bisa pecah baris */
+  padding-right: 10px;
+}
+
+.attached-file-item .file-name {
+  font-weight: 500;
+}
+
+.attached-file-item .file-size {
+  font-size: 0.8em;
+  color: rgba(255, 255, 255, 0.7); /* Warna abu-abu untuk ukuran file */
+  body.light-mode & { /* Penyesuaian untuk light mode */
+      color: rgba(51, 51, 51, 0.7);
+  }
+}
+
+.attached-file-item .remove-file-btn {
+  background: none;
+  border: none;
+  color: var(--attached-file-text);
+  font-size: 1.2em;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.attached-file-item .remove-file-btn:hover {
+  color: var(--attached-file-remove-hover); /* Warna merah saat hover */
+  transform: scale(1.1);
+}
+
+/* Input Wrapper */
+.input-wrapper {
+  background-color: var(--input-bg);
+  border-radius: 24px;
+  padding: 10px 16px;
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 900px; /* Dibuat lebih lebar */
+  display: flex;
+  align-items: flex-end;
+  min-height: 56px;
+  max-height: 160px;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, height 0.3s ease, max-width 0.3s ease; /* Added max-width transition */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 95; /* Above quick-complete */
+}
+
+.input-wrapper textarea {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1em;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  padding: 8px 0;
+  line-height: 1.4;
+  min-height: 24px;
+  max-height: 140px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.input-wrapper textarea::placeholder {
+    color: var(--placeholder-color);
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    font-weight: 400;
+}
+
+/* Circle Buttons (Plus, Voice, Send) */
+.btn-circle {
+  background-color: var(--button-bg);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin: 0 6px;
+  transition: background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-circle:first-child {
+    margin-left: 0; /* No left margin for the first button */
+}
+.btn-circle:last-child {
+    margin-right: 0; /* No right margin for the last button */
+}
+
+
+.btn-circle:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.btn-circle svg {
+  stroke: var(--text-color);
+  width: 20px;
+  height: 20px;
+  transition: stroke 0.3s ease;
+}
+
+/* Ripple Effect */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  background-color: var(--ripple-color);
+  animation: ripple-animation 0.6s linear;
+  transform: scale(0);
+  pointer-events: none;
+}
+
+@keyframes ripple-animation {
+  from {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Toggle Switch Styles (for landing page theme toggle and sidebar) */
+.theme-toggle-landing {
+    display: flex;
+    align-items: center;
+}
+.theme-toggle-container { /* used in sidebar */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background-color: var(--sidebar-item-hover);
+    font-size: 1.05em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px; /* Lebih lebar untuk ikon */
+  height: 28px; /* Lebih tinggi untuk ikon */
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #777;
+  transition: .4s;
+  border-radius: 28px; /* Match height */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 2px;
+  box-sizing: border-box;
+}
+.slider-icon {
+    width: 24px;
+    height: 24px;
+    stroke: white; /* Warna ikon saat mati */
+    fill: none;
+    stroke-width: 2;
+    transition: transform .4s, stroke .4s;
+}
+input:checked + .slider {
+  background-color: #66bb6a;
+  justify-content: flex-end;
+}
+input:checked + .slider .slider-icon {
+  stroke: white; /* Warna ikon saat hidup (bisa disesuaikan jika ingin beda) */
+}
+
+/* Hide utility class */
+.hidden {
+    display: none !important;
+}
+
+
+/* Sidebar Styles */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: 300px;
+  height: 100%;
+  background-color: var(--sidebar-bg);
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  transition: right 0.3s ease;
+  padding: 25px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  color: var(--sidebar-text);
+}
+
+.sidebar.active {
+  right: 0;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar h2 {
+  margin-top: 0;
+  font-size: 1.6em;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+  color: var(--sidebar-text);
+}
+
+.sidebar-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.05em;
+  font-weight: 500;
+}
+
+.sidebar-item:hover {
+  background-color: var(--sidebar-item-hover);
+}
+
+.sidebar-item a {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.sidebar-item svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--sidebar-text);
+    fill: none;
+    stroke-width: 2;
+    transition: stroke 0.3s ease;
+}
+
+.sidebar-item.language-select {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-item select {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 1em;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 18px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+body.light-mode .sidebar-item select {
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+}
+
+.sidebar-item select option {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+}
+
+/* --- Modal/Popup Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1001;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background-color: var(--modal-bg);
+  color: var(--modal-text);
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.modal-overlay.active .modal-content {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  font-size: 1.8em;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  color: var(--modal-text);
+}
+
+.modal-content p {
+  font-size: 1em;
+  line-height: 1.6;
+  text-align: left;
+  margin-bottom: 1em;
+  color: var(--modal-text);
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: var(--modal-close-button);
+  color: var(--modal-text);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.modal-close-btn:hover {
+  background: var(--modal-close-button-hover);
+  transform: scale(1.05);
+}
+
+/* NEW: Model Select Dropdown Styling */
+.model-select-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--button-bg);
+    border-radius: 20px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.model-select-container:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.selected-model-display {
+    color: var(--text-color);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85em;
+    font-weight: 500;
+    margin-right: 4px; /* Space between text and arrow */
+    white-space: nowrap;
+    text-align: center;
+    min-width: 60px; /* Ensure enough width for text */
+}
+
+#modelSelect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0; /* Make it invisible but clickable */
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.dropdown-arrow {
+    width: 12px; /* Size arrow */
+    height: 12px;
+    stroke: var(--text-color);
+    fill: none;
+    stroke-width: 2;
+    transition: transform 0.2s ease;
+}
+.model-select-container.open .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+#modelSelect option {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+}
+/* NEW: Code Block Styling */
+.code-block {
+    background-color: var(--code-block-bg);
+    color: var(--code-block-text);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    position: relative;
+    overflow-x: auto; /* Allow horizontal scrolling for long lines */
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 0.9em;
+    line-height: 1.5;
+    border: 1px solid var(--code-block-border);
+    text-align: left; /* Ensure text aligns left within code block */
+    white-space: pre-wrap; /* Preserve whitespace and wrap lines */
+    word-break: break-all; /* Break long words if necessary */
+}
+
+.code-block pre {
+    margin: 0;
+    padding: 0;
+}
+
+.code-block .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--code-block-border);
+}
+
+.code-block .language-tag {
+    background-color: var(--code-language-tag-bg);
+    color: var(--code-language-tag-text);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.code-block .copy-code-btn {
+    background-color: var(--copy-button-bg);
+    color: var(--copy-button-text, #ffffff); /* Fallback for copy button text */
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.code-block .copy-code-btn:hover {
+    background-color: var(--copy-button-hover-bg);
+    transform: translateY(-1px);
+}
+
+.code-block .copy-code-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: var(--copy-button-text, #ffffff); /* Icon color */
+    fill: none;
+    stroke-width: 2;
+}
+body.light-mode .code-block .copy-code-btn svg {
+    stroke: var(--text-color); /* Adjust for light mode */
+}

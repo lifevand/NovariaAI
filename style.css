@@ -219,6 +219,8 @@ main {
   opacity: 1;
   transform: translateY(0);
   position: relative;
+  display: flex;
+  height: 500;
 }
 .page-section.hidden {
   display: none !important;
@@ -262,6 +264,7 @@ main {
     flex-grow: 1;
     overflow-y: auto; /* INI YANG MEMBUAT CHAT BISA DI-SCROLL */
     -webkit-overflow-scrolling: touch;
+    min-height 0;
 }
 
 /* Chat Message Styles */
@@ -907,3 +910,57 @@ body.light-mode .sidebar-item select {
     stroke-width: 2;
 }
 body.light-mode .code-block .copy-code-btn svg { stroke: var(--text-color); }
+
+/* CSS untuk Animasi Tombol Regenerate & Like */
+.rotating {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg); /* Berputar ke arah sebaliknya agar sesuai ikon */
+  }
+}
+
+/* Style untuk tombol like yang aktif */
+.ai-action-btn.liked svg {
+  stroke: #3b82f6; /* Warna biru cerah */
+  fill: rgba(59, 130, 246, 0.3); /* Fill transparan */
+}
+
+/* GABUNGKAN DENGAN CSS ANIMASI YANG SUDAH ADA */
+
+/* Animasi putaran untuk tombol Regenerate */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg); /* Berputar searah jarum jam */
+  }
+}
+
+.rotating {
+  animation: spin 1.2s linear infinite;
+}
+
+/* Animasi denyut untuk tombol Suara */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.pulsing svg {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+
+/* Style untuk tombol like yang aktif */
+.ai-action-btn.liked svg {
+  stroke: #3b82f6; /* Warna biru cerah */
+  fill: rgba(59, 130, 246, 0.3); /* Fill transparan */
+}

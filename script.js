@@ -328,209 +328,218 @@ document.addEventListener('DOMContentLoaded', () => {
         chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll after adding code block
     }
 
-    // Helper for AI Message Action Buttons
-    function addAiMessageActions(aiMessageElement) {
-        const actionsContainer = document.createElement('div');
-        actionsContainer.classList.add('ai-message-actions');
+       // === GANTI SELURUH FUNGSI INI DI script.js ===
 
-        const buttons = [
-            {
-                icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-copy"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>',
-                title: 'Copy Response',
-                action: (el) => {
-                    const textContent = el.querySelector('span') ? el.querySelector('span').textContent : el.textContent; // Get main text content
-                    let fullContent = textContent;
-                    el.querySelectorAll('.code-block pre').forEach(codeEl => {
-                        fullContent += '\n\n```\n' + codeEl.textContent + '\n```'; // Add code blocks
-                    });
+function addAiMessageActions(aiMessageElement) {
+    // Pastikan kita tidak menambahkan tombol duplikat
+    if (aiMessageElement.querySelector('.ai-message-actions')) {
+        return;
+    }
+
+    const actionsContainer = document.createElement('div');
+    actionsContainer.classList.add('ai-message-actions');
+
+    // Mengambil teks dari respons AI (di luar blok kode)
+    const getResponseText = (messageEl) => {
+        return Array.from(messageEl.childNodes)
+            .filter(node => node.nodeName === "SPAN" || node.nodeType === 3)
+            .map(node => node.textContent)
+            .join('')
+            .trim();
+    };
+
+    // Mengambil seluruh konten (teks + kode)
+    const getFullContent = (messageEl) => {
+        let fullContent = getResponseText(messageEl);
+        messageEl.querySelectorAll('.code-block').forEach(codeBlock => {
+            const lang = codeBlock.querySelector('.language-tag').textContent.toLowerCase();
+            const code = codeBlock.querySelector('pre').textContent;
+            fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
+        });
+        return fullContent;
+    };
+
+
+    const buttons = [
+        // --- 1. TOMBOL COPY ---
+        {
+            name: 'copy',
+            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>',
+            title: 'Copy Response',
+            action: (buttonEl, messageEl) => {
+                const fullContent = getFullContent(messageEl);
+                navigator.clipboard.writeText(fullContent).then(() => {
+                    buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    buttonEl.title = 'Copied!';
+                    setTimeout(() => {
+                        buttonEl.innerHTML = buttons[0].icon;
+                        buttonEl.title = buttons[0].title;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            }
+        },
+        // --- 2. TOMBOL SUARA (TEXT-TO-SPEECH) ---
+        {
+            name: 'speak',
+            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>',
+            title: 'Read Aloud',
+            action: (buttonEl, messageEl) => {
+                const textToSpeak = getResponseText(messageEl);
+                const speechApi = window.speechSynthesis;
+                
+                // Jika sedang berbicara, hentikan. Jika tidak, mulai.
+                if (speechApi.speaking) {
+                    speechApi.cancel();
+                    return; // Fungsi berhenti di sini
+                }
+
+                if (textToSpeak) {
+                    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                    utterance.lang = currentLanguage === 'id' ? 'id-ID' : 'en-US';
+
+                    // Feedback visual saat berbicara
+                    const originalIcon = buttonEl.innerHTML;
+                    buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+                    
+                    utterance.onend = () => {
+                        // Kembali ke ikon normal setelah selesai berbicara
+                        buttonEl.innerHTML = originalIcon;
+                    };
+                    
+                    speechApi.speak(utterance);
+                }
+            }
+        },
+        // --- 3. TOMBOL LIKE ---
+        {
+            name: 'like',
+            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>',
+            title: 'Like',
+            action: (buttonEl) => {
+                buttonEl.classList.toggle('liked');
+            }
+        },
+        // --- 4. TOMBOL REGENERATE (IKON BARU) ---
+        {
+            name: 'regenerate',
+            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>',
+            title: 'Regenerate',
+            action: (buttonEl, messageEl) => {
+                const svg = buttonEl.querySelector('svg');
+                svg.classList.add('rotating');
+                buttonEl.disabled = true;
+                buttonEl.style.cursor = 'wait';
+
+                const lastUserMessage = Array.from(chatHistory.querySelectorAll('.user-message')).pop();
+                if (lastUserMessage) {
+                    messageEl.remove();
+                    generateRealAIResponse(lastUserMessage.textContent, selectedModel, attachedFiles);
+                } else {
+                    svg.classList.remove('rotating');
+                    buttonEl.disabled = false;
+                    buttonEl.style.cursor = 'pointer';
+                }
+            }
+        },
+        // --- 5. TOMBOL SHARE ---
+        {
+            name: 'share',
+            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>',
+            title: 'Share',
+            action: (buttonEl, messageEl) => {
+                const fullContent = getFullContent(messageEl);
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'NovaAI Response',
+                        text: fullContent,
+                        url: window.location.href,
+                    }).catch((error) => console.log('Error sharing', error));
+                } else {
+                    // Fallback jika browser tidak support: Salin ke clipboard
                     navigator.clipboard.writeText(fullContent).then(() => {
-                        alert('Response copied!');
-                    }).catch(err => console.error('Failed to copy: ', err));
-                }
-            },
-            {
-                icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-share-2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>',
-                title: 'Share',
-                action: (el) => {
-                    const textContent = el.querySelector('span') ? el.querySelector('span').textContent : el.textContent;
-                    if (navigator.share) {
-                        navigator.share({
-                            title: 'NovaAI Response',
-                            text: textContent,
-                            url: window.location.href,
-                        }).catch((error) => console.log('Error sharing', error));
-                    } else {
-                        alert('Share API not supported in this browser.');
-                    }
-                }
-            },
-            {
-                icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-thumbs-up"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>',
-                title: 'Like',
-                action: (el) => {
-                    alert('Liked!'); // Placeholder for like functionality
-                }
-            },
-            {
-                icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-refresh-cw"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.5 13H12a8 8 0 0 0 0-16 8 8 0 0 1 8 8v1"></path></svg>',
-                title: 'Regenerate',
-                action: (el) => {
-                    const lastUserMessage = chatHistory.querySelector('.user-message:last-child');
-                    if (lastUserMessage) {
-                        // Remove the current AI response and regenerate
-                        el.remove(); // Remove the current AI response
-                        generateRealAIResponse(lastUserMessage.textContent, selectedModel, attachedFiles);
-                    } else {
-                        alert('No previous user message to regenerate from.');
-                    }
+                        buttonEl.title = "Not supported, copied instead!";
+                        setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000);
+                    });
                 }
             }
-        ];
-
-        buttons.forEach(btnInfo => {
-            const button = document.createElement('button');
-            button.classList.add('ai-action-btn');
-            button.title = btnInfo.title;
-            button.innerHTML = btnInfo.icon;
-            button.addEventListener('click', () => btnInfo.action(aiMessageElement)); // Pass the AI message element
-            actionsContainer.appendChild(button);
-        });
-        aiMessageElement.appendChild(actionsContainer);
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-
-
-    // Real API integration (placeholders for API Keys and actual logic)
-    async function generateRealAIResponse(userMessage, model, files = []) {
-        thinkingIndicator.classList.remove('hidden');
-        thinkingIndicator.style.opacity = '1';
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-
-        try {
-            let responseText = '';
-            const messages = [{ role: "user", content: userMessage }];
-
-            if (files.length > 0) {
-                const fileInfo = files.map(f => `${f.name} (${(f.size / 1024).toFixed(2)} KB)`).join(', ');
-                messages[0].content += `\n\n(Pengguna juga menyertakan file ini: ${fileInfo}. Mohon analisis atau respons berdasarkan mereka jika berlaku, jika tidak, abaikan untuk interaksi berbasis teks ini.)`;
-            }
-
-            switch (model) {
-                case 'cohere':
-                    responseText = await callCohereAPI(messages[0].content);
-                    break;
-                case 'gemini':
-                    const geminiContents = [{ parts: [{ text: messages[0].content }] }];
-                    responseText = await callGeminiAPI(geminiContents);
-                    break;
-                case 'copilot':
-                    responseText = await callCopilotAPI(messages);
-                    break;
-                default:
-                    throw new Error('Invalid model selected');
-            }
-
-            thinkingIndicator.style.opacity = '0';
-            setTimeout(() => {
-                thinkingIndicator.classList.add('hidden');
-                const aiMessageElement = addChatMessage('', 'ai');
-                typeMessage(aiMessageElement, responseText, 30);
-                clearAttachedFiles(); // Clear attached files after successful response
-            }, 300);
-
-        } catch (error) {
-            console.error('API Error:', error);
-            thinkingIndicator.style.opacity = '0';
-            setTimeout(() => {
-                thinkingIndicator.classList.add('hidden');
-                const errorMessage = `Maaf, saya mengalami kesalahan saat menghubungi AI (${error.message}). Silakan coba lagi.`;
-                const aiMessageElement = addChatMessage(errorMessage, 'ai');
-                clearAttachedFiles(); // Clear attached files even if error occurs
-            }, 300);
         }
-    }
+    ];
 
-    // API Call Functions - Ganti dengan API Keys Anda!
-    // PERINGATAN: Kunci API ini harus diamankan di backend dan tidak boleh diekspos di frontend dalam produksi.
-    // Ini hanya untuk tujuan demonstrasi.
-    async function callCohereAPI(prompt) {
-        // Replace 'YOUR_COHERE_API_KEY' with your actual Cohere API Key
-        const response = await fetch('https://api.cohere.ai/v1/chat', {
+    buttons.forEach((btnInfo, index) => {
+        const button = document.createElement('button');
+        button.classList.add('ai-action-btn');
+        button.title = btnInfo.title;
+        button.innerHTML = btnInfo.icon;
+        button.addEventListener('click', () => btnInfo.action(button, aiMessageElement));
+        actionsContainer.appendChild(button);
+    });
+
+    aiMessageElement.appendChild(actionsContainer);
+    setTimeout(() => { chatHistory.scrollTop = chatHistory.scrollHeight; }, 0);
+}
+
+
+      // === GANTI DENGAN BLOK KODE BARU INI ===
+
+async function generateRealAIResponse(userMessage, model, files = []) {
+    thinkingIndicator.classList.remove('hidden');
+    thinkingIndicator.style.opacity = '1';
+    setTimeout(() => { chatHistory.scrollTop = chatHistory.scrollHeight; }, 0);
+
+    try {
+        // Kita sekarang memanggil endpoint kita sendiri di /api/generate
+        // yang berjalan aman di server Vercel.
+        const response = await fetch('/api/generate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer 5bfTFQ37iHywriVvhj4lCbg1jIXZXtvcd9s9L0MU`, // Ganti dengan kunci API Cohere Anda
-                'Cohere-Version': '2024-02-15'
             },
+            // Kirim pesan dan model yang dipilih ke server kita
             body: JSON.stringify({
-                model: "command-r-plus", // Atau model Cohere lain yang Anda inginkan
-                message: prompt,
-                temperature: 0.7
-            })
+                userMessage: userMessage,
+                model: model,
+            }),
         });
 
+        // Tangkap pesan error yang dikirim dari serverless function kita
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(`Cohere API error: ${response.status} - ${errorData.message || 'Unknown error'}`);
+            // Tampilkan pesan error yang lebih jelas dari server
+            throw new Error(errorData.message || `Server error: ${response.status}`);
         }
+
         const data = await response.json();
-        return data.text;
+        const responseText = data.text;
+
+        // Proses setelah mendapat jawaban sukses
+        thinkingIndicator.style.opacity = '0';
+        setTimeout(() => {
+            thinkingIndicator.classList.add('hidden');
+            const aiMessageElement = addChatMessage('', 'ai');
+            typeMessage(aiMessageElement, responseText, 30);
+            clearAttachedFiles();
+        }, 300);
+
+    } catch (error) {
+        console.error('Error fetching from /api/generate:', error);
+        
+        // Tampilkan pesan error di chat interface
+        thinkingIndicator.style.opacity = '0';
+        setTimeout(() => {
+            thinkingIndicator.classList.add('hidden');
+            
+            // Gunakan pesan error dari server yang kita tangkap
+            const errorMessage = `Maaf, terjadi kesalahan: ${error.message}. Silakan coba lagi.`;
+            
+            // Buat elemen AI kosong dulu, lalu isi dengan pesan error
+            const aiMessageElement = addChatMessage('', 'ai');
+            typeMessage(aiMessageElement, errorMessage, 30);
+            clearAttachedFiles();
+        }, 300);
     }
-
-    async function callGeminiAPI(contents) {
-        // Replace 'YOUR_GEMINI_API_KEY' with your actual Gemini API Key
-        // Pastikan Anda mengaktifkan Gemini API di Google Cloud Project Anda
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyD481M4LsysCaLxoWkgP4Vb5RkOLwo2dMk`, { // Ganti dengan kunci API Gemini Anda
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                contents: contents // 'contents' array with 'parts' is expected
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Gemini API error: ${response.status} - ${errorData.message || 'Unknown error'}`);
-        }
-        const data = await response.json();
-        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-            return data.candidates[0].content.parts[0].text;
-        } else {
-            throw new Error("Invalid response format from Gemini API");
-        }
-    }
-
-    async function callCopilotAPI(messages) {
-        // NOTE: Akses ke GitHub Copilot API biasanya memerlukan otorisasi GitHub yang spesifik.
-        // Kunci yang Anda berikan adalah placeholder. Dalam aplikasi nyata, ini harus ditangani di backend
-        // dengan token OAuth yang valid atau melalui API Gateway.
-        const response = await fetch('https://api.githubcopilot.com/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer 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`, // Ganti dengan token yang valid (biasanya dari backend)
-                'GitHub-Copilot-API-Version': '2024-05-01' // Pastikan versi API terbaru
-            },
-            body: JSON.stringify({
-                model: "gpt-4-copilot", // Model yang tersedia di Copilot
-                messages: messages,
-                temperature: 0.5
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(`Copilot API error: ${response.status} - ${errorData.message || 'Unknown error'}`);
-        }
-        const data = await response.json();
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-            return data.choices[0].message.content;
-        } else {
-            throw new Error("Invalid response format from Copilot API");
-        }
-    }
+}
 
 
     // --- Send Button Functionality ---

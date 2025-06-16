@@ -220,7 +220,7 @@ main {
   transform: translateY(0);
   position: relative;
   display: flex;
-  height: 700;
+  height: 150;
 }
 .page-section.hidden {
   display: none !important;

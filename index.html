@@ -12,7 +12,6 @@
 
   <header>
     <div class="header-left-group">
-      <!-- IKON MENU BARU -->
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-btn" id="menuIcon">
         <path d="M17 12H7"/><path d="M19 18H5"/><path d="M21 6H3"/>
       </svg>
@@ -24,12 +23,10 @@
       </div>
     </div>
     <div class="header-right-group">
-        <!-- MODEL SELECT DIHAPUS DARI SINI -->
         <div id="landingThemeToggleContainer" class="theme-toggle-landing">
             <label class="switch">
                 <input type="checkbox" id="themeToggleLanding">
                 <span class="slider">
-                    <!-- IKON THEME TOGGLE BARU -->
                     <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path class="moon-shape" d="M12 8a2.83 2.83 0 0 0 4 4 4 4 0 1 1-4-4"/>
                         <g class="sun-rays">
@@ -60,7 +57,7 @@
   <div class="quick-complete-container" id="quickCompleteContainer">
   </div>
 
-  <div id="attachedFilesContainer" class="attached-files-container"></div>
+  <!-- <div id="attachedFilesContainer" class="attached-files-container"></div> --> <!-- KONTAINER LAMA DIHAPUS/DIKOMENTARI -->
 
   <div class="input-wrapper">
     <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
@@ -71,6 +68,13 @@
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
     </button>
+
+    <!-- ==== AWAL KONTAINER BARU UNTUK PRATINJAU FILE ==== -->
+    <div id="filePreviewContainer" class="file-preview-container">
+        <!-- Item pratinjau file akan ditambahkan di sini oleh JavaScript -->
+    </div>
+    <!-- ==== AKHIR KONTAINER BARU UNTUK PRATINJAU FILE ==== -->
+
     <button class="btn-circle btn-voice" id="voiceInputButton">
         <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
@@ -102,7 +106,6 @@
         <label class="switch">
             <input type="checkbox" id="themeToggle">
             <span class="slider">
-                 <!-- IKON THEME TOGGLE BARU -->
                 <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path class="moon-shape" d="M12 8a2.83 2.83 0 0 0 4 4 4 4 0 1 1-4-4"/>
                     <g class="sun-rays">

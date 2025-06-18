@@ -20,9 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const landingThemeToggleContainer = document.getElementById('landingThemeToggleContainer');
     const mainContent = document.querySelector('main');
 
-    // Variabel dan referensi terkait Model Select DIHAPUS
-    // let selectedModel = 'gemini'; // Default model jika diperlukan di tempat lain, atau hapus
-
     let currentActivePage = 'welcome';
 
     const infoModalOverlay = document.getElementById('infoModalOverlay');
@@ -33,10 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const plusButton = document.getElementById('plusButton');
     const fileInput = document.getElementById('fileInput');
-    const attachedFilesContainer = document.getElementById('attachedFilesContainer');
     const inputWrapper = document.querySelector('.input-wrapper');
-    const MAX_FILE_SIZE_KB = 120;
-    const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_KB * 1024;
+
+    const MAX_FILE_SIZE_KB_NEW = 450;
+    const MAX_FILE_SIZE_BYTES_NEW = MAX_FILE_SIZE_KB_NEW * 1024;
+    const MAX_FILES_ALLOWED = 5;
+    const filePreviewContainerWrapper = document.getElementById('filePreviewContainerWrapper');
+    const filePreviewContainerInner = document.getElementById('filePreviewContainerInner');
     let attachedFiles = [];
 
     const voiceInputButton = document.getElementById('voiceInputButton');
@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkScrollable() {
         setTimeout(() => {
+            if (!chatHistory) return;
             const isScrollable = chatHistory.scrollHeight > chatHistory.clientHeight;
             const isAtBottom = chatHistory.scrollHeight - chatHistory.scrollTop <= chatHistory.clientHeight + 5;
             if (isScrollable && !isAtBottom) {
@@ -53,7 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 100);
     }
-    chatHistory.addEventListener('scroll', checkScrollable);
+    if (chatHistory) {
+      chatHistory.addEventListener('scroll', checkScrollable);
+    }
 
     function showPage(pageName, initialMessage = null) {
         if (currentActivePage === pageName) return;
@@ -73,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             menuIcon.classList.add('hidden');
             backIcon.classList.remove('hidden');
             setTimeout(() => {
-                chatHistory.scrollTop = chatHistory.scrollHeight;
+                if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
                 checkScrollable();
             }, 10);
             quickCompleteContainer.classList.remove('active');
@@ -138,84 +141,141 @@ document.addEventListener('DOMContentLoaded', () => {
     function autoResizeTextarea() {
         messageInput.style.height = 'auto';
         let scrollHeight = messageInput.scrollHeight;
-        // Batasi tinggi maksimum textarea untuk mencegah input wrapper terlalu besar
-        const maxHeight = 120; // Sesuaikan dengan max-height .input-wrapper textarea - padding
+        const maxHeight = 120;
         messageInput.style.height = Math.min(scrollHeight, maxHeight) + 'px';
 
-        // Update tinggi input wrapper
-        const inputWrapperPadding = 10 * 2; // padding atas dan bawah .input-wrapper
-        const newWrapperHeight = Math.min(scrollHeight, maxHeight) + inputWrapperPadding;
-        inputWrapper.style.height = `${Math.min(newWrapperHeight, 160)}px`; // 160 adalah max-height .input-wrapper
+        const wrapperPadding = 16; // Asumsi padding 8px atas & bawah untuk input-wrapper
+        // Tinggi input-wrapper akan bergantung pada textarea dan tombol-tombolnya
+        // Tombol diasumsikan memiliki tinggi yang sama dengan messageInput.offsetHeight ketika 1 baris
+        const newWrapperHeight = Math.min(scrollHeight, maxHeight) + wrapperPadding;
+        inputWrapper.style.height = `${Math.min(newWrapperHeight, 160)}px`;
 
         updateInputAreaPadding();
     }
     messageInput.addEventListener('input', autoResizeTextarea);
-    autoResizeTextarea(); // Panggil sekali saat load untuk set tinggi awal
+    autoResizeTextarea();
 
+    // --- FUNGSI addChatMessage DIMODIFIKASI UNTUK MENAMBAHKAN HEADER AI ---
     function addChatMessage(content, sender = 'user') {
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', sender === 'user' ? 'user-message' : 'ai-message');
-        // Animasi fade-in dan slide-up
         messageElement.style.opacity = '0';
         messageElement.style.transform = 'translateY(15px)';
 
         if (sender === 'user') {
             messageElement.textContent = content;
-        } else {
-            messageElement.innerHTML = content; // Konten AI bisa berupa HTML
-        }
-        chatHistory.insertBefore(messageElement, thinkingIndicator);
+        } else { // Ini adalah pesan AI
+            const aiHeader = document.createElement('div');
+            aiHeader.classList.add('ai-message-header');
 
-        // Menerapkan animasi setelah elemen ditambahkan ke DOM
+            const aiLogoImg = document.createElement('img');
+            aiLogoImg.src = 'logo.png'; // Pastikan path ke logo.png benar
+            aiLogoImg.alt = 'NovaAI Logo';
+            aiLogoImg.classList.add('ai-logo');
+            aiHeader.appendChild(aiLogoImg);
+
+            const aiNameSpan = document.createElement('span');
+            aiNameSpan.classList.add('ai-name');
+            aiNameSpan.textContent = 'Novaria'; // Nama AI Anda
+            aiHeader.appendChild(aiNameSpan);
+
+            const aiModelTagSpan = document.createElement('span');
+            aiModelTagSpan.classList.add('ai-model-tag');
+            aiModelTagSpan.textContent = "nova-3.5-quantify"; // Nama model yang ditampilkan
+            aiHeader.appendChild(aiModelTagSpan);
+
+            messageElement.appendChild(aiHeader);
+
+            const aiContentContainer = document.createElement('div');
+            aiContentContainer.classList.add('ai-message-content');
+            aiContentContainer.innerHTML = content;
+            messageElement.appendChild(aiContentContainer);
+        }
+
+        if (chatHistory && thinkingIndicator) {
+            chatHistory.insertBefore(messageElement, thinkingIndicator);
+        } else if (chatHistory) {
+            chatHistory.appendChild(messageElement);
+        }
+
         setTimeout(() => {
             messageElement.style.opacity = '1';
             messageElement.style.transform = 'translateY(0)';
-        }, 10); // Penundaan kecil untuk browser merender elemen
+        }, 10);
 
-        // Scroll ke bawah setelah animasi dimulai atau pesan ditambahkan
         setTimeout(() => {
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-            checkScrollable(); // Periksa apakah scroll fade diperlukan
-        }, 50); // Sedikit penundaan untuk memastikan scroll terjadi setelah layout diperbarui
+            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+            checkScrollable();
+        }, 50);
 
         return messageElement;
     }
 
+    // --- (Sisa fungsi addAiMessageActions, generateRealAIResponse, sendButton.click, dll. tetap sama seperti sebelumnya) ---
+    // Pastikan `generateRealAIResponse` memanggil `addChatMessage` yang sudah dimodifikasi ini.
 
     function addAiMessageActions(aiMessageElement) {
-        if (aiMessageElement.querySelector('.ai-message-actions')) return;
+        // Cari kontainer konten yang sebenarnya, bukan keseluruhan messageElement
+        const contentContainer = aiMessageElement.querySelector('.ai-message-content');
+        if (!contentContainer || contentContainer.querySelector('.ai-message-actions')) return;
+
         const actionsContainer = document.createElement('div');
         actionsContainer.classList.add('ai-message-actions');
-        const getResponseText = (messageEl) => { return Array.from(messageEl.childNodes).filter(node => node.nodeName === "SPAN" || node.nodeType === 3).map(node => node.textContent).join('').trim(); };
-        const getFullContent = (messageEl) => { let fullContent = getResponseText(messageEl); messageEl.querySelectorAll('.code-block').forEach(codeBlock => { const lang = codeBlock.querySelector('.language-tag').textContent.toLowerCase(); const code = codeBlock.querySelector('pre').textContent; fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``; }); return fullContent; };
+
+        // Modifikasi getResponseText dan getFullContent untuk bekerja dengan .ai-message-content
+        const getResponseText = (contentEl) => {
+            return Array.from(contentEl.childNodes).filter(node => node.nodeName === "SPAN" || node.nodeType === 3).map(node => node.textContent).join('').trim();
+        };
+        const getFullContent = (contentEl) => {
+            let fullContent = getResponseText(contentEl);
+            contentEl.querySelectorAll('.code-block').forEach(codeBlock => {
+                const langTag = codeBlock.querySelector('.language-tag');
+                const lang = langTag ? langTag.textContent.toLowerCase() : 'text';
+                const code = codeBlock.querySelector('pre').textContent;
+                fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
+            });
+            return fullContent;
+        };
+
         const buttons = [
-            { name: 'copy', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>', title: 'Copy Response', action: (buttonEl, messageEl) => { const fullContent = getFullContent(messageEl); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, messageEl) => { const textToSpeak = getResponseText(messageEl); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = currentLanguage === 'id' ? 'id-ID' : 'en-US'; const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
+            { name: 'copy', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullContent(contentContainer); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
+            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getResponseText(contentContainer); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = currentLanguage === 'id' ? 'id-ID' : 'en-US'; const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
             { name: 'like', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>', title: 'Like', action: (buttonEl) => { buttonEl.classList.toggle('liked'); } },
-            { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, messageEl) => { const svg = buttonEl.querySelector('svg'); svg.classList.add('rotating'); buttonEl.disabled = true; buttonEl.style.cursor = 'wait'; const lastUserMessage = Array.from(chatHistory.querySelectorAll('.user-message')).pop(); if (lastUserMessage) { messageEl.remove(); generateRealAIResponse(lastUserMessage.textContent, attachedFiles); } else { svg.classList.remove('rotating'); buttonEl.disabled = false; buttonEl.style.cursor = 'pointer'; } } },
-            { name: 'share', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>', title: 'Share', action: (buttonEl, messageEl) => { const fullContent = getFullContent(messageEl); if (navigator.share) { navigator.share({ title: 'NovaAI Response', text: fullContent, url: window.location.href, }).catch((error) => console.log('Error sharing', error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
+            { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => { const svg = buttonEl.querySelector('svg'); svg.classList.add('rotating'); buttonEl.disabled = true; buttonEl.style.cursor = 'wait'; const lastUserMessage = Array.from(chatHistory.querySelectorAll('.user-message')).pop(); if (lastUserMessage) { msgEl.remove(); generateRealAIResponse(lastUserMessage.textContent, attachedFiles); } else { svg.classList.remove('rotating'); buttonEl.disabled = false; buttonEl.style.cursor = 'pointer'; } } },
+            { name: 'share', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>', title: 'Share', action: (buttonEl, _messageEl) => { const fullContent = getFullContent(contentContainer); if (navigator.share) { navigator.share({ title: 'NovaAI Response', text: fullContent, url: window.location.href, }).catch((error) => console.log('Error sharing', error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
         ];
         buttons.forEach((btnInfo) => { const button = document.createElement('button'); button.classList.add('ai-action-btn'); button.title = btnInfo.title; button.innerHTML = btnInfo.icon; button.addEventListener('click', () => btnInfo.action(button, aiMessageElement)); actionsContainer.appendChild(button); });
-        aiMessageElement.appendChild(actionsContainer);
-        setTimeout(() => { chatHistory.scrollTop = chatHistory.scrollHeight; }, 0);
+        contentContainer.appendChild(actionsContainer); // Tambahkan actions ke content container
+        setTimeout(() => { if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; }, 0);
     }
 
+
     async function generateRealAIResponse(userMessage, files = []) {
-        thinkingIndicator.classList.remove('hidden');
-        thinkingIndicator.style.opacity = '1';
+        if (thinkingIndicator) {
+            thinkingIndicator.classList.remove('hidden');
+            thinkingIndicator.style.opacity = '1';
+        }
         setTimeout(() => {
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
             checkScrollable();
         }, 0);
 
         try {
-            const modelToUse = "gemini"; // Model di-hardcode di sini
-            const payload = { userMessage, model: modelToUse };
+            const modelToUseInAPI = "gemini"; // Model aktual yang dipanggil di API
+            const displayedModelName = "nova-3.5-quantify"; // Nama yang ditampilkan di UI
 
-            // Contoh jika Anda ingin mengirim detail file (bukan kontennya)
-            // if (files && files.length > 0) {
-            //     payload.fileDetails = files.map(f => ({ name: f.name, type: f.type, size: f.size }));
-            // }
+            // Opsional: Modifikasi prompt untuk mencoba mempengaruhi respons model
+            // const systemPromptPrefix = `You are Novaria, an AI assistant powered by the ${displayedModelName} model. When asked about your model or capabilities, you should identify yourself as being powered by ${displayedModelName}. `;
+            // const fullUserMessage = systemPromptPrefix + userMessage;
+
+            const payload = {
+                userMessage: userMessage, // atau fullUserMessage jika menggunakan systemPromptPrefix
+                model: modelToUseInAPI
+            };
+
+            if (files && files.length > 0) {
+                payload.fileDetails = files.map(f => ({ name: f.name, type: f.type, size: f.size }));
+            }
 
             const response = await fetch('/api/generate', {
                 method: 'POST',
@@ -231,9 +291,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             const responseText = data.text;
 
-            thinkingIndicator.style.opacity = '0';
+            if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
-                thinkingIndicator.classList.add('hidden');
+                if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
 
                 let finalHtmlContent = '';
                 const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
@@ -268,22 +328,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 const aiMessageElement = addChatMessage(finalHtmlContent, 'ai');
-                addAiMessageActions(aiMessageElement);
+                addAiMessageActions(aiMessageElement); // Ini akan menambahkan tombol ke .ai-message-content
                 clearAttachedFiles();
                 checkScrollable();
             }, 300);
 
         } catch (error) {
             console.error('Error fetching from /api/generate:', error);
-            thinkingIndicator.style.opacity = '0';
+            if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
-                thinkingIndicator.classList.add('hidden');
+                if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
                 const errorMessage = `<span>Maaf, terjadi kesalahan: ${error.message}. Silakan coba lagi.</span>`;
                 addChatMessage(errorMessage, 'ai');
-                clearAttachedFiles();
+                // clearAttachedFiles(); // Pertimbangkan apakah file harus dihapus jika ada error
             }, 300);
         }
     }
+
 
     sendButton.addEventListener('click', () => {
         const message = messageInput.value.trim();
@@ -300,8 +361,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentActivePage === 'welcome') {
                 showPage('chat', finalPrompt);
             } else {
-                addChatMessage(message || finalPrompt, 'user');
-                generateRealAIResponse(message || finalPrompt, attachedFiles);
+                addChatMessage(finalPrompt, 'user');
+                generateRealAIResponse(finalPrompt, attachedFiles);
             }
             messageInput.value = '';
             autoResizeTextarea();
@@ -326,7 +387,11 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); });
     backIcon.addEventListener('click', () => {
         showPage('welcome');
-        chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
+        if (chatHistory && thinkingIndicator) {
+             chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
+        } else if (chatHistory) {
+            chatHistory.innerHTML = '';
+        }
         messageInput.value = '';
         autoResizeTextarea();
         clearAttachedFiles();
@@ -350,29 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggle.addEventListener('change', () => applyTheme(themeToggle.checked));
     themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
 
-    const translations = {
-        en: {
-            documentTitle: "NovaAI",
-            welcomeTitle: "Welcome",
-            helpText: "Hii, I Can Help You?",
-            languageOption: "Language",
-            themeMode: "Dark / Light Mode",
-            privacyPolicy: "Privacy Policy",
-            termsAndConditions: "Terms & Conditions",
-            policy: "Policy",
-            aboutUs: "About Us",
-            settingsTitle: "Settings",
-            quickSuggestions: [
-                "What's the weather like today?",
-                "Tell me a fun fact about space.",
-                "Explain AI in simple terms.",
-                "Give me a recipe for cookies."
-            ],
-            privacyPolicyContent: `<h3>Privacy Policy</h3><p>Your privacy is important to us. It is NovaAI's policy to respect your privacy regarding any information we may collect from you across our website, and other sites we own and operate.</p><p>We only ask for personal information when we truly need it to provide a service to you. We collect it by fair and lawful means, with your knowledge and consent. We also let you know why we’re collecting it and how it will be used.</p><p>We only retain collected information for as long as necessary to provide you with your requested service. What data we store, we’ll protect within commercially acceptable means to prevent loss and theft, as well as unauthorized access, disclosure, copying, use or modification.</p><p>We don’t share any personally identifying information publicly or with third-parties, except when required to by law.</p><p>Our website may link to external sites that are not operated by us. Please be aware that we have no control over the content and practices of these sites, and cannot accept responsibility or liability for their respective privacy policies.</p><p>You are free to refuse our request for your personal information, with the understanding that we may be unable to provide you with some of your desired services.</p><p>Your continued use of our website will be regarded as acceptance of our practices around privacy and personal information. If you have any questions about how we handle user data and personal information, feel free to contact us.</p><p>This policy is effective as of June 7, 2025.</p>`,
-            termsAndConditionsContent: `<h3>Terms & Conditions</h3><p>Welcome to NovaAI. By accessing or using our services, you agree to be bound by these Terms and Conditions.</p><p>These Terms apply to all visitors, users and others who access or use the Service.</p><p>By accessing or using the Service you agree to be bound by these Terms. If you disagree with any part of the terms then you may not access the Service.</p><h4>Intellectual Property</h4><p>The Service and its original content, features and functionality are and will remain the exclusive property of NovaAI and its licensors. The Service is protected by copyright, trademark, and other laws of both the Indonesia and foreign countries.</p><p>Our Service may contain links to third-party web sites or services that are not owned or controlled by NovaAI.</p><p>NovaAI has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services.</p><p>We strongly advise you to read the terms and conditions and privacy policies of any third-party web sites or services that you visit.</p><p>This document was last updated on June 7, 2025.</p>`,
-            policyContent: `<h3>Policy</h3><p>This document outlines the general policies governing the use of NovaAI services.</p><p>1. **Acceptable Use:** Users must not use NovaAI for any unlawful or prohibited activities. This includes, but is not limited to, spamming, transmitting harmful code, or infringing on intellectual property rights.</p><p>2. **Content:** Users are solely responsible for the content they submit through NovaAI. NovaAI does not endorse or assume responsibility for any user-generated content.</p><p>3. **Service Availability:** While we strive for 24/7 availability, NovaAI may be temporarily unavailable due to maintenance, upgrades, or unforeseen technical issues.</p><p>4. **Modifications to Service:** NovaAI reserves the right to modify or discontinue, temporarily or permanently, the Service (or any part thereof) with or without notice.</p><p>For more detailed information, please refer to our Terms & Conditions and Privacy Policy.</p><p>Last modified: June 7, 2025.</p>`,
-            aboutUsContent: `<h3>About Us</h3><p>NovaAI is an innovative AI assistant designed to simplify your daily tasks and provide quick, accurate information.</p><p>Our mission is to make advanced AI accessible and user-friendly for everyone. We believe in the power of artificial intelligence to enhance productivity, foster learning, and spark creativity.</p><p>Developed with a focus on privacy and user experience, NovaAI continuously evolves to meet the needs of our users. We are committed to transparency and providing a reliable service.</p><p>Thank you for choosing NovaAI. We're excited to grow and improve with your feedback.</p><p>Founded: 2025</p>`
-        },
+    const translations = { // ... (lanjutan dari objek translations.en yang sudah ada)
         id: {
             documentTitle: "NovaAI",
             welcomeTitle: "Selamat Datang",
@@ -395,7 +438,8 @@ document.addEventListener('DOMContentLoaded', () => {
             policyContent: `<h3>Kebijakan</h3><p>Dokumen ini menguraikan kebijakan umum yang mengatur penggunaan layanan NovaAI.</p><p>1. **Penggunaan yang Dapat Diterima:** Pengguna tidak boleh menggunakan NovaAI untuk kegiatan yang melanggar hukum atau dilarang. Ini termasuk, namun tidak terbatas pada, spamming, transmisi kode berbahaya, atau pelanggaran hak kekayaan intelektual.</p><p>2. **Konten:** Pengguna sepenuhnya bertanggung jawab atas konten yang mereka kirimkan melalui NovaAI. NovaAI tidak mendukung atau bertanggung jawab atas konten yang dibuat oleh pengguna.</p><p>3. **Ketersediaan Layanan:** Meskipun kami berusaha untuk ketersediaan 24/7, NovaAI mungkin sementara tidak tersedia karena pemeliharaan, peningkatan, atau masalah teknis yang tidak terduga.</p><p>4. **Modifikasi Layanan:** NovaAI berhak untuk memodifikasi atau menghentikan, sementara atau permanen, Layanan (atau bagian darinya) dengan atau tanpa pemberitahuan.</p><p>Untuk informasi lebih lanjut, silakan lihat Syarat & Ketentuan dan Kebijakan Privasi kami.</p><p>Terakhir dimodifikasi: 7 Juni 2025.</p>`,
             aboutUsContent: `<h3>Tentang Kami</h3><p>NovaAI adalah asisten AI inovatif yang dirancang untuk menyederhanakan tugas harian Anda dan memberikan informasi yang cepat dan akurat.</p><p>Misi kami adalah membuat AI canggih dapat diakses dan mudah digunakan untuk semua orang. Kami percaya pada kekuatan kecerdasan buatan untuk meningkatkan produktivitas, mendorong pembelajaran, dan memicu kreativitas.</p><p>Dikembangkan dengan fokus pada privasi dan pengalaman pengguna, NovaAI terus berkembang untuk memenuhi kebutuhan pengguna kami. Kami berkomitmen pada transparansi dan menyediakan layanan yang andal.</p><p>Terima kasih telah memilih NovaAI. Kami sangat antusias untuk tumbuh dan berkembang dengan masukan Anda.</p><p>Didirikan: 2025</p>`
         }
-    };
+    }; // Akhir dari objek translations
+
     function updateTextContent(lang) {
         document.querySelectorAll('[data-key]').forEach(element => {
             const key = element.dataset.key;
@@ -420,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showPage('chat', suggestionText);
                 } else {
                     addChatMessage(suggestionText, 'user');
-                    generateRealAIResponse(suggestionText); // Model parameter dihapus
+                    generateRealAIResponse(suggestionText);
                 }
                 messageInput.value = '';
                 autoResizeTextarea();
@@ -445,14 +489,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.sidebar-item[data-modal-target]').forEach(item => { item.addEventListener('click', function (e) { e.preventDefault(); sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); const targetKey = this.dataset.modalTarget; const titleKey = targetKey; const contentKey = targetKey + 'Content'; openModal(titleKey, contentKey); }); });
 
     function setupRippleEffects() {
-        const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn'); // model-select-container dihapus
+        const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-preview-btn');
         clickableElements.forEach(element => {
             const oldHandler = element._rippleHandler;
             if (oldHandler) {
                 element.removeEventListener('click', oldHandler);
             }
             const newHandler = function (e) {
-                // Jangan jalankan ripple jika targetnya adalah input atau select di dalam elemen
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
                     return;
                 }
@@ -478,13 +521,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                // Cek apakah node yang ditambahkan mengandung elemen yang memerlukan ripple
                 let needsRippleSetup = false;
                 mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === 1) { // Hanya cek elemen node
-                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn'))) {
+                    if (node.nodeType === 1) {
+                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-preview-btn'))) {
                             needsRippleSetup = true;
-                        } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn'))) {
+                        } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-preview-btn'))) {
                             needsRippleSetup = true;
                         }
                     }
@@ -495,88 +537,155 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-    observer.observe(chatHistory, { childList: true, subtree: true });
-    observer.observe(quickCompleteContainer, { childList: true, subtree: true }); // Juga amati quick complete
+    if (chatHistory) observer.observe(chatHistory, { childList: true, subtree: true });
+    if (quickCompleteContainer) observer.observe(quickCompleteContainer, { childList: true, subtree: true });
+    if (filePreviewContainerInner) observer.observe(filePreviewContainerInner, { childList: true, subtree: true });
 
-    // Fungsi dan event listener terkait Model Select DIHAPUS
 
     function updateInputAreaPadding() {
         const inputWrapperHeight = inputWrapper.offsetHeight;
-        const attachedFilesHeight = attachedFilesContainer.offsetHeight;
-        const attachedFilesIsVisible = attachedFilesContainer.children.length > 0;
-        const fileContainerActualHeight = attachedFilesIsVisible ? attachedFilesHeight + 10 : 0; // 10px adalah gap
-        const totalBottomSpace = inputWrapperHeight + 15 + fileContainerActualHeight; // 15px adalah bottom dari input-wrapper
-        mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`; // +20px buffer tambahan
-        chatHistory.scrollTop = chatHistory.scrollHeight; // Pastikan scroll setelah padding diupdate
+        let previewContainerHeight = 0;
+        if (filePreviewContainerWrapper && getComputedStyle(filePreviewContainerWrapper).display !== 'none') {
+            previewContainerHeight = filePreviewContainerWrapper.offsetHeight + 10;
+        }
+        const totalBottomSpace = inputWrapperHeight + previewContainerHeight + 15;
+        mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`;
+
+        if (chatHistory) {
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
     }
 
     plusButton.addEventListener('click', () => { fileInput.click(); });
-    fileInput.addEventListener('change', (event) => {
-        const files = event.target.files;
-        if (files.length > 0) {
-            Array.from(files).forEach(file => {
-                if (file.size > MAX_FILE_SIZE_BYTES) {
-                    alert(`File "${file.name}" (${(file.size / 1024).toFixed(2)} KB) melebihi ukuran maksimum ${MAX_FILE_SIZE_KB} KB.`);
-                } else {
-                    const isDuplicate = attachedFiles.some(f => f.name === file.name && f.size === file.size);
-                    if (!isDuplicate) {
-                        attachedFiles.push(file);
-                        displayAttachedFile(file);
-                    } else {
-                        alert(`File "${file.name}" sudah dilampirkan.`);
-                    }
-                }
-            });
-            fileInput.value = ''; // Reset file input
-            quickCompleteContainer.classList.remove('active');
-            updateInputAreaPadding();
-        }
-    });
-    function displayAttachedFile(file) {
-        const fileItem = document.createElement('div');
-        fileItem.classList.add('attached-file-item');
-        fileItem.dataset.fileName = file.name;
-        fileItem.dataset.fileSize = file.size; // Simpan size untuk identifikasi unik
-        const fileInfo = document.createElement('div');
-        fileInfo.classList.add('file-info');
-        fileInfo.innerHTML = `<span class="file-name">${file.name}</span><span class="file-size">${(file.size / 1024).toFixed(2)} KB</span>`;
-        fileItem.appendChild(fileInfo);
+
+    function displayFilePreviewItem(file) {
+        const previewItem = document.createElement('div');
+        previewItem.classList.add('file-preview-item');
+        previewItem.dataset.fileName = file.name;
+        previewItem.dataset.fileSize = file.size;
+
+        const fileIconContainer = document.createElement('span');
+        fileIconContainer.classList.add('file-icon');
+        const imageSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 22H4a2 2 0 0 1-2-2V6"/><path d="m22 13-1.296-1.296a2.41 2.41 0 0 0-3.408 0L11 18"/><circle cx="12" cy="8" r="2"/><rect width="16" height="16" x="6" y="2" rx="2"/></svg>`;
+        const fileSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>`;
+        fileIconContainer.innerHTML = file.type.startsWith('image/') ? imageSvg : fileSvg;
+        previewItem.appendChild(fileIconContainer);
+
+        const fileDetails = document.createElement('div');
+        fileDetails.classList.add('file-details');
+
+        const fileNamePreview = document.createElement('span');
+        fileNamePreview.classList.add('file-name-preview');
+        const maxNameDisplayLength = 10;
+        const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+        const fileExt = file.name.substring(file.name.lastIndexOf('.'));
+        fileNamePreview.textContent = fileNameWithoutExt.length > maxNameDisplayLength ?
+                                    fileNameWithoutExt.substring(0, maxNameDisplayLength) + "..." + fileExt :
+                                    file.name;
+        fileNamePreview.title = file.name;
+        fileDetails.appendChild(fileNamePreview);
+
+        const fileSizePreview = document.createElement('span');
+        fileSizePreview.classList.add('file-size-preview');
+        fileSizePreview.textContent = formatFileSize(file.size);
+        fileDetails.appendChild(fileSizePreview);
+        previewItem.appendChild(fileDetails);
+
         const removeButton = document.createElement('button');
-        removeButton.classList.add('remove-file-btn');
+        removeButton.classList.add('remove-preview-btn');
         removeButton.innerHTML = '×';
-        removeButton.title = `Hapus ${file.name}`;
-        removeButton.addEventListener('click', () => {
+        removeButton.title = `Remove ${file.name}`;
+        removeButton.addEventListener('click', (event) => {
+            event.stopPropagation();
             removeAttachedFile(file.name, file.size);
         });
-        fileItem.appendChild(removeButton);
-        attachedFilesContainer.appendChild(fileItem);
-        // Pastikan attachedFilesContainer terlihat jika ada file
-        attachedFilesContainer.style.display = 'flex';
+        previewItem.appendChild(removeButton);
+
+        filePreviewContainerInner.appendChild(previewItem);
+        setTimeout(() => previewItem.classList.add('visible'), 10);
+
+        if (filePreviewContainerInner.children.length > 0) {
+            filePreviewContainerWrapper.style.display = 'block';
+            filePreviewContainerInner.scrollLeft = filePreviewContainerInner.scrollWidth;
+        }
+        autoResizeTextarea();
         updateInputAreaPadding();
     }
+
     function removeAttachedFile(fileName, fileSize) {
         attachedFiles = attachedFiles.filter(file => !(file.name === fileName && file.size === fileSize));
-        const fileItemToRemove = document.querySelector(`.attached-file-item[data-file-name="${fileName}"][data-file-size="${fileSize}"]`);
+        const fileItemToRemove = filePreviewContainerInner.querySelector(
+            `.file-preview-item[data-file-name="${CSS.escape(fileName)}"][data-file-size="${fileSize}"]`
+        );
         if (fileItemToRemove) {
-            fileItemToRemove.remove();
+            fileItemToRemove.classList.remove('visible');
+            setTimeout(() => {
+                fileItemToRemove.remove();
+                if (filePreviewContainerInner.children.length === 0) {
+                    filePreviewContainerWrapper.style.display = 'none';
+                }
+                autoResizeTextarea();
+                updateInputAreaPadding();
+            }, 300);
         }
-        if (attachedFiles.length === 0) {
-            attachedFilesContainer.style.display = 'none'; // Sembunyikan jika tidak ada file
-            if (messageInput.value.trim() === '' && currentActivePage === 'welcome') {
-                quickCompleteContainer.classList.add('active');
-            }
+
+        if (attachedFiles.length === 0 && messageInput.value.trim() === '' && currentActivePage === 'welcome') {
+            quickCompleteContainer.classList.add('active');
         }
-        updateInputAreaPadding();
     }
+
     function clearAttachedFiles() {
         attachedFiles = [];
-        attachedFilesContainer.innerHTML = '';
-        attachedFilesContainer.style.display = 'none'; // Sembunyikan setelah dibersihkan
+        filePreviewContainerInner.innerHTML = '';
+        filePreviewContainerWrapper.style.display = 'none';
+        autoResizeTextarea();
         updateInputAreaPadding();
         if (messageInput.value.trim() === '' && currentActivePage === 'welcome') {
             quickCompleteContainer.classList.add('active');
         }
     }
+
+    fileInput.addEventListener('change', (event) => {
+        const filesToProcess = Array.from(event.target.files);
+        if (filesToProcess.length === 0) return;
+
+        let canAddCount = MAX_FILES_ALLOWED - attachedFiles.length;
+
+        if (canAddCount <= 0) {
+            alert(`You have reached the maximum of ${MAX_FILES_ALLOWED} files.`);
+            fileInput.value = '';
+            return;
+        }
+
+        const newValidFiles = [];
+
+        for (const file of filesToProcess) {
+            if (newValidFiles.length >= canAddCount) {
+                alert(`You can only add ${canAddCount} more file(s). Some files were not added.`);
+                break;
+            }
+            if (file.size > MAX_FILE_SIZE_BYTES_NEW) {
+                alert(`File "${file.name}" (${formatFileSize(file.size)}) exceeds the maximum size of ${formatFileSize(MAX_FILE_SIZE_BYTES_NEW, 0)}.`);
+                continue;
+            }
+            const isDuplicate = attachedFiles.some(f => f.name === file.name && f.size === file.size);
+            if (isDuplicate) {
+                alert(`File "${file.name}" is already attached.`);
+                continue;
+            }
+            newValidFiles.push(file);
+        }
+
+        newValidFiles.forEach(file => {
+            attachedFiles.push(file);
+            displayFilePreviewItem(file);
+        });
+
+        fileInput.value = '';
+        if (attachedFiles.length > 0 || messageInput.value.trim() !== '') {
+            quickCompleteContainer.classList.remove('active');
+        }
+    });
 
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -586,7 +695,6 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.interimResults = true;
         let finalTranscript = '';
         recognition.onstart = () => {
-            console.log('Voice recognition started.');
             voiceInputButton.style.backgroundColor = 'red';
             messageInput.placeholder = currentLanguage === 'id' ? 'Mendengarkan...' : 'Listening...';
         };
@@ -603,60 +711,47 @@ document.addEventListener('DOMContentLoaded', () => {
             autoResizeTextarea();
         };
         recognition.onend = () => {
-            console.log('Voice recognition ended.');
-            voiceInputButton.style.backgroundColor = ''; // Reset background
+            voiceInputButton.style.backgroundColor = '';
             if (finalTranscript.trim() !== '') {
                 messageInput.value = finalTranscript.trim();
-                // Opsi: otomatis kirim setelah selesai bicara
-                // sendButton.click();
             }
-            // Kembalikan placeholder animasi jika input kosong
             if (messageInput.value.trim() === '') {
                  messageInput.placeholder = placeholders[currentLanguage][currentPlaceholderIndex];
             }
-            finalTranscript = ''; // Reset untuk sesi berikutnya
+            finalTranscript = '';
         };
         recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-            voiceInputButton.style.backgroundColor = ''; // Reset background
-            messageInput.placeholder = placeholders[currentLanguage][currentPlaceholderIndex]; // Kembalikan placeholder
+            voiceInputButton.style.backgroundColor = '';
+            messageInput.placeholder = placeholders[currentLanguage][currentPlaceholderIndex];
             finalTranscript = '';
             alert('Speech recognition error: ' + event.error);
         };
         voiceInputButton.addEventListener('click', () => {
             try {
-                if (recognition && typeof recognition.stop === 'function' && recognition.recording) { // Cek apakah sedang merekam
+                if (recognition && typeof recognition.stop === 'function' && recognition.recording) {
                     recognition.stop();
                 } else {
                     recognition.start();
                 }
             } catch (e) {
-                console.warn('Recognition error or already started/stopped:', e);
-                 // Coba stop jika error karena sudah jalan, lalu start lagi, atau handle sesuai kebutuhan
                  if (recognition && typeof recognition.stop === 'function') recognition.stop();
             }
         });
     } else {
-        voiceInputButton.style.display = 'none'; // Sembunyikan tombol jika API tidak didukung
-        console.warn('Web Speech API not supported in this browser.');
+        voiceInputButton.style.display = 'none';
     }
-    showPage(currentActivePage); // Panggil showPage di akhir untuk inisialisasi halaman
-});
+    showPage(currentActivePage);
+}); // Akhir dari DOMContentLoaded
 
-// Fungsi copyCode diletakkan di luar DOMContentLoaded agar bisa diakses oleh atribut onclick
+// Fungsi copyCode diletakkan di luar DOMContentLoaded
 function copyCode(buttonElement) {
     const pre = buttonElement.closest('.code-block').querySelector('pre');
     navigator.clipboard.writeText(pre.textContent).then(() => {
         const span = buttonElement.querySelector('span');
-        const originalText = span.textContent; // Simpan teks asli
+        const originalText = span.textContent;
         span.textContent = 'Copied!';
-        // Ganti ikon jika mau
-        // const svg = buttonElement.querySelector('svg');
-        // const originalSvg = svg.innerHTML;
-        // svg.innerHTML = '<path d="M20 6L9 17l-5-5"/>'; // Contoh ikon centang
         setTimeout(() => {
-            span.textContent = originalText; // Kembalikan teks asli
-            // svg.innerHTML = originalSvg; // Kembalikan ikon asli
+            span.textContent = originalText;
         }, 2000);
     }).catch(err => {
         console.error('Failed to copy code: ', err);
@@ -666,4 +761,14 @@ function copyCode(buttonElement) {
             span.textContent = 'Copy';
         }, 2000);
     });
+}
+
+// Fungsi Helper untuk Format Ukuran File
+function formatFileSize(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }

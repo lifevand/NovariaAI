@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
     if (model === 'gemini') {
         // Tetap menggunakan gemini-1.5-flash atau model teks lainnya
-        apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
         // Kirim augmentedUserMessage yang sudah berisi info file
         requestBody = { contents: [{ parts: [{ text: augmentedUserMessage }] }] };
     } else if (model === 'cohere') {

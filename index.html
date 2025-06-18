@@ -6,13 +6,15 @@
   <meta name="google-site-verification" content="Yu5SrqKysJNrowL7W3-1r6kAGOf6GyertHg2MR-QMvg" />
   <title data-key="documentTitle">NovaAI</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css"> </head>
+  <link rel="stylesheet" href="style.css">
+</head>
 <body>
 
   <header>
     <div class="header-left-group">
-      <svg viewBox="0 0 24 24" id="menuIcon" class="icon-btn">
-        <path d="M21 12H9"/><path d="M21 18H7"/><path d="M21 6H3"/>
+      <!-- IKON MENU BARU -->
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-btn" id="menuIcon">
+        <path d="M17 12H7"/><path d="M19 18H5"/><path d="M21 6H3"/>
       </svg>
       <svg viewBox="0 0 24 24" id="backIcon" class="icon-btn hidden">
         <polyline points="15 18 9 12 15 6" />
@@ -22,24 +24,17 @@
       </div>
     </div>
     <div class="header-right-group">
-        <div id="modelSelectContainer" class="model-select-container">
-            <div class="selected-model-display">Gemini</div>
-            <select id="modelSelect" class="hidden">
-                <option value="gemini">Gemini</option>
-                <option value="cohere">Cohere</option>
-                <option value="copilot">Copilot</option>
-            </select>
-            <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-        </div>
-
+        <!-- MODEL SELECT DIHAPUS DARI SINI -->
         <div id="landingThemeToggleContainer" class="theme-toggle-landing">
             <label class="switch">
                 <input type="checkbox" id="themeToggleLanding">
                 <span class="slider">
-                    <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="9" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/>
+                    <!-- IKON THEME TOGGLE BARU -->
+                    <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path class="moon-shape" d="M12 8a2.83 2.83 0 0 0 4 4 4 4 0 1 1-4-4"/>
+                        <g class="sun-rays">
+                            <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.67 17.67 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.33 17.67-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+                        </g>
                     </svg>
                 </span>
             </label>
@@ -107,8 +102,12 @@
         <label class="switch">
             <input type="checkbox" id="themeToggle">
             <span class="slider">
-                 <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="9" cy="12" r="3"/><rect width="20" height="14" x="2" y="5" rx="7"/>
+                 <!-- IKON THEME TOGGLE BARU -->
+                <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path class="moon-shape" d="M12 8a2.83 2.83 0 0 0 4 4 4 4 0 1 1-4-4"/>
+                    <g class="sun-rays">
+                        <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.67 17.67 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.33 17.67-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+                    </g>
                 </svg>
             </span>
         </label>
@@ -151,12 +150,13 @@
 
   <div class="modal-overlay" id="infoModalOverlay">
     <div class="modal-content" id="infoModalContent">
-      <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+      <button class="modal-close-btn" id="modalCloseBtn">×</button>
       <h3 id="modalTitle">Modal Title</h3>
       <div id="modalBody">
         </div>
     </div>
   </div>
 
-  <script src="script.js"></script> </body>
+  <script src="script.js"></script>
+</body>
 </html>

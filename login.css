@@ -54,11 +54,10 @@ body.light-mode {
     --card-background-color: var(--lm-card-background-color);
     --card-border-color: var(--lm-card-border-color);
     --link-hover-color: var(--lm-link-hover-color);
-    --slider-bg-dark: var(--lm-slider-bg-light); /* Menyesuaikan variabel slider untuk light mode */
+    --slider-bg-dark: var(--lm-slider-bg-light); 
     --slider-icon-dark-moon: var(--lm-slider-icon-light-moon);
 }
 
-/* Header */
 .login-header { background-color: var(--header-bg-color); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--card-border-color); position: sticky; top: 0; z-index: 1000; padding: 0 20px; }
 .header-content-wrapper { display: flex; justify-content: space-between; align-items: center; max-width: 1280px; margin: 0 auto; height: 64px; }
 .header-left { display: flex; align-items: center; }
@@ -67,20 +66,19 @@ body.light-mode {
 .header-logo { width: 32px; height: 32px; object-fit: contain; }
 .header-app-name { font-size: 1.25rem; font-weight: 700; color: var(--primary-text-color); }
 
-/* Google Sign In Button & User Greeting */
 #googleSignInButtonContainer button, #googleSignInButtonContainer > div > div {
     background: var(--primary-text-color) !important; 
-    color: var(--background-color) !important; /* Agar teks kontras dengan latar tombol */
+    color: var(--background-color) !important; 
     border-radius: 6px !important; font-weight: 500 !important; padding: 8px 16px !important; 
     box-shadow: none !important; border: none !important; font-size: 0.875rem !important; 
     transition: background-color 0.2s ease !important; }
 #googleSignInButtonContainer button:hover, #googleSignInButtonContainer > div > div:hover { background: #cdd5df !important; }
 body.light-mode #googleSignInButtonContainer button, body.light-mode #googleSignInButtonContainer > div > div {
-    background: var(--lm-google-btn-bg) !important; /* Latar tombol Google di light mode */
-    color: var(--lm-google-btn-text) !important; /* Teks tombol Google di light mode */
+    background: var(--lm-google-btn-bg) !important; 
+    color: var(--lm-google-btn-text) !important; 
 }
 body.light-mode #googleSignInButtonContainer button:hover, body.light-mode #googleSignInButtonContainer > div > div:hover {
-    background-color: #374151 !important; /* Sedikit lebih terang dari bg tombol google light mode */
+    background-color: #374151 !important; 
 }
 
 .user-greeting-header { display: flex; align-items: center; gap: 10px; }
@@ -90,7 +88,6 @@ body.light-mode .user-avatar-header { border-color: var(--lm-card-border-color);
 .go-to-app-btn { background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end)); color: var(--button-text-color); padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.875rem; transition: opacity 0.2s ease; }
 .go-to-app-btn:hover { opacity: 0.85; }
 
-/* Theme Toggle */
 .theme-toggle-login-container { display: flex; align-items: center; }
 .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -99,15 +96,13 @@ body.light-mode .slider { border-color: var(--lm-card-border-color); }
 .slider-icon { width: 20px; height: 20px; transition: transform 0.4s ease, color 0.4s ease; stroke-width: 2; }
 .slider-icon .sun-rays { opacity: 0; transform-origin: center; transform: scale(0.6) rotate(-45deg); transition: opacity 0.3s ease, transform 0.3s ease; stroke: currentColor; fill: none; }
 .slider-icon .moon-shape { opacity: 1; transform-origin: center; transform: scale(1) rotate(0deg); transition: opacity 0.3s ease, transform 0.3s ease; fill: currentColor; stroke: none; }
-input:checked + .slider { background-color: #f59e0b; justify-content: flex-end; } /* Oranye untuk matahari */
+input:checked + .slider { background-color: #f59e0b; justify-content: flex-end; }
 input:checked + .slider .slider-icon { color: white; }
 input:checked + .slider .slider-icon .sun-rays { opacity: 1; transform: scale(1) rotate(0deg); }
 input:checked + .slider .slider-icon .moon-shape { opacity: 0; transform: scale(0.6) rotate(45deg); }
 body:not(.light-mode) input:not(:checked) + .slider .slider-icon { color: var(--slider-icon-dark-moon); }
-body.light-mode input:not(:checked) + .slider .slider-icon { color: var(--slider-icon-dark-moon); } /* Tetap gunakan variabel yang disesuaikan di body.light-mode */
+body.light-mode input:not(:checked) + .slider .slider-icon { color: var(--slider-icon-dark-moon); }
 
-
-/* Main Content & Sections */
 .landing-main { flex-grow: 1; padding: 48px 0; width: 100%; }
 .hero-section { text-align: center; margin-bottom: 56px; padding: 0 24px; }
 .hero-section h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; margin-bottom: 16px; line-height: 1.2; color: var(--primary-text-color); }
@@ -118,7 +113,6 @@ body.light-mode input:not(:checked) + .slider .slider-icon { color: var(--slider
 .section-title { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; }
 .gradient-text-alt { background: linear-gradient(90deg, var(--alt-gradient-start), var(--alt-gradient-end)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
-/* Fitur Unggulan Novaria Grid */
 .features-grid-container { max-width: 1200px; margin: 0 auto 64px auto; padding: 0 24px; }
 .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
 .feature-card { background-color: var(--card-background-color); border: 1px solid var(--card-border-color); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; overflow: hidden; }
@@ -133,7 +127,6 @@ body.light-mode input:not(:checked) + .slider .slider-icon { color: var(--slider
 .card-cta-button { display: block; width: 100%; padding: 10px 16px; text-align: center; font-size: 0.9375rem; font-weight: 500; color: var(--button-text-color); border: none; border-radius: 8px; cursor: pointer; background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end)); transition: opacity 0.2s ease, transform 0.1s ease; text-decoration: none; }
 .card-cta-button:hover { opacity: 0.85; transform: translateY(-1px); }
 
-/* Jelajahi Ekosistem AI Grid */
 .explore-ai-section { margin-top: 64px; margin-bottom: 60px; }
 .horizontal-scroll-wrapper { overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding-bottom: 24px; margin-left: calc((100% - 100vw) / 2); margin-right: calc((100% - 100vw) / 2); padding-left: max(24px, calc((100vw - 1200px) / 2 + 24px)); padding-right: max(24px, calc((100vw - 1200px) / 2 + 24px)); -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--card-border-color) transparent; }
 .horizontal-scroll-wrapper::-webkit-scrollbar { height: 6px; }
@@ -155,20 +148,22 @@ body.light-mode input:not(:checked) + .slider .slider-icon { color: var(--slider
 .explore-card-button { display: inline-block; width: 100%; padding: 10px 16px; margin-top: auto; text-align: center; font-size: 0.875rem; font-weight: 500; color: var(--button-text-color); border: none; border-radius: 6px; cursor: pointer; text-decoration: none; background: linear-gradient(90deg, #374151, #1f2937); transition: opacity 0.2s ease, box-shadow 0.2s ease; }
 .explore-card-button:hover { opacity: 0.85; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
-/* Error & Footer */
 .error-message { color: #f87171; font-size: 0.875rem; margin: 20px auto; padding: 10px 16px; background-color: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 6px; text-align: center; max-width: 500px; }
+
 .landing-footer { background-color: var(--background-color); border-top: 1px solid var(--card-border-color); color: var(--secondary-text-color); padding: 32px 24px; text-align: center; font-size: 0.8125rem; }
-.footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.footer-content p { margin: 0; }
-.footer-links { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-.footer-links a { color: var(--secondary-text-color); text-decoration: none; transition: color 0.2s ease; }
+.footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 16px; } /* Increased gap */
+.social-links { display: flex; justify-content: center; align-items: center; gap: 24px; margin-bottom: 0; } /* No margin-bottom if copyright is next */
+.social-links a { color: var(--secondary-text-color); text-decoration: none; font-size: 1.6rem; transition: color 0.2s ease, transform 0.2s ease; }
+.social-links a:hover { color: var(--link-hover-color); transform: scale(1.1) translateY(-1px); }
+.social-icon-svg { width: 26px; height: 26px; fill: currentColor; }
+.copyright-text { margin:0; font-size: 0.875rem; }
+.footer-links { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 8px; } /* Add margin-top */
+.footer-links a { color: var(--secondary-text-color); text-decoration: none; transition: color 0.2s ease; font-size: 0.8125rem; }
 .footer-links a:hover { color: var(--link-hover-color); text-decoration: underline; }
 
-/* Responsiveness */
 @media (max-width: 768px) {
     .login-header { padding: 0 16px; } .header-content-wrapper { height: 56px; } .header-app-name { font-size: 1.125rem; }
-    .header-right { gap: 12px; } /* Kurangi gap di mobile */
-    .theme-toggle-login-container { margin-right: 0; /* Hapus margin jika ada */ }
+    .header-right { gap: 12px; } .theme-toggle-login-container { margin-right: 0; }
     .landing-main { padding: 32px 0; } .hero-section { padding: 0 16px; margin-bottom: 40px; }
     .features-grid-container { padding: 0 16px; margin-bottom: 48px; }
     .section-title-alt, .section-title { padding: 0 16px; margin-bottom: 24px; }
@@ -177,5 +172,6 @@ body.light-mode input:not(:checked) + .slider .slider-icon { color: var(--slider
 }
 @media (max-width: 480px) {
     .features-grid { grid-template-columns: 1fr; } .hero-section h1 { font-size: 1.75rem; } .hero-subtitle { font-size: 0.9375rem; }
-    .explore-card { width: clamp(180px, 70vw, 220px); } /* Lebar kartu lebih adaptif di layar sangat kecil */
+    .explore-card { width: clamp(180px, 70vw, 220px); }
+    .social-links { gap: 16px; } .social-links a { font-size: 1.4rem; } .social-icon-svg { width: 22px; height: 22px; }
 }

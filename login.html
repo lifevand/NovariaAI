@@ -1,26 +1,26 @@
 <!DOCTYPE html>
-<html lang="id"> <!-- Ganti ke Bahasa Indonesia jika target utama -->
+<html lang="id">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com"> <!-- GANTI DENGAN CLIENT ID ANDA -->
     <title>Novaria - Asisten AI Cerdas Anda</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Link untuk Google Material Symbols -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link rel="stylesheet" href="login.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
-<body class="login-page-visible"> <!-- Langsung visible -->
+<body>
 
     <header class="login-header">
-        <div class="logo-container">
-            <img src="logo.png" alt="Novaria Logo" class="header-logo">
-            <span class="header-app-name">Novaria</span>
-        </div>
-        <!-- Tombol Login Google akan dirender di sini oleh JS jika belum login -->
-        <div id="googleSignInButtonContainer">
-            <!-- Jika sudah login, bisa tampilkan nama user atau tombol ke app -->
+        <div class="header-content-wrapper">
+            <div class="logo-container">
+                <img src="logo.png" alt="Novaria Logo" class="header-logo"> <!-- Logo Kecil -->
+                <span class="header-app-name">Novaria</span>
+            </div>
+            <div id="googleSignInButtonContainer">
+                <!-- Tombol Login Google atau info user akan dirender di sini oleh JS -->
+            </div>
         </div>
     </header>
 
@@ -30,19 +30,18 @@
             <p class="hero-subtitle">Temukan bagaimana Novaria dapat membantu Anda dalam berbagai tugas sehari-hari dengan kecerdasan buatan.</p>
         </section>
 
-        <section class="features-grid" id="featuresGrid">
-            <!-- Kartu Fitur akan ditambahkan di sini oleh JavaScript -->
+        <section class="features-grid-container">
+            <div class="features-grid" id="featuresGrid">
+                <!-- Kartu Fitur akan ditambahkan di sini oleh JavaScript -->
+            </div>
         </section>
         
-        <!-- Wadah untuk Google Sign-In button jika dipicu dari kartu -->
-        <div id="googleSignInCardTrigger" style="display: none;"></div>
         <div id="googleSignInError" class="error-message" style="display: none;"></div>
-
     </main>
 
-    <footer>
+    <footer class="landing-footer">
       <div class="footer-content">
-        <p>© <span id="currentYearLogin"></span> Novaria. All Rights Reserved.</p>
+        <p>© <span id="currentYearLogin"></span> 2025 Novaria | Lifevander Inc.</p>
         <nav class="footer-links">
           <a href="#">Kebijakan Privasi</a>
           <a href="#">Syarat & Ketentuan</a>
@@ -53,4 +52,4 @@
 
     <script src="login.js"></script>
 </body>
-    </html>
+</html>

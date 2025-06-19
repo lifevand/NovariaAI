@@ -1,130 +1,345 @@
-/* login.css */
-body {
+/* login.css - Styling Profesional untuk Landing Page Login */
+:root {
+    --primary-text-color: #e6edf3; /* Teks terang untuk tema gelap */
+    --secondary-text-color: #7d8590; /* Teks abu-abu untuk detail */
+    --background-color: #010409; /* Sangat gelap, mendekati hitam */
+    --header-bg-color: rgba(13, 17, 23, 0.85); /* Gelap transparan untuk header */
+    --card-background-color: #0d1117; /* Sedikit lebih terang dari bg utama */
+    --card-border-color: #21262d;   /* Border yang subtil */
+    --accent-gradient-start: #a855f7; /* Ungu (dari Tailwind purple-500) */
+    --accent-gradient-end: #f97316;   /* Oranye (dari Tailwind orange-500) */
+    --button-text-color: #ffffff;
+    --link-hover-color: #58a6ff; /* Biru terang untuk hover link */
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Reset dan Body Dasar */
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
-    font-family: 'Inter', sans-serif;
-    background-color: #000000; /* Dark theme default for login page */
-    color: #ffffff;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--background-color);
+    color: var(--primary-text-color);
+    line-height: 1.6;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-    text-align: center;
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+    flex-direction: column;
+    min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-.login-container {
-    padding: 40px;
-    border-radius: 12px;
-    background-color: rgba(25, 25, 25, 0.7); /* Semi-transparent dark background */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    max-width: 400px;
-    width: 90%;
+/* Header */
+.login-header {
+    background-color: var(--header-bg-color);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--card-border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0 20px; /* Padding horizontal untuk header */
 }
 
-.login-logo {
-    width: 120px;
-    height: 120px;
-    object-fit: contain;
-    margin-bottom: 25px;
-    animation: pulseLogo 2.5s infinite ease-in-out;
-}
-
-@keyframes pulseLogo {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.08); }
-    100% { transform: scale(1); }
-}
-
-h1 {
-    font-size: 2em;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
-p {
-    font-size: 1em;
-    font-weight: 400;
-    margin-bottom: 30px;
-    color: rgba(255, 255, 255, 0.8);
-}
-
-#googleSignInButton {
+.header-content-wrapper {
     display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1280px; /* Lebar maksimum konten header */
+    margin: 0 auto;
+    height: 64px; /* Tinggi header tetap */
 }
 
-/* Style the Google button container if needed, 
-   but Google's script usually handles the button's appearance. */
-#googleSignInButton > div { /* Target the div Google creates */
-    border-radius: 20px !important; /* Example: make Google button more rounded */
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-
-.error-message {
-    color: #ff6b6b;
-    font-size: 0.9em;
-    margin-top: 15px;
-    padding: 10px;
-    background-color: rgba(255, 107, 107, 0.1);
-    border: 1px solid rgba(255, 107, 107, 0.3);
-    border-radius: 6px;
+.header-logo {
+    width: 32px; /* Ukuran logo kecil yang wajar */
+    height: 32px;
+    object-fit: contain;
 }
 
-.app-version {
-    font-size: 0.8em;
-    color: rgba(255, 255, 255, 0.5);
-    margin-top: 40px;
-    margin-bottom: 0;
+.header-app-name {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 700;
+    color: var(--primary-text-color);
 }
 
-/* Transition out when logged in */
-body.logged-in {
-    opacity: 0;
-    transform: scale(0.95);
+/* Styling untuk tombol Google Sign-In atau Info User di Header */
+#googleSignInButtonContainer button, 
+#googleSignInButtonContainer > div > div { /* Target tombol Google */
+    background: var(--primary-text-color) !important;
+    color: #0d1117 !important; /* Warna teks gelap agar kontras */
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    padding: 8px 16px !important;
+    box-shadow: none !important;
+    border: none !important;
+    font-size: 0.875rem !important; /* 14px */
+    transition: background-color 0.2s ease !important;
 }
-
-/* login.css */
-
-/* ... (CSS Anda yang sudah ada sebelumnya) ... */
+#googleSignInButtonContainer button:hover,
+#googleSignInButtonContainer > div > div:hover {
+    background: #cdd5df !important; /* Warna hover lebih terang */
+}
 
 .user-greeting-header {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
-
 .user-avatar-header {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     object-fit: cover;
-    border: 1px solid var(--card-border-color);
 }
-
 .user-greeting-header span {
-    font-weight: 500;
+    font-size: 0.875rem;
     color: var(--secondary-text-color);
 }
-
 .go-to-app-btn {
     background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
     color: var(--button-text-color);
-    padding: 8px 16px;
-    border-radius: 20px; /* Pill shape */
+    padding: 6px 12px;
+    border-radius: 6px;
     text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9em;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: opacity 0.2s ease;
+}
+.go-to-app-btn:hover {
+    opacity: 0.85;
 }
 
-.go-to-app-btn:hover {
+/* Main Content Area */
+.landing-main {
+    flex-grow: 1;
+    padding: 48px 24px; /* Padding atas-bawah dan samping */
+    width: 100%;
+}
+
+.hero-section {
+    text-align: center;
+    margin-bottom: 56px; /* Jarak lebih besar */
+}
+
+.hero-section h1 {
+    font-size: clamp(2rem, 5vw, 3rem); /* Ukuran font responsif */
+    font-weight: 800;
+    margin-bottom: 16px;
+    line-height: 1.2;
+    color: var(--primary-text-color);
+}
+
+.gradient-text {
+    background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding-bottom: 4px; /* Sedikit padding agar gradien terlihat lebih baik */
+}
+
+.hero-subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.125rem); /* Ukuran font responsif */
+    color: var(--secondary-text-color);
+    max-width: 600px; /* Batasi lebar subtitle */
+    margin: 0 auto 32px auto;
+}
+
+/* Grid Kartu Fitur */
+.features-grid-container {
+    max-width: 1200px; /* Lebar maksimum untuk grid */
+    margin: 0 auto; /* Tengahkankan grid container */
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Kolom responsif */
+    gap: 24px; /* Jarak antar kartu */
+}
+
+.feature-card {
+    background-color: var(--card-background-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 12px; /* Border radius lebih besar */
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    overflow: hidden;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 
+                0 0 0 1px var(--card-border-color), /* Border halus saat hover */
+                0 0 0 3px rgba(168, 85, 247, 0.3); /* Glow ungu subtil */
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.card-icon {
+    font-size: 1.75rem; /* 28px, ukuran ikon */
+    color: var(--accent-gradient-start); /* Warna ikon utama */
+    font-variation-settings: 'FILL' 0; /* Default outline */
+    line-height: 1;
+}
+
+.card-header h3 {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600;
+    margin: 0;
+    color: var(--primary-text-color);
+}
+
+.card-description {
+    font-size: 0.875rem; /* 14px */
+    color: var(--secondary-text-color);
+    margin-bottom: 16px;
+    flex-grow: 1;
+    line-height: 1.5;
+}
+
+.card-image-container {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background-color: #161b22; /* Placeholder jika gambar lambat load */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Pastikan gambar mengisi kontainer */
+    transition: transform 0.3s ease-out;
+}
+.feature-card:hover .card-image-container img {
+    transform: scale(1.05); /* Efek zoom halus pada gambar saat card dihover */
+}
+
+.card-cta-button {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    text-align: center;
+    font-size: 0.9375rem; /* 15px */
+    font-weight: 500; /* Sedikit lebih tipis dari 600 */
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    transition: opacity 0.2s ease, transform 0.1s ease;
+    text-decoration: none;
+}
+
+.card-cta-button:hover {
+    opacity: 0.85;
     transform: translateY(-1px);
-    box-shadow: 0 2px 10px rgba(195, 103, 224, 0.3);
+}
+
+/* Error Message */
+.error-message {
+    color: #f87171; /* Merah terang */
+    font-size: 0.875rem;
+    margin: 20px auto;
+    padding: 10px 16px;
+    background-color: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: 6px;
+    text-align: center;
+    max-width: 500px;
+}
+
+/* Footer */
+.landing-footer {
+  background-color: var(--background-color);
+  border-top: 1px solid var(--card-border-color);
+  color: var(--secondary-text-color);
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 0.8125rem; /* 13px */
+}
+
+.footer-content {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-content p {
+  margin: 0;
+}
+
+.footer-links {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.footer-links a {
+  color: var(--secondary-text-color);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--link-hover-color);
+  text-decoration: underline;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .login-header {
+        padding: 0 16px; /* Padding lebih kecil di mobile */
+    }
+    .header-content-wrapper {
+        height: 56px;
+    }
+    .header-app-name {
+        font-size: 1.125rem; /* Sedikit lebih kecil */
+    }
+    .landing-main {
+        padding: 32px 16px;
+    }
+    .hero-section {
+        margin-bottom: 40px;
+    }
+    .features-grid {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .features-grid {
+        grid-template-columns: 1fr; /* Pastikan satu kolom di layar sangat kecil */
+    }
+    .hero-section h1 {
+        font-size: 1.75rem; /* Lebih kecil lagi */
+    }
+    .hero-subtitle {
+        font-size: 0.9375rem;
+    }
 }

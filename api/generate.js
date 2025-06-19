@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     // 4. Tentukan nama model API yang akan digunakan
     // PERHATIAN: Ganti 'gemini-2.0-flash-lite' dengan nama model yang valid jika perlu.
     // Contoh model yang valid: 'gemini-1.5-flash-latest' atau 'gemini-1.0-pro'
-    const apiModelName = 'gemini-1.5-flash-latest'; // Menggunakan model yang diketahui mendukung systemInstruction
+    const apiModelName = 'gemini-2.0-flash'; // Menggunakan model yang diketahui mendukung systemInstruction
 
     // 5. Siapkan request ke API AI
     const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${apiModelName}:generateContent?key=${apiKey}`;

@@ -1,5 +1,5 @@
 // File: /api/generate.js
-// Ini adalah Serverless Function yang berjalan di server Vercel.
+// Menggunakan model Gemini dengan systemInstruction untuk respons yang lebih dinamis.
 
 export default async function handler(req, res) {
     // 1. Hanya izinkan metode POST
@@ -8,54 +8,61 @@ export default async function handler(req, res) {
     }
 
     // 2. Ambil data yang dikirim dari frontend
-    const { userMessage, model } = req.body;
+    const { userMessage, model } = req.body; // 'model' dari frontend mungkin tidak langsung digunakan untuk nama model API di sini
 
-    if (!userMessage || !model) {
-        return res.status(400).json({ message: 'Missing userMessage or model' });
+    if (!userMessage) { // Hanya userMessage yang wajib dari frontend untuk contoh ini
+        return res.status(400).json({ message: 'Missing userMessage' });
     }
 
-    // 3. Pilih API Key yang benar dari Environment Variables Vercel
-    let apiKey;
-    if (model === 'gemini') {
-        apiKey = process.env.GEMINI_API_KEY;
-    } else if (model === 'cohere') {
-        apiKey = process.env.COHERE_API_KEY;
-    } else {
-        return res.status(400).json({ message: 'Invalid model specified' });
-    }
-
+    // 3. Ambil API Key dari Environment Variables Vercel
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-        return res.status(500).json({ message: `API key for ${model} is not configured on the server.` });
+        return res.status(500).json({ message: 'GEMINI_API_KEY is not configured on the server.' });
     }
     
-    // 4. Siapkan request ke API AI yang sebenarnya
-    let apiEndpoint;
-    let requestBody;
-    let requestHeaders = {
+    // 4. Tentukan nama model API yang akan digunakan
+    // PERHATIAN: Ganti 'gemini-2.0-flash-lite' dengan nama model yang valid jika perlu.
+    // Contoh model yang valid: 'gemini-1.5-flash-latest' atau 'gemini-1.0-pro'
+    const apiModelName = 'gemini-1.5-flash-latest'; // Menggunakan model yang diketahui mendukung systemInstruction
+
+    // 5. Siapkan request ke API AI
+    const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${apiModelName}:generateContent?key=${apiKey}`;
+    
+    const systemInstructionParts = [
+        { text: "You are Novaria, a helpful, empathetic, and slightly proactive AI assistant." },
+        { text: "When responding, if it feels natural and appropriate for the conversation, try to ask a follow-up question to better understand the user's needs or to encourage them to elaborate." },
+        { text: "If the user seems to be facing a challenge or expressing uncertainty, try to offer a sense of encouragement or briefly suggest potential positive perspectives or general avenues they might consider exploring. Frame these as possibilities, not definitive solutions unless you are highly confident." },
+        { text: "Maintain a friendly and supportive tone." }
+    ];
+
+    const requestBody = {
+        contents: [{
+            parts: [{ text: userMessage }]
+            // Jika Anda ingin mengirim riwayat chat untuk konteks yang lebih baik:
+            // role: "user", // atau "model"
+        }],
+        systemInstruction: {
+            parts: systemInstructionParts
+        },
+        generationConfig: {
+          temperature: 0.75, // Sedikit lebih kreatif tapi tetap berusaha on-point
+          // topP: 0.95, // Contoh konfigurasi lain
+          // topK: 40,   // Contoh konfigurasi lain
+        },
+        // safetySettings: [ // Opsional: Sesuaikan pengaturan keamanan jika perlu
+        //   {
+        //     category: "HARM_CATEGORY_HARASSMENT",
+        //     threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        //   },
+        //   // Tambahkan kategori lain jika diperlukan
+        // ]
+    };
+
+    const requestHeaders = {
         'Content-Type': 'application/json',
     };
 
-    if (model === 'gemini') {
-        // Menggunakan model Gemini 1.5 Flash yang lebih baru dan mendukung system instructions jika diperlukan
-        apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-        // Struktur request Gemini bisa lebih kompleks, contoh dasar:
-        requestBody = {
-            contents: [{
-                parts: [{ text: userMessage }]
-            }],
-            // Contoh system instruction jika ingin menggunakannya
-            // systemInstruction: {
-            //     parts: [{ text: "You are Novaria, an AI assistant. Be helpful and friendly."}]
-            // }
-        };
-    } else if (model === 'cohere') {
-        apiEndpoint = 'https://api.cohere.ai/v1/chat';
-        requestBody = { message: userMessage, model: "command-r-plus", temperature: 0.7 };
-        requestHeaders['Authorization'] = `Bearer ${apiKey}`;
-        requestHeaders['Cohere-Version'] = '2024-02-15'; // Atau versi terbaru yang direkomendasikan Cohere
-    }
-
-    // 5. Lakukan panggilan ke API AI dari server Vercel
+    // 6. Lakukan panggilan ke API AI
     try {
         const apiResponse = await fetch(apiEndpoint, {
             method: 'POST',
@@ -65,37 +72,52 @@ export default async function handler(req, res) {
 
         if (!apiResponse.ok) {
             const errorData = await apiResponse.json();
-            console.error(`API Error from ${model}:`, errorData);
-            return res.status(apiResponse.status).json({ message: `Error from ${model} API: ${errorData.error?.message || 'Unknown error'}` });
+            console.error(`API Error from ${apiModelName}:`, errorData);
+            let errorMessage = `Error from ${apiModelName} API.`;
+            if (errorData.error && errorData.error.message) {
+                errorMessage += ` Message: ${errorData.error.message}`;
+            }
+            // Khusus untuk error model tidak ditemukan
+            if (apiResponse.status === 404 && errorData.error?.message.toLowerCase().includes("model not found")) {
+                errorMessage = `The specified AI model ('${apiModelName}') was not found. Please check the model name.`;
+            } else if (apiResponse.status === 400 && errorData.error?.message.toLowerCase().includes("unsupported")) {
+                 errorMessage = `The AI model ('${apiModelName}') may not support some features used (like systemInstruction). Error: ${errorData.error.message}`;
+            }
+
+            return res.status(apiResponse.status).json({ message: errorMessage });
         }
 
         const data = await apiResponse.json();
 
-        // 6. Ekstrak teks jawaban dan kirim kembali ke frontend
+        // 7. Ekstrak teks jawaban dan kirim kembali ke frontend
         let responseText = '';
-        if (model === 'gemini') {
-            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) {
-                responseText = data.candidates[0].content.parts[0].text;
-            } else {
-                // Tangani kasus jika struktur tidak seperti yang diharapkan, misal ada safetyRatings block
-                if (data.candidates && data.candidates[0] && data.candidates[0].finishReason === "SAFETY") {
-                     responseText = "Maaf, saya tidak dapat memberikan respons untuk permintaan ini karena alasan keamanan.";
-                } else {
-                    console.error('Unexpected Gemini response structure:', data);
-                    throw new Error('Invalid response format from Gemini API');
-                }
-            }
-        } else if (model === 'cohere' && data.text) {
-            responseText = data.text;
+        if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text) {
+            responseText = data.candidates[0].content.parts[0].text;
         } else {
-            console.error(`Unexpected API response structure from ${model}:`, data);
-            throw new Error(`Invalid response format from ${model} API`);
+            // Tangani kasus jika respons tidak memiliki teks karena diblokir oleh safety filter atau format tidak terduga
+            if (data.candidates && data.candidates[0] && data.candidates[0].finishReason) {
+                if (data.candidates[0].finishReason === "SAFETY") {
+                    responseText = "Maaf, saya tidak dapat memberikan respons untuk permintaan ini karena batasan keamanan.";
+                } else if (data.candidates[0].finishReason === "RECITATION") {
+                    responseText = "Respons diblokir karena terdeteksi sebagai kutipan dari sumber yang dilindungi.";
+                } else if (data.candidates[0].finishReason === "OTHER") {
+                     responseText = "Maaf, saya tidak dapat memproses permintaan Anda saat ini karena alasan yang tidak spesifik.";
+                } else {
+                    responseText = "Maaf, terjadi masalah saat menghasilkan respons (Reason: " + data.candidates[0].finishReason + ").";
+                }
+            } else if (data.promptFeedback && data.promptFeedback.blockReason) {
+                 responseText = "Permintaan Anda diblokir sebelum diproses oleh model (Reason: " + data.promptFeedback.blockReason + "). Harap sesuaikan permintaan Anda.";
+            }
+            else {
+                console.error('Unexpected Gemini response structure:', data);
+                throw new Error('Invalid response format from Gemini API. No text content found.');
+            }
         }
 
         res.status(200).json({ text: responseText });
 
     } catch (error) {
-        console.error('Internal Server Error:', error);
-        res.status(500).json({ message: error.message || 'An internal server error occurred' });
+        console.error('Internal Server Error in /api/generate:', error);
+        res.status(500).json({ message: error.message || 'An internal server error occurred while contacting the AI model.' });
     }
-}
+          }

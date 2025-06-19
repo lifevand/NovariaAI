@@ -52,28 +52,12 @@
             </div>
         </div>
     </section>
-
-    <!-- START: MODEL SELECTOR HTML -->
-    <div id="modelSelectorContainer" class="model-selector-container hidden">
-        <div id="modelOptionsList" class="model-options-list">
-            <!-- Options will be populated by JS -->
-        </div>
-        <button id="currentModelToggle" class="current-model-toggle">
-            <img src="./gemini-color.webp" alt="model logo" id="currentModelLogo" class="model-logo">
-            <span id="currentModelName">gemini-1.5-flash</span>
-            <svg id="modelToggleArrow" class="model-toggle-arrow" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                <path d="m18 15-6-6-6 6"/> <!-- Default: arrow up (options hidden, will be flipped by JS) -->
-            </svg>
-        </button>
-    </div>
-    <!-- END: MODEL SELECTOR HTML -->
-
   </main>
 
   <div class="quick-complete-container" id="quickCompleteContainer">
   </div>
 
-  <div id="attachedFilesContainer" class="attached-files-container"></div>
+  <!-- Kontainer pratinjau file yang sebelumnya di sini (di atas input-wrapper) DIHAPUS -->
 
   <div class="input-wrapper">
     <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
@@ -84,6 +68,13 @@
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
     </button>
+
+    <!-- ==== AWAL KONTAINER BARU UNTUK PRATINJAU FILE (DI DALAM INPUT WRAPPER) ==== -->
+    <div id="fileChipContainer" class="file-chip-container">
+        <!-- Item pratinjau file (chip) akan ditambahkan di sini oleh JavaScript -->
+    </div>
+    <!-- ==== AKHIR KONTAINER BARU UNTUK PRATINJAU FILE ==== -->
+
     <button class="btn-circle btn-voice" id="voiceInputButton">
         <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>

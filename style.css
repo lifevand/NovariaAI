@@ -24,9 +24,12 @@
   --user-message-color: #ffffff;
   --ai-message-color: rgba(255, 255, 255, 0.8);
   --ai-thinking-color: rgba(255, 255, 255, 0.6);
-  --attached-file-bg: #333333;
-  --attached-file-text: #ffffff;
-  --attached-file-remove-hover: #ff6666;
+  --file-chip-bg: var(--button-hover-bg); /* Latar chip file */
+  --file-chip-text: var(--text-color);
+  --file-chip-remove-hover-color: #ff6666;
+  --ai-model-tag-bg: var(--button-bg);
+  --ai-model-tag-text: var(--text-color);
+
   --action-button-bg: #333333;
   --action-button-hover-bg: #555555;
   --action-button-icon-color: #ffffff;
@@ -39,12 +42,6 @@
   --code-language-tag-text: #ffffff;
   --glass-bg: rgba(25, 25, 25, 0.6);
   --glass-border-color: rgba(255, 255, 255, 0.1);
-  /* START: Model Selector Variables */
-  --model-selector-bg: var(--input-bg);
-  --model-selector-text-color: var(--text-color);
-  --model-selector-hover-bg: var(--button-hover-bg);
-  --model-selector-border-color: var(--border-color);
-  /* END: Model Selector Variables */
 }
 
 body.light-mode {
@@ -69,9 +66,12 @@ body.light-mode {
   --user-message-color: #333333;
   --ai-message-color: rgba(51, 51, 51, 0.8);
   --ai-thinking-color: rgba(51, 51, 51, 0.6);
-  --attached-file-bg: #c0c0c0;
-  --attached-file-text: #333333;
-  --attached-file-remove-hover: #ff0000;
+  --file-chip-bg: var(--button-hover-bg);
+  --file-chip-text: var(--text-color);
+  --file-chip-remove-hover-color: #ff0000;
+  --ai-model-tag-bg: var(--button-bg);
+  --ai-model-tag-text: var(--text-color);
+
   --action-button-bg: #cccccc;
   --action-button-hover-bg: #aaaaaa;
   --action-button-icon-color: #333333;
@@ -84,12 +84,6 @@ body.light-mode {
   --code-language-tag-text: #333333;
   --glass-bg: rgba(255, 255, 255, 0.5);
   --glass-border-color: rgba(0, 0, 0, 0.1);
-  /* START: Model Selector Variables Light Mode */
-  --model-selector-bg: var(--input-bg);
-  --model-selector-text-color: var(--text-color);
-  --model-selector-hover-bg: var(--button-hover-bg);
-  --model-selector-border-color: var(--border-color);
-  /* END: Model Selector Variables Light Mode */
 }
 
 /* General Styles */
@@ -135,7 +129,7 @@ header {
 .app-logo {
     width: 38px;
     height: 38px;
-    object-fit: contain; 
+    object-fit: contain;
     display: block;
 }
 .header-right-group { display: flex; gap: 16px; align-items: center; }
@@ -147,6 +141,7 @@ main {
   display: flex;
   position: relative;
   overflow: hidden;
+  /* padding-bottom akan diatur oleh JavaScript */
 }
 
 /* Page Sections (Welcome and Chat) */
@@ -194,12 +189,14 @@ main {
     height: 100%;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding-top: 90px; /* Increased to make space for header */
-    padding-bottom: 120px; /* Initial padding, might be adjusted by JS */
+    padding-top: 90px;
+    padding-bottom: 20px;
     padding-left: 20px;
     padding-right: 20px;
     box-sizing: border-box;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 #chatHistory.has-scroll-fade::after {
@@ -219,7 +216,7 @@ main {
 }
 
 .chat-message {
-    max-width: 100%;
+    max-width: 95%;
     word-wrap: break-word;
     line-height: 1.6;
     font-size: 1em;
@@ -230,41 +227,239 @@ main {
     transform: translateY(15px);
 }
 
-.user-message { color: var(--user-message-color); font-weight: 500; }
-.ai-message { color: var(--ai-message-color); font-weight: 400; display: flex; flex-direction: column; gap: 8px; }
+.user-message {
+  color: var(--user-message-color);
+  font-weight: 500;
+  align-self: flex-start;
+  max-width: 80%;
+}
+
+.ai-message {
+  color: var(--ai-message-color);
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: flex-start;
+}
+
+.ai-message-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ai-message-header .ai-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.ai-message-header .ai-name {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: var(--text-color);
+}
+
+.ai-message-header .ai-model-tag {
+  background-color: var(--ai-model-tag-bg);
+  color: var(--ai-model-tag-text);
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ai-message-content {
+    /* Styling jika perlu */
+}
+
 .ai-message-actions { display: flex; gap: 8px; margin-top: 8px; }
 .ai-action-btn { background-color: var(--action-button-bg); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; color: var(--action-button-icon-color); }
 .ai-action-btn:hover { background-color: var(--action-button-hover-bg); }
 .ai-action-btn svg { width: 18px; height: 18px; stroke: var(--action-button-icon-color); fill: none; stroke-width: 2; }
-#thinkingIndicator { color: var(--ai-thinking-color); font-style: italic; font-size: 1em; display: flex; align-items: center; gap: 2px; padding: 4px 0; opacity: 0; transition: opacity 0.3s ease; }
+#thinkingIndicator { color: var(--ai-thinking-color); font-style: italic; font-size: 1em; display: flex; align-items: center; gap: 2px; padding: 4px 0; opacity: 0; transition: opacity 0.3s ease; align-self: flex-start; }
 #thinkingIndicator .dot { font-weight: 700; font-size: 1.2em; animation: pulse-dot 1.2s infinite ease-in-out both; }
 #thinkingIndicator .dot:nth-child(1) { animation-delay: 0s; }
 #thinkingIndicator .dot:nth-child(2) { animation-delay: 0.2s; }
 #thinkingIndicator .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes pulse-dot { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
 
-.quick-complete-container { position: absolute; bottom: 90px; /* Will be above input */ left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 700px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; z-index: 90; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.quick-complete-container { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 700px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; z-index: 90; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
 .quick-complete-container.active { opacity: 1; visibility: visible; }
 .quick-complete-btn { background-color: var(--quick-complete-bg); color: var(--quick-complete-text); border: 1px solid var(--border-color); border-radius: 20px; padding: 8px 15px; font-size: 0.95em; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; white-space: nowrap; position: relative; overflow: hidden; }
 .quick-complete-btn:hover { background-color: var(--quick-complete-hover-bg); border-color: var(--quick-complete-hover-bg); }
 
-.attached-files-container { position: fixed; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 700px; padding: 10px; background-color: var(--input-bg); border-top-left-radius: 12px; border-top-right-radius: 12px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; z-index: 92; max-height: 150px; overflow-y: auto; box-sizing: border-box; transition: bottom 0.3s ease, background-color 0.3s ease; }
-.attached-files-container:empty:not([style*="display: flex"]) { display: none; }
-.attached-file-item { display: flex; justify-content: space-between; align-items: center; background-color: var(--attached-file-bg); color: var(--attached-file-text); padding: 8px 12px; border-radius: 8px; font-size: 0.9em; transition: background-color 0.2s ease; }
-.attached-file-item .file-info { display: flex; flex-direction: column; text-align: left; flex-grow: 1; word-break: break-all; padding-right: 10px; }
-.attached-file-item .file-name { font-weight: 500; }
-.attached-file-item .file-size { font-size: 0.8em; color: rgba(255, 255, 255, 0.7); }
-body.light-mode .attached-file-item .file-size { color: rgba(51, 51, 51, 0.7); }
-.attached-file-item .remove-file-btn { background: none; border: none; color: var(--attached-file-text); font-size: 1.2em; cursor: pointer; margin-left: 10px; transition: color 0.2s ease, transform 0.1s ease; }
-.attached-file-item .remove-file-btn:hover { color: var(--attached-file-remove-hover); transform: scale(1.1); }
-.input-wrapper { background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border-color); box-shadow: none; border-radius: 24px; padding: 10px 16px; position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 900px; /* Increased max-width for input area */ display: flex; align-items: flex-end; min-height: 56px; max-height: 160px; overflow: hidden; box-sizing: border-box; transition: all 0.3s ease; z-index: 95; }
-.input-wrapper textarea { flex-grow: 1; background: none; border: none; color: var(--text-color); font-family: 'Inter', sans-serif; font-size: 1.1em; outline: none; resize: none; overflow: hidden; padding: 8px 0; line-height: 1.4; min-height: 24px; max-height: 140px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; }
+/* Kontainer pratinjau file di atas input-wrapper DIHAPUS */
+/* .file-preview-container-wrapper { ... } */
+/* .file-preview-container-inner { ... } */
+
+
+.input-wrapper {
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border-color);
+  box-shadow: none;
+  border-radius: 28px;
+  padding: 8px 10px;
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 900px;
+  display: flex;
+  align-items: flex-end; /* Align items ke bawah */
+  gap: 8px;
+  min-height: 56px;
+  max-height: 160px; /* Batas tinggi keseluruhan input wrapper */
+  box-sizing: border-box;
+  transition: height 0.2s ease; /* Transisi untuk perubahan tinggi */
+  z-index: 95;
+}
+
+/* ==== AWAL GAYA BARU UNTUK FILE CHIP (DI DALAM INPUT WRAPPER) ==== */
+.file-chip-container {
+  display: flex; /* Item chip akan berbaris horizontal */
+  align-items: center; /* Tengah secara vertikal */
+  gap: 6px; /* Jarak antar chip */
+  overflow-x: auto; /* Scroll horizontal jika chip melebihi ruang */
+  overflow-y: hidden;
+  max-width: 40%; /* Batasi lebar agar textarea masih punya ruang. SESUAIKAN! */
+  height: 40px; /* Samakan dengan tinggi tombol agar rapi */
+  flex-shrink: 1; /* Biarkan menyusut jika textarea membesar */
+  min-width: 0; /* Penting untuk flexbox */
+  margin-bottom: 2px; /* Samakan dengan margin tombol */
+
+  /* Styling scrollbar tipis (opsional) */
+  scrollbar-width: thin;
+  scrollbar-color: var(--button-hover-bg) transparent;
+}
+
+.file-chip-container::-webkit-scrollbar {
+  height: 4px;
+}
+.file-chip-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.file-chip-container::-webkit-scrollbar-thumb {
+  background-color: var(--button-hover-bg);
+  border-radius: 2px;
+}
+.file-chip-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--button-bg);
+}
+
+.file-chip-item {
+  display: flex;
+  align-items: center;
+  background-color: var(--file-chip-bg);
+  color: var(--file-chip-text);
+  padding: 5px 10px; /* Padding chip */
+  border-radius: 20px; /* Chip lebih bulat */
+  font-size: 0.85em; /* Font sedikit lebih kecil */
+  gap: 6px;
+  cursor: default;
+  flex-shrink: 0; /* Chip tidak mengecil */
+  transition: background-color 0.2s ease, opacity 0.3s ease, transform 0.3s ease;
+  white-space: nowrap;
+  max-width: 150px; /* Lebar maksimum satu chip, sesuaikan */
+  height: 30px; /* Tinggi chip, sesuaikan agar pas */
+  box-sizing: border-box;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.file-chip-item.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.file-chip-item .file-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--file-chip-text);
+  flex-shrink: 0;
+}
+
+.file-chip-item .file-details {
+  display: flex; /* Nama dan ukuran sejajar */
+  align-items: baseline; /* Agar teks baseline sejajar */
+  gap: 4px;
+  overflow: hidden;
+  text-align: left;
+  line-height: 1; /* Agar tidak ada spasi vertikal aneh */
+}
+
+.file-chip-item .file-name-preview {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-chip-item .file-size-preview {
+  font-size: 0.9em;
+  opacity: 0.8;
+  white-space: nowrap; /* Ukuran tidak boleh wrap */
+}
+
+.file-chip-item .remove-chip-btn {
+  background: none;
+  border: none;
+  color: var(--file-chip-text);
+  opacity: 0.7;
+  font-size: 1.4em; /* Ukuran 'x' */
+  line-height: 0.5; /* Turunkan 'x' agar pas di tengah chip */
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px; /* Jarak 'x' dari teks */
+  transition: opacity 0.2s ease, transform 0.1s ease, color 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; /* Area klik tombol x */
+  height: 16px;
+}
+
+.file-chip-item .remove-chip-btn:hover {
+  opacity: 1;
+  color: var(--file-chip-remove-hover-color);
+  transform: scale(1.1);
+}
+/* ==== AKHIR GAYA BARU UNTUK FILE CHIP ==== */
+
+
+.input-wrapper textarea {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1em;
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+  padding: 8px 0;
+  margin-bottom: 2px;
+  line-height: 1.4;
+  min-height: 24px;
+  max-height: 120px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
 .input-wrapper textarea::placeholder { color: var(--placeholder-color); transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; font-weight: 400; }
-.btn-circle { background-color: var(--button-bg); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin: 0 6px; transition: background-color 0.2s ease; position: relative; overflow: hidden; }
-.btn-circle:first-child { margin-left: 0; }
-.btn-circle:last-child { margin-right: 0; }
+.btn-circle { background-color: var(--button-bg); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; margin-bottom: 2px; }
 .btn-circle:hover { background-color: var(--button-hover-bg); }
 .btn-circle svg { stroke: var(--text-color); width: 20px; height: 20px; transition: stroke 0.3s ease; }
+
 
 .ripple { position: absolute; border-radius: 50%; opacity: 0; background-color: var(--ripple-color); animation: ripple-animation 0.6s linear; transform: scale(0); pointer-events: none; }
 @keyframes ripple-animation { from { transform: scale(0); opacity: 0.6; } to { transform: scale(2.5); opacity: 0; } }
@@ -274,10 +469,33 @@ body.light-mode .attached-file-item .file-size { color: rgba(51, 51, 51, 0.7); }
 .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(100, 100, 100, 0.5); border: 1px solid var(--glass-border-color); transition: .4s; border-radius: 28px; display: flex; align-items: center; justify-content: flex-start; padding: 3px; box-sizing: border-box; }
-.slider-icon { width: 20px; height: 20px; transition: transform 0.4s ease, color 0.4s ease; stroke-width: 2; }
-.slider-icon .sun-rays { opacity: 0; transform-origin: center; transform: scale(0.6) rotate(-45deg); transition: opacity 0.3s ease, transform 0.3s ease; stroke: currentColor; fill: none; }
-.slider-icon .moon-shape { opacity: 1; transform-origin: center; transform: scale(1) rotate(0deg); transition: opacity 0.3s ease, transform 0.3s ease; fill: currentColor; stroke: none; }
-input:checked + .slider { background-color: #66bb6a; justify-content: flex-end; }
+
+.slider-icon {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.4s ease, color 0.4s ease;
+    stroke-width: 2;
+}
+.slider-icon .sun-rays {
+    opacity: 0;
+    transform-origin: center;
+    transform: scale(0.6) rotate(-45deg);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    stroke: currentColor;
+    fill: none;
+}
+.slider-icon .moon-shape {
+    opacity: 1;
+    transform-origin: center;
+    transform: scale(1) rotate(0deg);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    fill: currentColor;
+    stroke: none;
+}
+input:checked + .slider {
+    background-color: #66bb6a;
+    justify-content: flex-end;
+}
 input:checked + .slider .slider-icon { color: white; }
 input:checked + .slider .slider-icon .sun-rays { opacity: 1; transform: scale(1) rotate(0deg); }
 input:checked + .slider .slider-icon .moon-shape { opacity: 0; transform: scale(0.6) rotate(45deg); }
@@ -319,105 +537,9 @@ body.light-mode .sidebar-item select { background-image: url('data:image/svg+xml
 .code-block .copy-code-btn svg { width: 16px; height: 16px; stroke: var(--copy-button-text, #ffffff); fill: none; stroke-width: 2; }
 body.light-mode .code-block .copy-code-btn svg { stroke: var(--text-color); }
 
+/* Animasi Tombol */
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .rotating { animation: spin 1.2s linear infinite; }
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 .pulsing svg { animation: pulse 1.5s ease-in-out infinite; }
 .ai-action-btn.liked svg { stroke: #3b82f6; fill: rgba(59, 130, 246, 0.3); }
-
-
-/* START: MODEL SELECTOR STYLES */
-.model-selector-container {
-    position: fixed;
-    bottom: 85px; /* Adjust as needed to be above input-wrapper */
-    right: 20px; /* Aligns with padding */
-    display: flex;
-    flex-direction: column-reverse; /* Options list on top, toggle button at bottom */
-    align-items: flex-end;
-    z-index: 94; /* Above quick complete, below input wrapper's content usually */
-}
-
-.current-model-toggle {
-    background-color: var(--model-selector-bg);
-    color: var(--model-selector-text-color);
-    border: 1px solid var(--model-selector-border-color);
-    border-radius: 20px; /* Pill shape */
-    padding: 8px 12px;
-    font-size: 0.9em;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    position: relative; /* For ripple */
-    overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-.current-model-toggle:hover {
-    background-color: var(--model-selector-hover-bg);
-}
-.model-logo {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
-}
-.model-toggle-arrow {
-    width: 16px;
-    height: 16px;
-    stroke: var(--model-selector-text-color);
-    transition: transform 0.3s ease;
-}
-.model-toggle-arrow.open {
-    transform: rotate(180deg); /* Points down when open */
-}
-
-.model-options-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    background-color: var(--model-selector-bg);
-    border: 1px solid var(--model-selector-border-color);
-    border-radius: 12px;
-    padding: 8px;
-    margin-bottom: 8px; /* Space between list and toggle button */
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
-    opacity: 0;
-    transform: translateY(10px);
-    visibility: hidden;
-    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
-    max-height: 200px; /* Limit height and allow scroll if many models */
-    overflow-y: auto;
-}
-.model-options-list.active {
-    opacity: 1;
-    transform: translateY(0);
-    visibility: visible;
-}
-.model-option-btn {
-    background-color: transparent;
-    color: var(--model-selector-text-color);
-    border: 1px solid transparent; /* Keep consistent height */
-    border-radius: 18px; /* Pill shape */
-    padding: 7px 10px; /* Slightly smaller padding */
-    font-size: 0.9em;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    text-align: left;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    position: relative; /* For ripple */
-    overflow: hidden;
-}
-.model-option-btn:hover {
-    background-color: var(--model-selector-hover-bg);
-    border-color: var(--model-selector-border-color);
-}
-.model-option-btn.selected {
-    background-color: var(--button-bg); /* Or a distinct color for selected */
-    /* font-weight: bold; */ /* Optional: highlight selected in list */
-}
-/* END: MODEL SELECTOR STYLES */

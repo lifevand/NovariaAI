@@ -11,7 +11,7 @@ function jwt_decode(token) {
     } catch (e) {
         console.error("Error decoding JWT", e);
         const errorDiv = document.getElementById('googleSignInError');
-        if (errorDiv) { errorDiv.textContent = "Login failed: Invalid token."; errorDiv.style.display = 'block'; }
+        if (errorDiv) { errorDiv.textContent = "Login gagal: Token tidak valid."; errorDiv.style.display = 'block'; }
         return null;
     }
 }
@@ -37,7 +37,7 @@ const featureCardsData = [
 
 function renderFeatureCards() {
     const grid = document.getElementById('featuresGrid');
-    if (!grid) { console.error("Element with ID 'featuresGrid' not found for Novaria features."); return; }
+    if (!grid) { console.error("Element #featuresGrid tidak ditemukan untuk fitur Novaria."); return; }
     grid.innerHTML = '';
     featureCardsData.forEach(card => {
         const cardElement = document.createElement('div');
@@ -60,15 +60,14 @@ function renderFeatureCards() {
     document.querySelectorAll('#featuresGrid .card-cta-button').forEach(button => {
         button.addEventListener('click', function() {
             const featureTitle = this.dataset.featureTitle;
-            localStorage.setItem('loginTriggeredByCard', `Novaria Feature: ${featureTitle}`); // Bedakan trigger
+            localStorage.setItem('loginTriggeredByCard', `Novaria Feature: ${featureTitle}`);
             if (localStorage.getItem('isLoggedIn') === 'true') {
-                // localStorage.setItem('initialChatMessage', `Saya ingin mencoba fitur Novaria: ${featureTitle}.`);
                 window.location.href = 'index.html';
             } else {
                 if (window.google && google.accounts && google.accounts.id) {
                     google.accounts.id.prompt(notification => {
                         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                            console.log('One Tap not shown for Novaria feature. Header login available.');
+                            console.log('Google One Tap tidak ditampilkan untuk fitur Novaria. Tombol login header tersedia.');
                             const headerLoginButton = document.querySelector('#googleSignInButtonContainer button, #googleSignInButtonContainer > div > div');
                             if (headerLoginButton) { headerLoginButton.focus(); }
                         }
@@ -102,7 +101,7 @@ const exploreAiData = [
 
 function renderExploreAiCards() {
     const grid = document.getElementById('exploreAiGrid');
-    if (!grid) { console.error("Element with ID 'exploreAiGrid' not found."); return; }
+    if (!grid) { console.error("Element #exploreAiGrid tidak ditemukan."); return; }
     grid.innerHTML = '';
     exploreAiData.forEach(item => {
         const cardElement = document.createElement('a');
@@ -130,20 +129,45 @@ function renderExploreAiCards() {
     });
 }
 
+// LOGIKA THEME TOGGLE
+function applyLoginTheme(isLightMode) {
+    if (isLightMode) {
+        document.body.classList.add('light-mode');
+        localStorage.setItem('novaria_theme', 'light');
+    } else {
+        document.body.classList.remove('light-mode');
+        localStorage.setItem('novaria_theme', 'dark');
+    }
+}
+
+function setupLoginThemeToggle() {
+    const themeToggleLogin = document.getElementById('themeToggleLogin');
+    if (!themeToggleLogin) return;
+    const savedTheme = localStorage.getItem('novaria_theme');
+    if (savedTheme === 'light') {
+        themeToggleLogin.checked = true;
+        applyLoginTheme(true);
+    } else {
+        themeToggleLogin.checked = false;
+        applyLoginTheme(false);
+    }
+    themeToggleLogin.addEventListener('change', () => {
+        applyLoginTheme(themeToggleLogin.checked);
+    });
+}
+
 window.onload = function () {
     const currentYearSpanLogin = document.getElementById('currentYearLogin');
     if (currentYearSpanLogin) { currentYearSpanLogin.textContent = new Date().getFullYear(); }
 
-    if (document.getElementById('featuresGrid')) {
-        renderFeatureCards(); // Render kartu fitur Novaria
-    }
-    if (document.getElementById('exploreAiGrid')) {
-        renderExploreAiCards(); // Render kartu jelajah AI
-    }
+    if (document.getElementById('featuresGrid')) { renderFeatureCards(); }
+    if (document.getElementById('exploreAiGrid')) { renderExploreAiCards(); }
+    
+    setupLoginThemeToggle();
 
     const clientIdMeta = document.querySelector('meta[name="google-signin-client_id"]');
     if (!clientIdMeta || !clientIdMeta.content) {
-        console.error("Google Client ID not found.");
+        console.error("Google Client ID tidak ditemukan.");
         const errorDiv = document.getElementById('googleSignInError');
         if (errorDiv) { errorDiv.textContent = "Konfigurasi login error."; errorDiv.style.display = 'block';}
         const signInBtnContainer = document.getElementById('googleSignInButtonContainer');
@@ -164,7 +188,7 @@ window.onload = function () {
                 signInButtonContainer.innerHTML = `<div class="user-greeting-header"><img src="${user.picture}" alt="${userName}" class="user-avatar-header"/><span>Hi, ${userName}!</span><a href="index.html" class="go-to-app-btn">Buka Aplikasi</a></div>`;
             }
         }
-        // Tidak ada auto-prompt One Tap di sini
+        // Tidak ada google.accounts.id.prompt() otomatis di sini
     } catch (error) {
         console.error("Google Identity Services init error:", error);
         const errorDiv = document.getElementById('googleSignInError');

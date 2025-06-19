@@ -1,9 +1,10 @@
 /* login.css - Styling Profesional untuk Landing Page Login */
 :root {
+    /* Dark Mode Defaults */
     --primary-text-color: #e6edf3;
     --secondary-text-color: #7d8590;
     --background-color: #010409;
-    --header-bg-color: rgba(13, 17, 23, 0.85);
+    --header-bg-color: rgba(13, 17, 23, 0.85); /* Sedikit transparan */
     --card-background-color: #0d1117;
     --card-border-color: #21262d;
     --accent-gradient-start: #a855f7; /* Ungu (Novaria) */
@@ -12,36 +13,112 @@
     --alt-gradient-end: #ec4899;   /* Pink (Jelajahi Title) */
     --button-text-color: #ffffff;
     --link-hover-color: #58a6ff;
+    --slider-bg-dark: #4b5563; /* Latar slider di dark mode */
+    --slider-icon-dark-moon: #93c5fd; /* Warna ikon bulan di dark mode */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    /* Light Mode Variabel */
+    --lm-primary-text-color: #1f2937;
+    --lm-secondary-text-color: #4b5563;
+    --lm-background-color: #f9fafb;
+    --lm-header-bg-color: rgba(255, 255, 255, 0.85); /* Sedikit transparan */
+    --lm-card-background-color: #ffffff;
+    --lm-card-border-color: #e5e7eb;
+    --lm-link-hover-color: #2563eb;
+    --lm-slider-bg-light: #d1d5db; /* Latar slider di light mode */
+    --lm-slider-icon-light-moon: #4b5563; /* Warna ikon bulan di light mode */
+    --lm-google-btn-bg: #1f2937 !important; /* Latar tombol Google di light mode */
+    --lm-google-btn-text: #f9fafb !important; /* Teks tombol Google di light mode */
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-sans); background-color: var(--background-color); color: var(--primary-text-color); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
+body {
+    font-family: var(--font-sans);
+    background-color: var(--background-color);
+    color: var(--primary-text-color);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.light-mode {
+    --primary-text-color: var(--lm-primary-text-color);
+    --secondary-text-color: var(--lm-secondary-text-color);
+    --background-color: var(--lm-background-color);
+    --header-bg-color: var(--lm-header-bg-color);
+    --card-background-color: var(--lm-card-background-color);
+    --card-border-color: var(--lm-card-border-color);
+    --link-hover-color: var(--lm-link-hover-color);
+    --slider-bg-dark: var(--lm-slider-bg-light); /* Menyesuaikan variabel slider untuk light mode */
+    --slider-icon-dark-moon: var(--lm-slider-icon-light-moon);
+}
+
+/* Header */
 .login-header { background-color: var(--header-bg-color); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--card-border-color); position: sticky; top: 0; z-index: 1000; padding: 0 20px; }
 .header-content-wrapper { display: flex; justify-content: space-between; align-items: center; max-width: 1280px; margin: 0 auto; height: 64px; }
+.header-left { display: flex; align-items: center; }
+.header-right { display: flex; align-items: center; gap: 20px; }
 .logo-container { display: flex; align-items: center; gap: 10px; }
 .header-logo { width: 32px; height: 32px; object-fit: contain; }
 .header-app-name { font-size: 1.25rem; font-weight: 700; color: var(--primary-text-color); }
-#googleSignInButtonContainer button, #googleSignInButtonContainer > div > div { background: var(--primary-text-color) !important; color: #0d1117 !important; border-radius: 6px !important; font-weight: 500 !important; padding: 8px 16px !important; box-shadow: none !important; border: none !important; font-size: 0.875rem !important; transition: background-color 0.2s ease !important; }
+
+/* Google Sign In Button & User Greeting */
+#googleSignInButtonContainer button, #googleSignInButtonContainer > div > div {
+    background: var(--primary-text-color) !important; 
+    color: var(--background-color) !important; /* Agar teks kontras dengan latar tombol */
+    border-radius: 6px !important; font-weight: 500 !important; padding: 8px 16px !important; 
+    box-shadow: none !important; border: none !important; font-size: 0.875rem !important; 
+    transition: background-color 0.2s ease !important; }
 #googleSignInButtonContainer button:hover, #googleSignInButtonContainer > div > div:hover { background: #cdd5df !important; }
+body.light-mode #googleSignInButtonContainer button, body.light-mode #googleSignInButtonContainer > div > div {
+    background: var(--lm-google-btn-bg) !important; /* Latar tombol Google di light mode */
+    color: var(--lm-google-btn-text) !important; /* Teks tombol Google di light mode */
+}
+body.light-mode #googleSignInButtonContainer button:hover, body.light-mode #googleSignInButtonContainer > div > div:hover {
+    background-color: #374151 !important; /* Sedikit lebih terang dari bg tombol google light mode */
+}
+
 .user-greeting-header { display: flex; align-items: center; gap: 10px; }
-.user-avatar-header { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+.user-avatar-header { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--card-border-color); }
+body.light-mode .user-avatar-header { border-color: var(--lm-card-border-color); }
 .user-greeting-header span { font-size: 0.875rem; color: var(--secondary-text-color); }
 .go-to-app-btn { background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end)); color: var(--button-text-color); padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.875rem; transition: opacity 0.2s ease; }
 .go-to-app-btn:hover { opacity: 0.85; }
 
+/* Theme Toggle */
+.theme-toggle-login-container { display: flex; align-items: center; }
+.switch { position: relative; display: inline-block; width: 48px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--slider-bg-dark); border: 1px solid var(--card-border-color); transition: .4s; border-radius: 28px; display: flex; align-items: center; justify-content: flex-start; padding: 3px; box-sizing: border-box; }
+body.light-mode .slider { border-color: var(--lm-card-border-color); }
+.slider-icon { width: 20px; height: 20px; transition: transform 0.4s ease, color 0.4s ease; stroke-width: 2; }
+.slider-icon .sun-rays { opacity: 0; transform-origin: center; transform: scale(0.6) rotate(-45deg); transition: opacity 0.3s ease, transform 0.3s ease; stroke: currentColor; fill: none; }
+.slider-icon .moon-shape { opacity: 1; transform-origin: center; transform: scale(1) rotate(0deg); transition: opacity 0.3s ease, transform 0.3s ease; fill: currentColor; stroke: none; }
+input:checked + .slider { background-color: #f59e0b; justify-content: flex-end; } /* Oranye untuk matahari */
+input:checked + .slider .slider-icon { color: white; }
+input:checked + .slider .slider-icon .sun-rays { opacity: 1; transform: scale(1) rotate(0deg); }
+input:checked + .slider .slider-icon .moon-shape { opacity: 0; transform: scale(0.6) rotate(45deg); }
+body:not(.light-mode) input:not(:checked) + .slider .slider-icon { color: var(--slider-icon-dark-moon); }
+body.light-mode input:not(:checked) + .slider .slider-icon { color: var(--slider-icon-dark-moon); } /* Tetap gunakan variabel yang disesuaikan di body.light-mode */
+
+
+/* Main Content & Sections */
 .landing-main { flex-grow: 1; padding: 48px 0; width: 100%; }
 .hero-section { text-align: center; margin-bottom: 56px; padding: 0 24px; }
 .hero-section h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; margin-bottom: 16px; line-height: 1.2; color: var(--primary-text-color); }
 .gradient-text { background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 4px; }
 .hero-subtitle { font-size: clamp(1rem, 2.5vw, 1.125rem); color: var(--secondary-text-color); max-width: 600px; margin: 0 auto 32px auto; }
-
 .section-title-alt, .section-title { text-align: center; margin-bottom: 32px; color: var(--primary-text-color); padding: 0 24px; }
-.section-title-alt { font-size: clamp(1.5rem, 3.5vw, 2rem); font-weight: 700; } /* Untuk "Fitur Unggulan Novaria" */
-.section-title { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; } /* Untuk "Jelajahi Ekosistem AI" */
+.section-title-alt { font-size: clamp(1.5rem, 3.5vw, 2rem); font-weight: 700; }
+.section-title { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; }
 .gradient-text-alt { background: linear-gradient(90deg, var(--alt-gradient-start), var(--alt-gradient-end)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 
+/* Fitur Unggulan Novaria Grid */
 .features-grid-container { max-width: 1200px; margin: 0 auto 64px auto; padding: 0 24px; }
 .features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
 .feature-card { background-color: var(--card-background-color); border: 1px solid var(--card-border-color); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; overflow: hidden; }
@@ -56,6 +133,7 @@ body { font-family: var(--font-sans); background-color: var(--background-color);
 .card-cta-button { display: block; width: 100%; padding: 10px 16px; text-align: center; font-size: 0.9375rem; font-weight: 500; color: var(--button-text-color); border: none; border-radius: 8px; cursor: pointer; background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end)); transition: opacity 0.2s ease, transform 0.1s ease; text-decoration: none; }
 .card-cta-button:hover { opacity: 0.85; transform: translateY(-1px); }
 
+/* Jelajahi Ekosistem AI Grid */
 .explore-ai-section { margin-top: 64px; margin-bottom: 60px; }
 .horizontal-scroll-wrapper { overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding-bottom: 24px; margin-left: calc((100% - 100vw) / 2); margin-right: calc((100% - 100vw) / 2); padding-left: max(24px, calc((100vw - 1200px) / 2 + 24px)); padding-right: max(24px, calc((100vw - 1200px) / 2 + 24px)); -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--card-border-color) transparent; }
 .horizontal-scroll-wrapper::-webkit-scrollbar { height: 6px; }
@@ -65,8 +143,8 @@ body { font-family: var(--font-sans); background-color: var(--background-color);
 .explore-ai-grid { display: flex; gap: 20px; width: max-content; }
 .explore-card { background: var(--card-background-color); border: 1px solid var(--card-border-color); border-radius: 12px; width: 250px; min-height: 320px; display: flex; flex-direction: column; padding: 20px; position: relative; overflow: hidden; transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); flex-shrink: 0; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 .explore-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
-.explore-card .gradient-border-shine { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 0; margin: -1px; border-radius: inherit; background-size: 200% 200%; opacity: 0; transition: opacity 0.3s ease; animation: gradientShine 4s linear infinite paused; } /* Animasi dipause dulu */
-.explore-card:hover .gradient-border-shine { opacity: 1; animation-play-state: running; } /* Jalankan animasi saat hover */
+.explore-card .gradient-border-shine { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; z-index: 0; margin: -1px; border-radius: inherit; background-size: 200% 200%; opacity: 0; transition: opacity 0.3s ease; animation: gradientShine 4s linear infinite paused; }
+.explore-card:hover .gradient-border-shine { opacity: 1; animation-play-state: running; }
 @keyframes gradientShine { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 .explore-card-content { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
 .explore-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -77,6 +155,7 @@ body { font-family: var(--font-sans); background-color: var(--background-color);
 .explore-card-button { display: inline-block; width: 100%; padding: 10px 16px; margin-top: auto; text-align: center; font-size: 0.875rem; font-weight: 500; color: var(--button-text-color); border: none; border-radius: 6px; cursor: pointer; text-decoration: none; background: linear-gradient(90deg, #374151, #1f2937); transition: opacity 0.2s ease, box-shadow 0.2s ease; }
 .explore-card-button:hover { opacity: 0.85; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
+/* Error & Footer */
 .error-message { color: #f87171; font-size: 0.875rem; margin: 20px auto; padding: 10px 16px; background-color: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 6px; text-align: center; max-width: 500px; }
 .landing-footer { background-color: var(--background-color); border-top: 1px solid var(--card-border-color); color: var(--secondary-text-color); padding: 32px 24px; text-align: center; font-size: 0.8125rem; }
 .footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -85,8 +164,11 @@ body { font-family: var(--font-sans); background-color: var(--background-color);
 .footer-links a { color: var(--secondary-text-color); text-decoration: none; transition: color 0.2s ease; }
 .footer-links a:hover { color: var(--link-hover-color); text-decoration: underline; }
 
+/* Responsiveness */
 @media (max-width: 768px) {
     .login-header { padding: 0 16px; } .header-content-wrapper { height: 56px; } .header-app-name { font-size: 1.125rem; }
+    .header-right { gap: 12px; } /* Kurangi gap di mobile */
+    .theme-toggle-login-container { margin-right: 0; /* Hapus margin jika ada */ }
     .landing-main { padding: 32px 0; } .hero-section { padding: 0 16px; margin-bottom: 40px; }
     .features-grid-container { padding: 0 16px; margin-bottom: 48px; }
     .section-title-alt, .section-title { padding: 0 16px; margin-bottom: 24px; }
@@ -95,4 +177,5 @@ body { font-family: var(--font-sans); background-color: var(--background-color);
 }
 @media (max-width: 480px) {
     .features-grid { grid-template-columns: 1fr; } .hero-section h1 { font-size: 1.75rem; } .hero-subtitle { font-size: 0.9375rem; }
+    .explore-card { width: clamp(180px, 70vw, 220px); } /* Lebar kartu lebih adaptif di layar sangat kecil */
 }

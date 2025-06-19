@@ -1,15 +1,17 @@
 /* login.css - Styling Profesional untuk Landing Page Login */
 :root {
-    --primary-text-color: #e6edf3; /* Teks terang untuk tema gelap */
-    --secondary-text-color: #7d8590; /* Teks abu-abu untuk detail */
-    --background-color: #010409; /* Sangat gelap, mendekati hitam */
-    --header-bg-color: rgba(13, 17, 23, 0.85); /* Gelap transparan untuk header */
-    --card-background-color: #0d1117; /* Sedikit lebih terang dari bg utama */
-    --card-border-color: #21262d;   /* Border yang subtil */
-    --accent-gradient-start: #a855f7; /* Ungu (dari Tailwind purple-500) */
-    --accent-gradient-end: #f97316;   /* Oranye (dari Tailwind orange-500) */
+    --primary-text-color: #e6edf3;
+    --secondary-text-color: #7d8590;
+    --background-color: #010409;
+    --header-bg-color: rgba(13, 17, 23, 0.85);
+    --card-background-color: #0d1117;
+    --card-border-color: #21262d;
+    --accent-gradient-start: #a855f7; /* Ungu (Novaria) */
+    --accent-gradient-end: #f97316;   /* Oranye (Novaria) */
+    --alt-gradient-start: #8b5cf6; /* Ungu (Jelajahi Title) */
+    --alt-gradient-end: #ec4899;   /* Pink (Jelajahi Title) */
     --button-text-color: #ffffff;
-    --link-hover-color: #58a6ff; /* Biru terang untuk hover link */
+    --link-hover-color: #58a6ff;
 
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -34,7 +36,7 @@ body {
 }
 
 /* Header */
-.login-header {
+.login-header { /* ... (Styling header seperti sebelumnya, tidak ada perubahan signifikan) ... */
     background-color: var(--header-bg-color);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -42,304 +44,260 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
-    padding: 0 20px; /* Padding horizontal untuk header */
+    padding: 0 20px;
 }
-
-.header-content-wrapper {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1280px; /* Lebar maksimum konten header */
-    margin: 0 auto;
-    height: 64px; /* Tinggi header tetap */
-}
-
-.logo-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.header-logo {
-    width: 32px; /* Ukuran logo kecil yang wajar */
-    height: 32px;
-    object-fit: contain;
-}
-
-.header-app-name {
-    font-size: 1.25rem; /* 20px */
-    font-weight: 700;
-    color: var(--primary-text-color);
-}
-
-/* Styling untuk tombol Google Sign-In atau Info User di Header */
-#googleSignInButtonContainer button, 
-#googleSignInButtonContainer > div > div { /* Target tombol Google */
-    background: var(--primary-text-color) !important;
-    color: #0d1117 !important; /* Warna teks gelap agar kontras */
-    border-radius: 6px !important;
-    font-weight: 500 !important;
-    padding: 8px 16px !important;
-    box-shadow: none !important;
-    border: none !important;
-    font-size: 0.875rem !important; /* 14px */
-    transition: background-color 0.2s ease !important;
-}
-#googleSignInButtonContainer button:hover,
-#googleSignInButtonContainer > div > div:hover {
-    background: #cdd5df !important; /* Warna hover lebih terang */
-}
-
-.user-greeting-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.user-avatar-header {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-.user-greeting-header span {
-    font-size: 0.875rem;
-    color: var(--secondary-text-color);
-}
-.go-to-app-btn {
-    background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
-    color: var(--button-text-color);
-    padding: 6px 12px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.875rem;
-    transition: opacity 0.2s ease;
-}
-.go-to-app-btn:hover {
-    opacity: 0.85;
-}
+.header-content-wrapper { display: flex; justify-content: space-between; align-items: center; max-width: 1280px; margin: 0 auto; height: 64px; }
+.logo-container { display: flex; align-items: center; gap: 10px; }
+.header-logo { width: 32px; height: 32px; object-fit: contain; }
+.header-app-name { font-size: 1.25rem; font-weight: 700; color: var(--primary-text-color); }
+#googleSignInButtonContainer button, #googleSignInButtonContainer > div > div { background: var(--primary-text-color) !important; color: #0d1117 !important; border-radius: 6px !important; font-weight: 500 !important; padding: 8px 16px !important; box-shadow: none !important; border: none !important; font-size: 0.875rem !important; transition: background-color 0.2s ease !important; }
+#googleSignInButtonContainer button:hover, #googleSignInButtonContainer > div > div:hover { background: #cdd5df !important; }
+.user-greeting-header { display: flex; align-items: center; gap: 10px; }
+.user-avatar-header { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+.user-greeting-header span { font-size: 0.875rem; color: var(--secondary-text-color); }
+.go-to-app-btn { background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end)); color: var(--button-text-color); padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.875rem; transition: opacity 0.2s ease; }
+.go-to-app-btn:hover { opacity: 0.85; }
 
 /* Main Content Area */
 .landing-main {
     flex-grow: 1;
-    padding: 48px 24px; /* Padding atas-bawah dan samping */
+    padding: 48px 0; /* Padding atas-bawah, samping akan dihandle oleh kontainer section */
     width: 100%;
 }
 
-.hero-section {
+/* Hero Section */
+.hero-section { /* ... (Styling hero seperti sebelumnya) ... */
     text-align: center;
-    margin-bottom: 56px; /* Jarak lebih besar */
+    margin-bottom: 56px;
+    padding: 0 24px;
 }
+.hero-section h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; margin-bottom: 16px; line-height: 1.2; color: var(--primary-text-color); }
+.gradient-text { background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 4px; }
+.hero-subtitle { font-size: clamp(1rem, 2.5vw, 1.125rem); color: var(--secondary-text-color); max-width: 600px; margin: 0 auto 32px auto; }
 
-.hero-section h1 {
-    font-size: clamp(2rem, 5vw, 3rem); /* Ukuran font responsif */
-    font-weight: 800;
-    margin-bottom: 16px;
-    line-height: 1.2;
+/* Judul Section Alternatif (untuk Fitur Novaria) */
+.section-title-alt {
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 32px;
     color: var(--primary-text-color);
+    padding: 0 24px;
 }
 
-.gradient-text {
-    background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
+/* Grid Kartu Fitur Novaria */
+.features-grid-container { /* ... (Styling features-grid-container seperti sebelumnya) ... */
+    max-width: 1200px; margin: 0 auto 64px auto; padding: 0 24px;
+}
+.features-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+.feature-card { background-color: var(--card-background-color); border: 1px solid var(--card-border-color); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; overflow: hidden; }
+.feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 0 0 1px var(--card-border-color), 0 0 0 3px rgba(168, 85, 247, 0.3); }
+.card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.card-icon { font-size: 1.75rem; color: var(--accent-gradient-start); font-variation-settings: 'FILL' 0; line-height: 1; }
+.card-header h3 { font-size: 1.25rem; font-weight: 600; margin: 0; color: var(--primary-text-color); }
+.card-description { font-size: 0.875rem; color: var(--secondary-text-color); margin-bottom: 16px; flex-grow: 1; line-height: 1.5; }
+.card-image-container { width: 100%; aspect-ratio: 16 / 10; border-radius: 8px; overflow: hidden; margin-bottom: 20px; background-color: #161b22; display: flex; align-items: center; justify-content: center; }
+.card-image-container img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease-out; }
+.feature-card:hover .card-image-container img { transform: scale(1.05); }
+.card-cta-button { display: block; width: 100%; padding: 10px 16px; text-align: center; font-size: 0.9375rem; font-weight: 500; color: var(--button-text-color); border: none; border-radius: 8px; cursor: pointer; background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end)); transition: opacity 0.2s ease, transform 0.1s ease; text-decoration: none; }
+.card-cta-button:hover { opacity: 0.85; transform: translateY(-1px); }
+
+
+/* Styling untuk Section Jelajahi AI Lain */
+.explore-ai-section {
+    margin-top: 64px; /* Jarak dari section fitur */
+    margin-bottom: 60px;
+}
+
+.section-title { /* Ini untuk judul "Jelajahi Ekosistem AI" */
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+    color: var(--primary-text-color);
+    padding: 0 24px;
+}
+
+.gradient-text-alt {
+    background: linear-gradient(90deg, var(--alt-gradient-start), var(--alt-gradient-end));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    padding-bottom: 4px; /* Sedikit padding agar gradien terlihat lebih baik */
 }
 
-.hero-subtitle {
-    font-size: clamp(1rem, 2.5vw, 1.125rem); /* Ukuran font responsif */
-    color: var(--secondary-text-color);
-    max-width: 600px; /* Batasi lebar subtitle */
-    margin: 0 auto 32px auto;
+.horizontal-scroll-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding-bottom: 24px; /* Ruang untuk scrollbar & shadow */
+    /* Untuk efek scroll dari tepi ke tepi tanpa padding section mengganggu */
+    margin-left: calc((100% - 100vw) / 2); 
+    margin-right: calc((100% - 100vw) / 2);
+    padding-left: max(24px, calc((100vw - 1200px) / 2 + 24px)); /* Padding agar konten tetap di dalam max-width */
+    padding-right: max(24px, calc((100vw - 1200px) / 2 + 24px));
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--card-border-color) transparent; /* Scrollbar lebih transparan */
 }
 
-/* Grid Kartu Fitur */
-.features-grid-container {
-    max-width: 1200px; /* Lebar maksimum untuk grid */
-    margin: 0 auto; /* Tengahkankan grid container */
-}
+.horizontal-scroll-wrapper::-webkit-scrollbar { height: 6px; }
+.horizontal-scroll-wrapper::-webkit-scrollbar-track { background: transparent; }
+.horizontal-scroll-wrapper::-webkit-scrollbar-thumb { background-color: var(--card-border-color); border-radius: 3px; }
+.horizontal-scroll-wrapper::-webkit-scrollbar-thumb:hover { background-color: var(--secondary-text-color); }
 
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Kolom responsif */
-    gap: 24px; /* Jarak antar kartu */
+.explore-ai-grid {
+    display: flex; /* Kartu berjajar horizontal */
+    gap: 20px;
+    width: max-content; /* Agar lebar grid sesuai dengan total lebar kartu */
+    /* Untuk animasi auto-scroll sederhana (opsional) */
+    /* animation: autoHorizontalScroll 90s linear infinite; */
 }
+/* .explore-ai-grid:hover { animation-play-state: paused; } */
 
-.feature-card {
-    background-color: var(--card-background-color);
+/* @keyframes autoHorizontalScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-100% + 100vw - 48px)); } /* Sesuaikan agar berhenti sebelum kartu terakhir hilang sepenuhnya */
+/* } */
+
+
+.explore-card {
+    background: var(--card-background-color);
     border: 1px solid var(--card-border-color);
-    border-radius: 12px; /* Border radius lebih besar */
-    padding: 24px;
+    border-radius: 12px;
+    width: 250px; /* Lebar kartu jelajah lebih kecil */
+    min-height: 320px; /* Tinggi kartu jelajah */
+    display: flex; 
+    flex-direction: column;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                box-shadow 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    flex-shrink: 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.explore-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* Efek border gradien (akan di-set per kartu via JS/inline style) */
+.explore-card .gradient-border-shine {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: 0; /* Di belakang konten tapi di atas background kartu */
+    margin: -1px; /* Untuk border */
+    border-radius: inherit;
+    background-size: 200% 200%; /* Untuk animasi gradien */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    /* Background akan diisi oleh JS */
+}
+
+.explore-card:hover .gradient-border-shine {
+    opacity: 1;
+    animation: gradientShine 4s linear infinite;
+}
+
+@keyframes gradientShine {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+.explore-card-content { /* Wrapper untuk konten agar di atas ::before */
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-    overflow: hidden;
+    height: 100%; /* Agar konten mengisi kartu */
 }
 
-.feature-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 
-                0 0 0 1px var(--card-border-color), /* Border halus saat hover */
-                0 0 0 3px rgba(168, 85, 247, 0.3); /* Glow ungu subtil */
-}
 
-.card-header {
+.explore-card-header {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
+    gap: 10px;
+    margin-bottom: 8px;
 }
 
-.card-icon {
-    font-size: 1.75rem; /* 28px, ukuran ikon */
-    color: var(--accent-gradient-start); /* Warna ikon utama */
-    font-variation-settings: 'FILL' 0; /* Default outline */
-    line-height: 1;
+.explore-card-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    border-radius: 4px;
+    background-color: rgba(255,255,255,0.05); /* Latar sedikit untuk logo PNG transparan */
+    padding: 2px; /* Jarak logo dari tepi bg-nya */
 }
 
-.card-header h3 {
-    font-size: 1.25rem; /* 20px */
+.explore-card-header h3 {
+    font-size: 1.125rem; /* 18px */
     font-weight: 600;
     margin: 0;
     color: var(--primary-text-color);
+    white-space: normal; /* Biarkan judul wrap jika panjang */
 }
 
-.card-description {
-    font-size: 0.875rem; /* 14px */
+.explore-card-divider {
+    height: 1px;
+    background-color: var(--card-border-color);
+    margin: 8px 0 12px 0;
+}
+
+.explore-card-description {
+    font-size: 0.8125rem; /* 13px */
     color: var(--secondary-text-color);
-    margin-bottom: 16px;
-    flex-grow: 1;
-    line-height: 1.5;
+    margin-bottom: auto; /* Mendorong tombol ke bawah */
+    line-height: 1.45;
+    min-height: 80px; /* Sesuaikan */
+    padding-bottom: 12px;
+    white-space: normal; /* Biarkan deskripsi wrap */
 }
 
-.card-image-container {
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    background-color: #161b22; /* Placeholder jika gambar lambat load */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.card-image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Pastikan gambar mengisi kontainer */
-    transition: transform 0.3s ease-out;
-}
-.feature-card:hover .card-image-container img {
-    transform: scale(1.05); /* Efek zoom halus pada gambar saat card dihover */
-}
-
-.card-cta-button {
-    display: block;
+.explore-card-button {
+    display: inline-block; /* Agar bisa atur padding & margin */
     width: 100%;
     padding: 10px 16px;
+    margin-top: auto; /* Dorong ke bawah jika deskripsi pendek */
     text-align: center;
-    font-size: 0.9375rem; /* 15px */
-    font-weight: 500; /* Sedikit lebih tipis dari 600 */
+    font-size: 0.875rem;
+    font-weight: 500;
     color: var(--button-text-color);
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
-    transition: opacity 0.2s ease, transform 0.1s ease;
     text-decoration: none;
+    /* Gradien tombol akan diatur per kartu atau default */
+    background: linear-gradient(90deg, #374151, #1f2937); /* Gradien abu-abu gelap default */
+    transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+.explore-card-button:hover {
+    opacity: 0.85;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
-.card-cta-button:hover {
-    opacity: 0.85;
-    transform: translateY(-1px);
-}
 
 /* Error Message */
-.error-message {
-    color: #f87171; /* Merah terang */
-    font-size: 0.875rem;
-    margin: 20px auto;
-    padding: 10px 16px;
-    background-color: rgba(248, 113, 113, 0.1);
-    border: 1px solid rgba(248, 113, 113, 0.2);
-    border-radius: 6px;
-    text-align: center;
-    max-width: 500px;
+.error-message { /* ... (Styling error message seperti sebelumnya) ... */
+    color: #f87171; font-size: 0.875rem; margin: 20px auto; padding: 10px 16px; background-color: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 6px; text-align: center; max-width: 500px;
 }
 
 /* Footer */
-.landing-footer {
-  background-color: var(--background-color);
-  border-top: 1px solid var(--card-border-color);
-  color: var(--secondary-text-color);
-  padding: 32px 24px;
-  text-align: center;
-  font-size: 0.8125rem; /* 13px */
+.landing-footer { /* ... (Styling footer seperti sebelumnya) ... */
+  background-color: var(--background-color); border-top: 1px solid var(--card-border-color); color: var(--secondary-text-color); padding: 32px 24px; text-align: center; font-size: 0.8125rem;
 }
+.footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.footer-content p { margin: 0; }
+.footer-links { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.footer-links a { color: var(--secondary-text-color); text-decoration: none; transition: color 0.2s ease; }
+.footer-links a:hover { color: var(--link-hover-color); text-decoration: underline; }
 
-.footer-content {
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.footer-content p {
-  margin: 0;
-}
-
-.footer-links {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.footer-links a {
-  color: var(--secondary-text-color);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.footer-links a:hover {
-  color: var(--link-hover-color);
-  text-decoration: underline;
-}
-
-/* Responsiveness */
+/* Responsiveness tambahan jika perlu */
 @media (max-width: 768px) {
-    .login-header {
-        padding: 0 16px; /* Padding lebih kecil di mobile */
-    }
-    .header-content-wrapper {
-        height: 56px;
-    }
-    .header-app-name {
-        font-size: 1.125rem; /* Sedikit lebih kecil */
-    }
-    .landing-main {
-        padding: 32px 16px;
-    }
-    .hero-section {
-        margin-bottom: 40px;
-    }
-    .features-grid {
-        gap: 16px;
-    }
-}
-
-@media (max-width: 480px) {
-    .features-grid {
-        grid-template-columns: 1fr; /* Pastikan satu kolom di layar sangat kecil */
-    }
-    .hero-section h1 {
-        font-size: 1.75rem; /* Lebih kecil lagi */
-    }
-    .hero-subtitle {
-        font-size: 0.9375rem;
-    }
+    .explore-ai-section { margin-top: 48px; }
+    .section-title, .section-title-alt { margin-bottom: 24px; }
+    .explore-card { width: 220px; min-height: 300px; } /* Kartu lebih kecil di mobile */
 }

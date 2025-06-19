@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="Yu5SrqKysJNrowL7W3-1r6kAGOf6GyertHg2MR-QMvg" />
-  <title data-key="documentTitle">Nova - AI Assistant</title>
+  <title data-key="documentTitle">NovaAI</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -23,6 +23,16 @@
       </div>
     </div>
     <div class="header-right-group">
+        <!-- MODEL SELECTOR START -->
+        <div id="modelSelectContainer" class="model-select-container hidden">
+            <button id="modelSelectButton" class="model-select-button">
+                <!-- Konten akan diisi oleh JavaScript -->
+            </button>
+            <div id="modelSelectList" class="model-select-list">
+                <!-- Daftar model akan diisi oleh JavaScript -->
+            </div>
+        </div>
+        <!-- MODEL SELECTOR END -->
         <div id="landingThemeToggleContainer" class="theme-toggle-landing">
             <label class="switch">
                 <input type="checkbox" id="themeToggleLanding">
@@ -42,12 +52,11 @@
   <main>
     <section id="welcomeSection" class="page-section active">
         <h1 data-key="welcomeTitle">Welcome</h1>
-        <p data-key="helpText">Ask Me Anything!</p>
+        <p data-key="helpText">Hii, I Can Help You?</p>
     </section>
 
     <section id="chatSection" class="page-section hidden">
         <div id="chatHistory">
-            <!-- Pesan akan ditambahkan di sini oleh JavaScript -->
             <div id="thinkingIndicator" class="ai-message hidden">
                 <span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
             </div>
@@ -58,10 +67,7 @@
   <div class="quick-complete-container" id="quickCompleteContainer">
   </div>
 
-  <!-- Kontainer BARU untuk menampilkan file yang akan dikirim (di atas input) -->
-  <div id="pendingFilesPreviewContainer" class="pending-files-preview-container">
-    <!-- File tags akan ditambahkan di sini oleh JavaScript -->
-  </div>
+  <div id="attachedFilesContainer" class="attached-files-container"></div>
 
   <div class="input-wrapper">
     <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
@@ -115,25 +121,25 @@
 
     <div class="sidebar-item" data-modal-target="privacyPolicy">
       <a href="#">
-        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
         <span data-key="privacyPolicy">Privacy Policy</span>
       </a>
     </div>
     <div class="sidebar-item" data-modal-target="termsAndConditions">
       <a href="#">
-        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/></svg>
         <span data-key="termsAndConditions">Terms & Conditions</span>
       </a>
     </div>
     <div class="sidebar-item" data-modal-target="policy">
       <a href="#">
-        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
         <span data-key="policy">Policy</span>
       </a>
     </div>
     <div class="sidebar-item" data-modal-target="aboutUs">
       <a href="#">
-        <svg viewBox="0 0 24 24"> <circle fill="currentColor" cx="12" cy="12" r="3"/><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
         <span data-key="aboutUs">About Us</span>
       </a>
     </div>
@@ -143,7 +149,8 @@
     <div class="modal-content" id="infoModalContent">
       <button class="modal-close-btn" id="modalCloseBtn">×</button>
       <h3 id="modalTitle">Modal Title</h3>
-      <div id="modalBody"></div>
+      <div id="modalBody">
+        </div>
     </div>
   </div>
 

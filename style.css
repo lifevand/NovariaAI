@@ -5,7 +5,7 @@
   /* Dark Mode Defaults */
   --bg-color: #000000;
   --text-color: #ffffff;
-  --input-bg: #1c1c1e; /* Sedikit lebih terang dari bg-color untuk kontras */
+  --input-bg: #1c1c1c;
   --button-bg: #333333;
   --button-hover-bg: #555555;
   --placeholder-color: rgba(255, 255, 255, 0.6);
@@ -13,7 +13,7 @@
   --sidebar-text: #ffffff;
   --sidebar-item-hover: #3a3a3a;
   --ripple-color: rgba(255, 255, 255, 0.4);
-  --border-color: rgba(255, 255, 255, 0.15); /* Sedikit lebih jelas */
+  --border-color: rgba(255, 255, 255, 0.1);
   --modal-bg: #2a2a2a;
   --modal-text: #ffffff;
   --modal-close-button: #555555;
@@ -22,20 +22,11 @@
   --quick-complete-text: #ffffff;
   --quick-complete-hover-bg: #3a3a3a;
   --user-message-color: #ffffff;
-  --ai-message-color: rgba(255, 255, 255, 0.9); /* Sedikit lebih terang */
-  --ai-message-header-text: #bbbbbb; /* Warna untuk header AI */
-  --ai-message-model-tag-bg: #3a3a3a;
-  --ai-message-model-tag-text: #e0e0e0;
+  --ai-message-color: rgba(255, 255, 255, 0.8);
   --ai-thinking-color: rgba(255, 255, 255, 0.6);
-  
-  /* BARU: Variabel untuk file attachment tags */
-  --pending-file-tag-bg: #2b2b2e;
-  --pending-file-tag-text: #e0e0e0;
-  --pending-file-tag-border: var(--border-color);
-  --pending-file-tag-icon-color: #a0a0a0;
-  --pending-file-tag-remove-hover-bg: #ff6666;
-  --pending-file-tag-remove-icon-color: #ffffff;
-  
+  --attached-file-bg: #333333;
+  --attached-file-text: #ffffff;
+  --attached-file-remove-hover: #ff6666;
   --action-button-bg: #333333;
   --action-button-hover-bg: #555555;
   --action-button-icon-color: #ffffff;
@@ -51,11 +42,11 @@
 }
 
 body.light-mode {
-  --bg-color: #f8f9fa; /* Lebih soft white */
-  --text-color: #212529; /* Dark grey, bukan pure black */
-  --input-bg: #ffffff;
-  --button-bg: #e9ecef; /* Abu-abu muda */
-  --button-hover-bg: #dee2e6; /* Sedikit lebih gelap saat hover */
+  --bg-color: #f8f8f8;
+  --text-color: #333333;
+  --input-bg: #e0e0e0;
+  --button-bg: #cccccc;
+  --button-hover-bg: #aaaaaa;
   --placeholder-color: rgba(0, 0, 0, 0.5);
   --sidebar-bg: #ffffff;
   --sidebar-text: #333333;
@@ -70,28 +61,19 @@ body.light-mode {
   --quick-complete-text: #333333;
   --quick-complete-hover-bg: #dddddd;
   --user-message-color: #333333;
-  --ai-message-color: rgba(51, 51, 51, 0.9);
-  --ai-message-header-text: #555555;
-  --ai-message-model-tag-bg: #e0e0e0;
-  --ai-message-model-tag-text: #444444;
+  --ai-message-color: rgba(51, 51, 51, 0.8);
   --ai-thinking-color: rgba(51, 51, 51, 0.6);
-  
-  /* BARU: Variabel untuk file attachment tags (Light Mode) */
-  --pending-file-tag-bg: #f1f3f5;
-  --pending-file-tag-text: #343a40;
-  --pending-file-tag-border: #ced4da;
-  --pending-file-tag-icon-color: #868e96;
-  --pending-file-tag-remove-hover-bg: #fa5252;
-  --pending-file-tag-remove-icon-color: #ffffff;
-
+  --attached-file-bg: #c0c0c0;
+  --attached-file-text: #333333;
+  --attached-file-remove-hover: #ff0000;
   --action-button-bg: #cccccc;
   --action-button-hover-bg: #aaaaaa;
   --action-button-icon-color: #333333;
-  --code-block-bg: #f1f3f5; /* Light grey untuk code block */
+  --code-block-bg: #f0f0f0;
   --code-block-text: #333333;
   --code-block-border: #d0d0d0;
-  --copy-button-bg: #d3d9df;
-  --copy-button-hover-bg: #c0c7cf;
+  --copy-button-bg: #c0c0c0;
+  --copy-button-hover-bg: #a0a0a0;
   --code-language-tag-bg: #d0d0d0;
   --code-language-tag-text: #333333;
   --glass-bg: rgba(255, 255, 255, 0.5);
@@ -113,7 +95,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-*:focus { outline: none; box-shadow: none; }
+*:focus {
+  outline: none;
+  box-shadow: none;
+}
 
 /* Header */
 header {
@@ -132,9 +117,16 @@ header {
   z-index: 100;
   box-sizing: border-box;
 }
+
 .header-left-group { display: flex; gap: 12px; align-items: center; }
-.app-brand { display: flex; align-items: center; gap: 8px; font-size: 1.3em; font-weight: 700; color: var(--text-color); }
-.app-logo { width: 38px; height: 38px; object-fit: contain; display: block; }
+.app-brand { display: flex; align-items: center; gap: 8px; font-size: 1.3em; font-weight: 700; }
+.app-logo {
+    width: 38px;
+    height: 38px;
+    object-fit: contain; /* Agar logo tidak terpotong dan sesuai aspek rasio */
+    display: block;
+    /* background-color, border-radius, padding dihapus */
+}
 .header-right-group { display: flex; gap: 16px; align-items: center; }
 .icon-btn { width: 24px; height: 24px; stroke: var(--text-color); fill: none; stroke-width: 2; cursor: pointer; transition: stroke 0.3s ease; }
 
@@ -147,89 +139,92 @@ main {
 }
 
 /* Page Sections (Welcome and Chat) */
-.page-section { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; position: absolute; width: 100%; height: 100%; top: 0; left: 0; display: flex; flex-direction: column; box-sizing: border-box; }
-.page-section.active { opacity: 1; transform: translateY(0); position: relative; }
-.page-section.hidden { display: none !important; }
+.page-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
 
-#welcomeSection { justify-content: center; align-items: center; text-align: center; gap: 12px; padding: 20px; }
+.page-section.active {
+  opacity: 1;
+  transform: translateY(0);
+  position: relative;
+}
+
+.page-section.hidden {
+  display: none !important;
+}
+
+#welcomeSection {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+}
 #welcomeSection h1 { font-size: 2.5em; margin: 0; font-weight: 700; }
 #welcomeSection p { font-size: 1.3em; margin: 0; font-weight: 400; color: var(--text-color); }
-#chatSection { justify-content: center; align-items: center; }
 
-#chatHistory { width: 100%; max-width: 800px; /* Lebar diperbesar sedikit */ height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-top: 90px; /* Padding untuk header fixed */ padding-bottom: 150px; /* Padding lebih besar untuk input area & pending files */ padding-left: 20px; padding-right: 20px; box-sizing: border-box; position: relative; }
-#chatHistory.has-scroll-fade::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: linear-gradient(to top, var(--bg-color) 20%, transparent 100%); pointer-events: none; transition: opacity 0.3s ease; opacity: 1; }
-#chatHistory:not(.has-scroll-fade)::after { opacity: 0; }
-
-.chat-message { max-width: 100%; word-wrap: break-word; line-height: 1.6; font-size: 1em; text-align: left; margin-bottom: 20px; /* Spasi antar pesan */ transition: opacity 0.5s ease, transform 0.5s ease; opacity: 0; transform: translateY(15px); }
-
-/* BARU: User message attachment preview container (dalam chat) */
-.user-message-attachments {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 8px; /* Jarak antara attachments dan teks pesan */
-}
-/* Styling untuk file tag individual di dalam user message (mirip .pending-file-tag) */
-.user-message-attachment-tag {
-    background-color: var(--pending-file-tag-bg);
-    color: var(--pending-file-tag-text);
-    border: 1px solid var(--pending-file-tag-border);
-    border-radius: 12px; /* Lebih rounded */
-    padding: 5px 10px;
-    font-size: 0.8em;
-    display: inline-flex; /* Agar sejajar dengan teks jika pendek */
+#chatSection {
+    justify-content: center;
     align-items: center;
-    gap: 6px;
-    max-width: 200px; /* Batasi lebar tag agar tidak terlalu panjang */
-    overflow: hidden;
 }
-.user-message-attachment-tag svg {
-    width: 16px;
-    height: 16px;
-    fill: var(--pending-file-tag-icon-color);
-    flex-shrink: 0;
+
+#chatHistory {
+    width: 100%;
+    max-width: 700px;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 90px;
+    padding-bottom: 120px;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+    position: relative;
 }
-.user-message-attachment-tag .file-name {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-weight: 500;
+
+#chatHistory.has-scroll-fade::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to top, var(--bg-color) 20%, transparent 100%);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 1;
+}
+#chatHistory:not(.has-scroll-fade)::after {
+  opacity: 0;
+}
+
+.chat-message {
+    max-width: 100%;
+    word-wrap: break-word;
+    line-height: 1.6;
+    font-size: 1em;
+    text-align: left;
+    margin-bottom: 16px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0;
+    transform: translateY(15px);
 }
 
 .user-message { color: var(--user-message-color); font-weight: 500; }
 .ai-message { color: var(--ai-message-color); font-weight: 400; display: flex; flex-direction: column; gap: 8px; }
-
-/* BARU: Styling untuk header pesan AI (logo, Novaria, model) */
-.ai-message-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
-}
-.ai-message-header img.ai-logo {
-    width: 28px; /* Ukuran logo di chat AI */
-    height: 28px;
-    object-fit: contain;
-}
-.ai-message-header .ai-name {
-    font-weight: 600;
-    font-size: 1.05em;
-    color: var(--text-color); /* Atau --user-message-color jika ingin lebih kontras */
-}
-.ai-message-header .ai-model-tag {
-    background-color: var(--ai-message-model-tag-bg);
-    color: var(--ai-message-model-tag-text);
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-size: 0.8em;
-    font-weight: 500;
-}
-
 .ai-message-actions { display: flex; gap: 8px; margin-top: 8px; }
 .ai-action-btn { background-color: var(--action-button-bg); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; color: var(--action-button-icon-color); }
 .ai-action-btn:hover { background-color: var(--action-button-hover-bg); }
 .ai-action-btn svg { width: 18px; height: 18px; stroke: var(--action-button-icon-color); fill: none; stroke-width: 2; }
-
 #thinkingIndicator { color: var(--ai-thinking-color); font-style: italic; font-size: 1em; display: flex; align-items: center; gap: 2px; padding: 4px 0; opacity: 0; transition: opacity 0.3s ease; }
 #thinkingIndicator .dot { font-weight: 700; font-size: 1.2em; animation: pulse-dot 1.2s infinite ease-in-out both; }
 #thinkingIndicator .dot:nth-child(1) { animation-delay: 0s; }
@@ -242,88 +237,18 @@ main {
 .quick-complete-btn { background-color: var(--quick-complete-bg); color: var(--quick-complete-text); border: 1px solid var(--border-color); border-radius: 20px; padding: 8px 15px; font-size: 0.95em; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; white-space: nowrap; position: relative; overflow: hidden; }
 .quick-complete-btn:hover { background-color: var(--quick-complete-hover-bg); border-color: var(--quick-complete-hover-bg); }
 
-/* BARU: Styling untuk container pending files (di atas input) */
-.pending-files-preview-container {
-    position: fixed; /* Posisi tetap */
-    bottom: 75px; /* Sesuaikan jarak dari bawah, di atas .input-wrapper */
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 40px);
-    max-width: 900px; /* Sama dengan .input-wrapper max-width */
-    padding: 0px 10px 10px 10px; /* Padding di bawah untuk jarak ke input-wrapper */
-    box-sizing: border-box;
-    display: flex;
-    flex-wrap: wrap; /* Agar tag wrap jika tidak muat */
-    gap: 8px; /* Jarak antar tag */
-    justify-content: flex-start; /* Mulai dari kiri */
-    max-height: 100px; /* Batas tinggi jika banyak file, bisa di-scroll jika diperlukan */
-    overflow-y: auto; /* Scroll jika lebih dari max-height */
-    z-index: 94; /* Di bawah .input-wrapper (95), di atas konten lain */
-    transition: bottom 0.3s ease; /* Untuk animasi jika tinggi input-wrapper berubah */
-}
-.pending-files-preview-container:empty {
-    display: none; /* Sembunyikan jika kosong */
-}
-
-/* BARU: Styling untuk file tag individual di pending-files-preview-container */
-.pending-file-tag {
-    background-color: var(--pending-file-tag-bg);
-    color: var(--pending-file-tag-text);
-    border: 1px solid var(--pending-file-tag-border);
-    border-radius: 16px; /* Lebih rounded */
-    padding: 6px 12px;
-    font-size: 0.9em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.2s ease, opacity 0.3s ease;
-    cursor: default;
-    max-width: 220px; /* Agar tag tidak terlalu lebar jika nama file panjang */
-}
-.pending-file-tag svg.file-icon { /* Class khusus untuk SVG ikon file */
-    width: 20px;
-    height: 20px;
-    fill: var(--pending-file-tag-icon-color);
-    flex-shrink: 0;
-}
-.pending-file-tag .file-details {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* Agar text-overflow bekerja */
-    flex-grow: 1; /* Agar mengambil ruang tersedia */
-    text-align: left;
-}
-.pending-file-tag .file-name {
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.pending-file-tag .file-size {
-    font-size: 0.8em;
-    opacity: 0.7;
-}
-.pending-file-tag .remove-file-btn {
-    background: none;
-    border: none;
-    color: var(--pending-file-tag-icon-color);
-    font-size: 1.5em; /* Perbesar sedikit tombol X */
-    font-weight: bold;
-    line-height: 1;
-    cursor: pointer;
-    padding: 0 0 0 6px;
-    margin-left: auto; /* Dorong ke kanan */
-    transition: color 0.2s ease;
-}
-.pending-file-tag .remove-file-btn:hover {
-    color: var(--pending-file-tag-remove-hover-bg); /* Menggunakan warna bg untuk efek merah */
-}
-
-
-.input-wrapper { background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border-color); box-shadow: none; border-radius: 24px; padding: 10px 16px; position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 900px; display: flex; align-items: flex-end; min-height: 56px; max-height: 160px; overflow: visible; /* Izinkan elemen di dalamnya (seperti attached files) terlihat jika posisinya di atas */ box-sizing: border-box; transition: all 0.3s ease; z-index: 95; }
+.attached-files-container { position: fixed; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 700px; padding: 10px; background-color: var(--input-bg); border-top-left-radius: 12px; border-top-right-radius: 12px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; gap: 8px; z-index: 92; max-height: 150px; overflow-y: auto; box-sizing: border-box; transition: bottom 0.3s ease, background-color 0.3s ease; }
+.attached-files-container:empty:not([style*="display: flex"]) { display: none; }
+.attached-file-item { display: flex; justify-content: space-between; align-items: center; background-color: var(--attached-file-bg); color: var(--attached-file-text); padding: 8px 12px; border-radius: 8px; font-size: 0.9em; transition: background-color 0.2s ease; }
+.attached-file-item .file-info { display: flex; flex-direction: column; text-align: left; flex-grow: 1; word-break: break-all; padding-right: 10px; }
+.attached-file-item .file-name { font-weight: 500; }
+.attached-file-item .file-size { font-size: 0.8em; color: rgba(255, 255, 255, 0.7); }
+body.light-mode .attached-file-item .file-size { color: rgba(51, 51, 51, 0.7); }
+.attached-file-item .remove-file-btn { background: none; border: none; color: var(--attached-file-text); font-size: 1.2em; cursor: pointer; margin-left: 10px; transition: color 0.2s ease, transform 0.1s ease; }
+.attached-file-item .remove-file-btn:hover { color: var(--attached-file-remove-hover); transform: scale(1.1); }
+.input-wrapper { background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border-color); box-shadow: none; border-radius: 24px; padding: 10px 16px; position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 900px; display: flex; align-items: flex-end; min-height: 56px; max-height: 160px; overflow: hidden; box-sizing: border-box; transition: all 0.3s ease; z-index: 95; }
 .input-wrapper textarea { flex-grow: 1; background: none; border: none; color: var(--text-color); font-family: 'Inter', sans-serif; font-size: 1.1em; outline: none; resize: none; overflow: hidden; padding: 8px 0; line-height: 1.4; min-height: 24px; max-height: 140px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; }
 .input-wrapper textarea::placeholder { color: var(--placeholder-color); transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; font-weight: 400; }
-
 .btn-circle { background-color: var(--button-bg); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin: 0 6px; transition: background-color 0.2s ease; position: relative; overflow: hidden; }
 .btn-circle:first-child { margin-left: 0; }
 .btn-circle:last-child { margin-right: 0; }
@@ -337,18 +262,66 @@ main {
 .theme-toggle-container { justify-content: space-between; padding: 12px 15px; border-radius: 8px; background-color: var(--sidebar-item-hover); font-size: 1.05em; font-weight: 500; }
 .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(100, 100, 100, 0.5); border: 1px solid var(--glass-border-color); transition: .4s; border-radius: 28px; display: flex; align-items: center; justify-content: flex-start; padding: 3px; box-sizing: border-box; }
-.slider-icon { width: 20px; height: 20px; transition: transform 0.4s ease, color 0.4s ease; stroke-width: 2; }
-.slider-icon .sun-rays { opacity: 0; transform-origin: center; transform: scale(0.6) rotate(-45deg); transition: opacity 0.3s ease, transform 0.3s ease; stroke: currentColor; fill: none; }
-.slider-icon .moon-shape { opacity: 1; transform-origin: center; transform: scale(1) rotate(0deg); transition: opacity 0.3s ease, transform 0.3s ease; fill: currentColor; stroke: none; }
-input:checked + .slider { background-color: #66bb6a; justify-content: flex-end; }
-input:checked + .slider .slider-icon { color: white; }
-input:checked + .slider .slider-icon .sun-rays { opacity: 1; transform: scale(1) rotate(0deg); }
-input:checked + .slider .slider-icon .moon-shape { opacity: 0; transform: scale(0.6) rotate(45deg); }
-body:not(.light-mode) input:not(:checked) + .slider .slider-icon { color: white; }
-body.light-mode input:not(:checked) + .slider .slider-icon { color: #555; }
-input:not(:checked) + .slider .slider-icon .sun-rays { opacity: 0; transform: scale(0.6) rotate(-45deg); }
-input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: scale(1) rotate(0deg); }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(100, 100, 100, 0.5); border: 1px solid var(--glass-border-color); transition: .4s; border-radius: 28px; display: flex; align-items: center; justify-content: flex-start; padding: 3px; /* Adjust padding for new icon size */ box-sizing: border-box; }
+
+/* STYLING IKON THEME TOGGLE BARU */
+.slider-icon {
+    width: 20px; /* Ukuran ikon di dalam slider */
+    height: 20px;
+    /* Warna diatur oleh state di bawah */
+    transition: transform 0.4s ease, color 0.4s ease; /* Transisi untuk gerakan knob & warna ikon */
+    stroke-width: 2; /* Default stroke-width */
+}
+.slider-icon .sun-rays {
+    opacity: 0;
+    transform-origin: center;
+    transform: scale(0.6) rotate(-45deg);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    stroke: currentColor; /* Sinar matahari menggunakan stroke, warna dari parent (.slider-icon) */
+    fill: none;
+}
+.slider-icon .moon-shape {
+    opacity: 1;
+    transform-origin: center;
+    transform: scale(1) rotate(0deg);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    fill: currentColor; /* Bulan menggunakan fill, warna dari parent (.slider-icon) */
+    stroke: none; /* Bulan tidak pakai stroke */
+}
+/* Saat toggle AKTIF (LIGHT MODE dipilih, input:checked) */
+input:checked + .slider {
+    background-color: #66bb6a; /* Warna background slider saat aktif */
+    justify-content: flex-end; /* Pindahkan knob ke kanan */
+}
+input:checked + .slider .slider-icon {
+    color: white; /* Ikon (matahari) menjadi putih di atas background slider yang aktif */
+}
+input:checked + .slider .slider-icon .sun-rays {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+input:checked + .slider .slider-icon .moon-shape {
+    opacity: 0;
+    transform: scale(0.6) rotate(45deg);
+}
+/* Saat toggle TIDAK AKTIF (DARK MODE dipilih, input:not(:checked)) */
+/* Warna ikon untuk dark mode (bulan) saat body dark mode */
+body:not(.light-mode) input:not(:checked) + .slider .slider-icon {
+    color: white; /* Bulan putih di slider abu2 gelap */
+}
+/* Warna ikon untuk dark mode (bulan) saat body light mode */
+body.light-mode input:not(:checked) + .slider .slider-icon {
+    color: #555; /* Bulan gelap di slider abu2 terang */
+}
+input:not(:checked) + .slider .slider-icon .sun-rays {
+    opacity: 0;
+    transform: scale(0.6) rotate(-45deg);
+}
+input:not(:checked) + .slider .slider-icon .moon-shape {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+/* END STYLING IKON THEME TOGGLE BARU */
 
 .hidden { display: none !important; }
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
@@ -359,14 +332,7 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 .sidebar-item { padding: 12px 15px; cursor: pointer; border-radius: 8px; transition: background-color 0.2s ease, color 0.2s ease; display: flex; align-items: center; gap: 12px; font-size: 1.05em; font-weight: 500; }
 .sidebar-item:hover { background-color: var(--sidebar-item-hover); }
 .sidebar-item a { text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; width: 100%; }
-.sidebar-item svg { width: 22px; height: 22px; stroke: currentColor; /* Diubah agar mengambil warna dari parent */ fill: none; stroke-width: 2; transition: stroke 0.3s ease; }
-.sidebar-item[data-modal-target="privacyPolicy"] a svg,
-.sidebar-item[data-modal-target="termsAndConditions"] a svg,
-.sidebar-item[data-modal-target="policy"] a svg,
-.sidebar-item[data-modal-target="aboutUs"] a svg {
-    fill: currentColor; /* Khusus untuk SVG yang sudah memiliki fill path */
-    stroke: none;
-}
+.sidebar-item svg { width: 22px; height: 22px; stroke: var(--sidebar-text); fill: none; stroke-width: 2; transition: stroke 0.3s ease; }
 .sidebar-item.language-select { display: flex; justify-content: space-between; align-items: center; }
 .sidebar-item select { background-color: var(--button-bg); color: var(--text-color); border: none; padding: 8px 12px; border-radius: 6px; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 1em; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: right 8px center; background-size: 18px; transition: background-color 0.3s ease, color 0.3s ease; }
 body.light-mode .sidebar-item select { background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); }
@@ -381,8 +347,10 @@ body.light-mode .sidebar-item select { background-image: url('data:image/svg+xml
 .modal-close-btn { position: absolute; top: 15px; right: 15px; background: var(--modal-close-button); color: var(--modal-text); border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 1.5em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
 .modal-close-btn:hover { background: var(--modal-close-button-hover); transform: scale(1.05); }
 
+/* Model Select styles dihapus karena elemennya dihapus */
+
 .code-block { background-color: var(--code-block-bg); color: var(--code-block-text); padding: 15px; border-radius: 8px; margin-top: 15px; margin-bottom: 10px; position: relative; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em; line-height: 1.5; border: 1px solid var(--code-block-border); text-align: left; white-space: pre-wrap; word-break: break-all; }
-.code-block pre { margin: 0; padding: 0; white-space: pre-wrap; /* Pastikan kode wrap di pre juga */ word-wrap: break-word; }
+.code-block pre { margin: 0; padding: 0; }
 .code-block .code-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--code-block-border); }
 .code-block .language-tag { background-color: var(--code-language-tag-bg); color: var(--code-language-tag-text); padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 500; text-transform: uppercase; }
 .code-block .copy-code-btn { background-color: var(--copy-button-bg); color: var(--copy-button-text, #ffffff); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 5px; }
@@ -396,5 +364,116 @@ body.light-mode .code-block .copy-code-btn svg { stroke: var(--text-color); }
 .pulsing svg { animation: pulse 1.5s ease-in-out infinite; }
 .ai-action-btn.liked svg { stroke: #3b82f6; fill: rgba(59, 130, 246, 0.3); }
 
-/* Fix untuk .attachedFilesContainer yang tidak lagi dipakai */
-#attachedFilesContainer { display: none; }
+/* === MODEL SELECTOR STYLES === */
+.model-select-container {
+  position: relative;
+  display: inline-block; /* Atau flex jika ingin align dengan item lain */
+  margin-right: 16px; /* Sesuaikan jarak jika perlu */
+}
+
+.model-select-button {
+  background-color: var(--button-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 20px; /* Samakan dengan quick-complete-btn */
+  padding: 8px 12px 8px 10px; /* Sedikit lebih padding kiri untuk ikon */
+  font-size: 0.9em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Jarak antara ikon dan teks */
+  min-width: 180px; /* Agar cukup lebar untuk nama model */
+  justify-content: space-between; /* Agar panah di ujung kanan */
+}
+
+.model-select-button:hover {
+  background-color: var(--button-hover-bg);
+  border-color: var(--button-hover-bg);
+}
+
+.model-select-button .model-sparkle-icon {
+  width: 16px;
+  height: 16px;
+  stroke: var(--text-color); /* Warna default, bisa di-override jika perlu */
+  fill: none;
+  /* Contoh ikon sparkle (sesuaikan pathnya) */
+  /* Untuk ikon sparkle yang lebih baik, Anda mungkin perlu SVG path yang lebih kompleks */
+}
+
+.model-select-button .model-arrow-icon {
+  width: 14px;
+  height: 14px;
+  stroke: var(--text-color);
+  fill: none;
+  stroke-width: 2;
+  transition: transform 0.3s ease;
+}
+
+.model-select-list {
+  position: absolute;
+  top: calc(100% + 5px); /* Posisi di bawah tombol */
+  left: 0;
+  right: 0; /* Agar lebarnya sama dengan tombol atau container */
+  background-color: var(--quick-complete-bg); /* Atau var(--sidebar-bg) */
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  z-index: 110; /* Di atas header */
+  max-height: 200px; /* Batasi tinggi jika banyak model */
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.model-select-list.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.model-option-btn {
+  background-color: transparent;
+  color: var(--quick-complete-text); /* Atau var(--sidebar-text) */
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.model-option-btn:hover {
+  background-color: var(--quick-complete-hover-bg); /* Atau var(--sidebar-item-hover) */
+}
+
+.model-option-btn .model-sparkle-icon {
+  width: 16px;
+  height: 16px;
+  stroke: var(--quick-complete-text);
+  fill: none;
+}
+
+/* Penyesuaian untuk tema terang jika diperlukan (contoh) */
+body.light-mode .model-select-button {
+  /* Jika ada warna spesifik untuk border atau background di light mode */
+}
+body.light-mode .model-select-list {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+/* Pastikan class .hidden dari script.js bekerja */
+.model-select-container.hidden {
+  display: none !important;
+}

@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let personalizedResponseText = rawAiResponseText;
                 if (currentUser && currentUser.name) {
-                    const greeting = `Hii ${currentUser.givenName || currentUser.name}, baik ini dia penjelasannya...\n\n`; // Use givenName for a more personal touch
+                    const greeting = `Hii ${currentUser.givenName || currentUser.name},\n\n`; // Use givenName for a more personal touch
                     personalizedResponseText = greeting + rawAiResponseText;
                 }
 

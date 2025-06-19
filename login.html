@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com"> <!-- GANTI DENGAN CLIENT ID ANDA -->
+    <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com"> <!-- GANTI DENGAN CLIENT ID ANDA YANG VALID -->
     <title>Novaria - Asisten AI Cerdas Anda</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
@@ -15,11 +15,11 @@
     <header class="login-header">
         <div class="header-content-wrapper">
             <div class="logo-container">
-                <img src="logo.png" alt="Novaria Logo" class="header-logo">
+                <img src="logo.png" alt="Novaria Logo" class="header-logo"> <!-- Logo Kecil Novaria -->
                 <span class="header-app-name">Novaria</span>
             </div>
             <div id="googleSignInButtonContainer">
-                <!-- Tombol Login Google atau info user -->
+                <!-- Tombol Login Google atau info user akan dirender di sini oleh JS -->
             </div>
         </div>
     </header>
@@ -30,15 +30,14 @@
             <p class="hero-subtitle">Temukan bagaimana Novaria dapat membantu Anda dalam berbagai tugas sehari-hari dengan kecerdasan buatan.</p>
         </section>
 
-        <section class="features-grid-container">
+        <section class="features-grid-container" id="novariaFeaturesSection">
             <h2 class="section-title-alt">Fitur Unggulan Novaria</h2>
             <div class="features-grid" id="featuresGrid">
-                <!-- Kartu Fitur Novaria dirender di sini oleh JS -->
+                <!-- Kartu Fitur Unggulan Novaria akan dirender di sini oleh JavaScript -->
             </div>
         </section>
         
-        <!-- ===== AWAL BAGIAN JELAJAHI AI LAIN ===== -->
-        <section class="explore-ai-section">
+        <section class="explore-ai-section" id="exploreAiSection">
             <h2 class="section-title"><span class="gradient-text-alt">Jelajahi</span> Ekosistem AI</h2>
             <div class="horizontal-scroll-wrapper">
                 <div class="explore-ai-grid" id="exploreAiGrid">
@@ -46,14 +45,13 @@
                 </div>
             </div>
         </section>
-        <!-- ===== AKHIR BAGIAN JELAJAHI AI LAIN ===== -->
         
         <div id="googleSignInError" class="error-message" style="display: none;"></div>
     </main>
 
     <footer class="landing-footer">
       <div class="footer-content">
-        <p>© <span id="currentYearLogin"></span> Novaria. All Rights Reserved.</p>
+        <p>© <span id="currentYearLogin"></span> Novaria | Lifevander Inc.</p>
         <nav class="footer-links">
           <a href="#">Kebijakan Privasi</a>
           <a href="#">Syarat & Ketentuan</a>

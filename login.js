@@ -52,31 +52,31 @@ const featureCardsData = [
         icon: "edit_document", 
         title: "Makalah & Esai",
         description: "Nova bisa membantumu menulis makalah ilmiah, artikel, opini, laporan, dan tugas sekolah dengan struktur yang jelas dan bahasa yang baik.",
-        image: "images/makalah-esai.png" // GANTI DENGAN PATH GAMBAR ANDA JIKA PERLU
+        image: "images/makalah-esai.png"
     },
     {
         icon: "trending_up", 
         title: "Marketing Finance",
         description: "Analisis tren pasar, buat strategi marketing, dan kelola keuangan dengan bantuan insight dari Novaria.",
-        image: "images/marketing-finance.png" // GANTI DENGAN PATH GAMBAR ANDA JIKA PERLU
+        image: "images/marketing-finance.png"
     },
     {
         icon: "school", 
         title: "Membantu Tugas",
         description: "Dapatkan bantuan untuk mengerjakan PR, riset materi pelajaran, dan persiapan ujian dengan Novaria.",
-        image: "images/bantu-tugas.png" // GANTI DENGAN PATH GAMBAR ANDA JIKA PERLU
+        image: "images/bantu-tugas.png"
     },
     {
         icon: "psychology", 
         title: "AI Profesional Ramah",
         description: "Novaria dirancang untuk menjadi partner AI yang profesional namun tetap ramah dan mudah diajak berinteraksi.",
-        image: "images/ai-profesional.png" // GANTI DENGAN PATH GAMBAR ANDA JIKA PERLU
+        image: "images/ai-profesional.png"
     },
     {
         icon: "summarize", 
         title: "Analisis Dokumen",
         description: "Unggah dokumen Anda dan biarkan Novaria membantu menganalisis, merangkum, atau mengekstrak informasi penting.",
-        image: "images/analisis-dokumen.png" // GANTI DENGAN PATH GAMBAR ANDA JIKA PERLU
+        image: "images/analisis-dokumen.png"
     }
 ];
 
@@ -84,13 +84,13 @@ function renderFeatureCards() {
     const grid = document.getElementById('featuresGrid');
     if (!grid) return;
 
-    grid.innerHTML = ''; // Kosongkan grid sebelum merender ulang (jika dipanggil lagi)
+    grid.innerHTML = ''; 
 
     featureCardsData.forEach(card => {
         const cardElement = document.createElement('div');
         cardElement.className = 'feature-card';
         
-        const iconName = card.icon || "help_outline"; // Default ikon jika tidak ada
+        const iconName = card.icon || "help_outline"; 
 
         cardElement.innerHTML = `
             <div class="card-header">
@@ -99,7 +99,7 @@ function renderFeatureCards() {
             </div>
             <p class="card-description">${card.description}</p>
             <div class="card-image-container">
-                <img src="${card.image}" alt="${card.title}" loading="lazy"> <!-- Tambah loading lazy -->
+                <img src="${card.image}" alt="${card.title}" loading="lazy">
             </div>
             <button class="card-cta-button" data-feature-title="${card.title}">Coba Sekarang</button>
         `;
@@ -115,21 +115,16 @@ function renderFeatureCards() {
                 window.location.href = 'index.html';
             } else {
                 if (window.google && google.accounts && google.accounts.id) {
+                    // Panggil One Tap prompt saat tombol "Coba Sekarang" diklik jika belum login
                     google.accounts.id.prompt((notification) => {
                          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                            console.log('Google One Tap prompt was not displayed or skipped.');
+                            console.log('Google One Tap prompt was not displayed or skipped when "Coba Sekarang" was clicked.');
+                            // Pengguna masih bisa menggunakan tombol "Login" di header
                             const headerLoginButton = document.querySelector('#googleSignInButtonContainer button, #googleSignInButtonContainer > div > div');
-                            if (headerLoginButton && typeof headerLoginButton.click === 'function') {
-                                // Jika One Tap tidak muncul, coba klik tombol login di header secara programatik
-                                // Ini mungkin tidak selalu berhasil karena batasan browser
-                                // Lebih baik pengguna secara manual klik tombol di header.
-                                // headerLoginButton.click(); 
-                                console.log("User should click the login button in the header.");
-                            } else if (headerLoginButton) {
+                            if (headerLoginButton) {
                                 headerLoginButton.focus();
                                 headerLoginButton.style.outline = '2px solid var(--accent-gradient-start)';
                                 setTimeout(() => { headerLoginButton.style.outline = 'none'; }, 2000);
-
                             }
                         }
                     });
@@ -167,6 +162,7 @@ window.onload = function () {
         google.accounts.id.initialize({
             client_id: clientId,
             callback: handleCredentialResponse,
+            // auto_select: false, // Defaultnya false, tidak perlu eksplisit jika tidak ingin auto select
         });
 
         const signInButtonContainer = document.getElementById('googleSignInButtonContainer');
@@ -179,8 +175,10 @@ window.onload = function () {
                         size: "medium",    
                         type: "standard", 
                         shape: "pill", 
-                        text: "signin_with", 
-                        logo_alignment: "left",
+                        text: "signin", // <<<--- PERUBAHAN DI SINI: "signin" untuk teks "Login" atau "Masuk" (tergantung lokal Google)
+                                        // Google akan otomatis melokalisasi ini. "signin" adalah opsi paling pendek.
+                                        // Opsi lain: "signin_with" (Sign in with Google), "continue_with" (Continue with Google)
+                        logo_alignment: "left", // Logo Google tetap di kiri
                     } 
                 );
             } else {
@@ -195,9 +193,8 @@ window.onload = function () {
             }
         }
 
-        // if (localStorage.getItem('isLoggedIn') !== 'true') {
-        //    google.accounts.id.prompt(); 
-        // }
+        // TIDAK ADA PEMANGGILAN google.accounts.id.prompt() OTOMATIS DI SINI
+        // One Tap hanya akan muncul jika dipicu oleh aksi pengguna (misal klik "Coba Sekarang")
 
     } catch (error) {
         console.error("Google Identity Services initialization error:", error);

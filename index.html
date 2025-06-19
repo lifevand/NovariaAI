@@ -10,7 +10,7 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="app-hidden"> <!-- Tambahkan class app-hidden -->
 
   <header>
     <div class="header-left-group">
@@ -59,8 +59,6 @@
   <div class="quick-complete-container" id="quickCompleteContainer">
   </div>
 
-  <!-- Kontainer pratinjau file yang sebelumnya di sini (di atas input-wrapper) DIHAPUS -->
-
   <div class="input-wrapper">
     <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
 
@@ -71,11 +69,9 @@
       </svg>
     </button>
 
-    <!-- ==== AWAL KONTAINER BARU UNTUK PRATINJAU FILE (DI DALAM INPUT WRAPPER) ==== -->
     <div id="fileChipContainer" class="file-chip-container">
         <!-- Item pratinjau file (chip) akan ditambahkan di sini oleh JavaScript -->
     </div>
-    <!-- ==== AKHIR KONTAINER BARU UNTUK PRATINJAU FILE ==== -->
 
     <button class="btn-circle btn-voice" id="voiceInputButton">
         <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -120,7 +116,7 @@
 
     <div class="sidebar-item" data-modal-target="privacyPolicy">
       <a href="#">
-        <svg viewBox="0 0 24 24">
+        <svg viewBox="0 0 24 24" fill="currentColor"> <!-- Adjusted fill for visibility -->
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
         </svg>
         <span data-key="privacyPolicy">Privacy Policy</span>
@@ -128,7 +124,7 @@
     </div>
     <div class="sidebar-item" data-modal-target="termsAndConditions">
       <a href="#">
-        <svg viewBox="0 0 24 24">
+        <svg viewBox="0 0 24 24" fill="currentColor"> <!-- Adjusted fill for visibility -->
           <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/>
         </svg>
         <span data-key="termsAndConditions">Terms & Conditions</span>
@@ -136,7 +132,7 @@
     </div>
     <div class="sidebar-item" data-modal-target="policy">
       <a href="#">
-        <svg viewBox="0 0 24 24">
+        <svg viewBox="0 0 24 24" fill="currentColor"> <!-- Adjusted fill for visibility -->
           <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
         </svg>
         <span data-key="policy">Policy</span>
@@ -144,11 +140,21 @@
     </div>
     <div class="sidebar-item" data-modal-target="aboutUs">
       <a href="#">
-        <svg viewBox="0 0 24 24">
+        <svg viewBox="0 0 24 24" fill="currentColor"> <!-- Adjusted fill for visibility -->
           <circle cx="12" cy="12" r="3"/>
           <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
         </svg>
         <span data-key="aboutUs">About Us</span>
+      </a>
+    </div>
+     <div class="sidebar-item" id="logoutButton">
+      <a href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span>Logout</span>
       </a>
     </div>
   </aside>

@@ -96,10 +96,22 @@ body {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out; /* Tambahkan transisi opacity */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Sembunyikan body secara default, tampilkan setelah login diverifikasi */
+body.app-hidden {
+    opacity: 0;
+    pointer-events: none; /* Cegah interaksi saat tersembunyi */
+}
+
+body.app-loaded {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 
 *:focus {
   outline: none;
@@ -277,6 +289,9 @@ main {
 .ai-message-content {
     /* Styling jika perlu */
 }
+.ai-message-content span {
+    white-space: pre-wrap; /* Agar \n di teks biasa juga berfungsi */
+}
 
 .ai-message-actions { display: flex; gap: 8px; margin-top: 8px; }
 .ai-action-btn { background-color: var(--action-button-bg); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; color: var(--action-button-icon-color); }
@@ -293,10 +308,6 @@ main {
 .quick-complete-container.active { opacity: 1; visibility: visible; }
 .quick-complete-btn { background-color: var(--quick-complete-bg); color: var(--quick-complete-text); border: 1px solid var(--border-color); border-radius: 20px; padding: 8px 15px; font-size: 0.95em; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; white-space: nowrap; position: relative; overflow: hidden; }
 .quick-complete-btn:hover { background-color: var(--quick-complete-hover-bg); border-color: var(--quick-complete-hover-bg); }
-
-/* Kontainer pratinjau file di atas input-wrapper DIHAPUS */
-/* .file-preview-container-wrapper { ... } */
-/* .file-preview-container-inner { ... } */
 
 
 .input-wrapper {
@@ -323,7 +334,6 @@ main {
   z-index: 95;
 }
 
-/* ==== AWAL GAYA BARU UNTUK FILE CHIP (DI DALAM INPUT WRAPPER) ==== */
 .file-chip-container {
   display: flex; /* Item chip akan berbaris horizontal */
   align-items: center; /* Tengah secara vertikal */
@@ -336,7 +346,6 @@ main {
   min-width: 0; /* Penting untuk flexbox */
   margin-bottom: 2px; /* Samakan dengan margin tombol */
 
-  /* Styling scrollbar tipis (opsional) */
   scrollbar-width: thin;
   scrollbar-color: var(--button-hover-bg) transparent;
 }
@@ -433,8 +442,6 @@ main {
   color: var(--file-chip-remove-hover-color);
   transform: scale(1.1);
 }
-/* ==== AKHIR GAYA BARU UNTUK FILE CHIP ==== */
-
 
 .input-wrapper textarea {
   flex-grow: 1;
@@ -510,10 +517,14 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 .sidebar.active { right: 0; }
 .sidebar-overlay.active { opacity: 1; visibility: visible; }
 .sidebar h2 { margin-top: 0; font-size: 1.6em; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; color: var(--sidebar-text); }
-.sidebar-item { padding: 12px 15px; cursor: pointer; border-radius: 8px; transition: background-color 0.2s ease, color 0.2s ease; display: flex; align-items: center; gap: 12px; font-size: 1.05em; font-weight: 500; }
+.sidebar-item { padding: 12px 15px; cursor: pointer; border-radius: 8px; transition: background-color 0.2s ease, color 0.2s ease; display: flex; align-items: center; gap: 12px; font-size: 1.05em; font-weight: 500; position: relative; overflow: hidden; } /* Added position relative and overflow hidden for ripple */
 .sidebar-item:hover { background-color: var(--sidebar-item-hover); }
 .sidebar-item a { text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; width: 100%; }
 .sidebar-item svg { width: 22px; height: 22px; stroke: var(--sidebar-text); fill: none; stroke-width: 2; transition: stroke 0.3s ease; }
+.sidebar-item [fill="currentColor"] { /* For sidebar icons that use fill */
+    fill: var(--sidebar-text);
+    stroke: none; /* remove stroke if fill is used */
+}
 .sidebar-item.language-select { display: flex; justify-content: space-between; align-items: center; }
 .sidebar-item select { background-color: var(--button-bg); color: var(--text-color); border: none; padding: 8px 12px; border-radius: 6px; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 1em; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: right 8px center; background-size: 18px; transition: background-color 0.3s ease, color 0.3s ease; }
 body.light-mode .sidebar-item select { background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); }
@@ -529,10 +540,10 @@ body.light-mode .sidebar-item select { background-image: url('data:image/svg+xml
 .modal-close-btn:hover { background: var(--modal-close-button-hover); transform: scale(1.05); }
 
 .code-block { background-color: var(--code-block-bg); color: var(--code-block-text); padding: 15px; border-radius: 8px; margin-top: 15px; margin-bottom: 10px; position: relative; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em; line-height: 1.5; border: 1px solid var(--code-block-border); text-align: left; white-space: pre-wrap; word-break: break-all; }
-.code-block pre { margin: 0; padding: 0; }
+.code-block pre { margin: 0; padding: 0; white-space: pre-wrap; word-break: break-all; }
 .code-block .code-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--code-block-border); }
 .code-block .language-tag { background-color: var(--code-language-tag-bg); color: var(--code-language-tag-text); padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 500; text-transform: uppercase; }
-.code-block .copy-code-btn { background-color: var(--copy-button-bg); color: var(--copy-button-text, #ffffff); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 5px; }
+.code-block .copy-code-btn { background-color: var(--copy-button-bg); color: var(--copy-button-text, #ffffff); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 5px; position: relative; overflow: hidden; } /* Added position relative and overflow hidden for ripple */
 .code-block .copy-code-btn:hover { background-color: var(--copy-button-hover-bg); transform: translateY(-1px); }
 .code-block .copy-code-btn svg { width: 16px; height: 16px; stroke: var(--copy-button-text, #ffffff); fill: none; stroke-width: 2; }
 body.light-mode .code-block .copy-code-btn svg { stroke: var(--text-color); }

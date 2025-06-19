@@ -1,6 +1,33 @@
 // === GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI ===
 
 document.addEventListener('DOMContentLoaded', () => {
+    // === AWAL: PENGECEKAN LOGIN ===
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const storedUser = localStorage.getItem('novaUser');
+    let currentUser = null;
+
+    if (isLoggedIn === 'true' && storedUser) {
+        try {
+            currentUser = JSON.parse(storedUser);
+            if (!currentUser || !currentUser.name) { // Validasi sederhana
+                throw new Error("Invalid user data in storage.");
+            }
+            document.body.classList.remove('app-hidden');
+            document.body.classList.add('app-loaded');
+        } catch (e) {
+            console.error("Error parsing user data or invalid data:", e);
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('novaUser');
+            window.location.href = 'login.html'; // Redirect jika data user tidak valid
+            return; // Hentikan eksekusi script
+        }
+    } else {
+        window.location.href = 'login.html'; // Redirect ke halaman login jika belum login
+        return; // Hentikan eksekusi script
+    }
+    // === AKHIR: PENGECEKAN LOGIN ===
+
+
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendButton');
     const menuIcon = document.getElementById('menuIcon');
@@ -23,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentActivePage = 'welcome';
 
     const infoModalOverlay = document.getElementById('infoModalOverlay');
-    const infoModalContent = document.getElementById('infoModalContent');
     const modalCloseBtn = document.getElementById('modalCloseBtn');
     const modalTitle = document.getElementById('modalTitle');
     const modalBody = document.getElementById('modalBody');
@@ -35,12 +61,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const MAX_FILE_SIZE_KB_NEW = 450;
     const MAX_FILE_SIZE_BYTES_NEW = MAX_FILE_SIZE_KB_NEW * 1024;
     const MAX_FILES_ALLOWED = 5;
-    // Menggunakan ID baru untuk kontainer chip di dalam input-wrapper
     const fileChipContainer = document.getElementById('fileChipContainer');
     let attachedFiles = [];
 
     const voiceInputButton = document.getElementById('voiceInputButton');
     let recognition;
+
+    // --- Contoh Tombol Logout ---
+    const logoutButton = document.getElementById('logoutButton');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('novaUser');
+            // Untuk sign out penuh dari Google, bisa lebih kompleks, tergantung kebutuhan.
+            // Contoh sederhana:
+            // if (typeof google !== 'undefined' && google.accounts && google.accounts.id) {
+            //    google.accounts.id.disableAutoSelect(); // Opsional, mencegah auto sign-in di prompt berikutnya
+            //    // google.accounts.id.revoke(...) // Untuk mencabut token sepenuhnya (membutuhkan email user)
+            // }
+            window.location.href = 'login.html';
+        });
+    }
+
 
     function checkScrollable() {
         setTimeout(() => {
@@ -59,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showPage(pageName, initialMessage = null) {
-        if (currentActivePage === pageName) return;
+        if (currentActivePage === pageName && !initialMessage) return; // Allow re-showing chat if initialMessage present
         const currentPageElement = document.getElementById(currentActivePage + 'Section');
         if (currentPageElement) {
             currentPageElement.classList.remove('active');
@@ -92,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
             addChatMessage(initialMessage, 'user');
             generateRealAIResponse(initialMessage, attachedFiles);
         }
-        updateInputAreaAppearance(); // Ganti nama fungsi ini
+        updateInputAreaAppearance();
     }
 
     const placeholders = {
@@ -143,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let scrollHeight = messageInput.scrollHeight;
         const maxHeight = 120;
         messageInput.style.height = Math.min(scrollHeight, maxHeight) + 'px';
-        updateInputAreaAppearance(); // Panggil ini untuk menyesuaikan padding main dan tinggi wrapper
+        updateInputAreaAppearance();
     }
     messageInput.addEventListener('input', autoResizeTextarea);
     autoResizeTextarea();
@@ -180,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const aiContentContainer = document.createElement('div');
             aiContentContainer.classList.add('ai-message-content');
-            aiContentContainer.innerHTML = content;
+            aiContentContainer.innerHTML = content; // Content is pre-sanitized HTML
             messageElement.appendChild(aiContentContainer);
         }
 
@@ -211,17 +254,34 @@ document.addEventListener('DOMContentLoaded', () => {
         actionsContainer.classList.add('ai-message-actions');
 
         const getResponseText = (contentEl) => {
-            return Array.from(contentEl.childNodes).filter(node => node.nodeName === "SPAN" || node.nodeType === 3).map(node => node.textContent).join('').trim();
+            // Extracts only text, excluding code blocks for speech
+            let text = '';
+            contentEl.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    text += node.textContent;
+                } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'SPAN') {
+                    text += node.textContent;
+                }
+            });
+            return text.trim();
         };
         const getFullContent = (contentEl) => {
-            let fullContent = getResponseText(contentEl);
-            contentEl.querySelectorAll('.code-block').forEach(codeBlock => {
-                const langTag = codeBlock.querySelector('.language-tag');
-                const lang = langTag ? langTag.textContent.toLowerCase() : 'text';
-                const code = codeBlock.querySelector('pre').textContent;
-                fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
+            let fullContent = '';
+             contentEl.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    fullContent += node.textContent;
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    if (node.tagName === 'SPAN') {
+                        fullContent += node.textContent;
+                    } else if (node.classList.contains('code-block')) {
+                        const langTag = node.querySelector('.language-tag');
+                        const lang = langTag ? langTag.textContent.toLowerCase() : 'text';
+                        const code = node.querySelector('pre').textContent;
+                        fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
+                    }
+                }
             });
-            return fullContent;
+            return fullContent.trim();
         };
 
         const buttons = [
@@ -249,13 +309,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const modelToUseInAPI = "gemini";
-            const displayedModelName = "nova-3.5-quantify";
-
-            // const systemPromptPrefix = `You are Novaria, an AI assistant powered by the ${displayedModelName} model. When asked about your model or capabilities, you should identify yourself as being powered by ${displayedModelName}. `;
-            // const fullUserMessage = systemPromptPrefix + userMessage;
 
             const payload = {
-                userMessage: userMessage, // atau fullUserMessage
+                userMessage: userMessage,
                 model: modelToUseInAPI
             };
 
@@ -275,23 +331,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            const responseText = data.text;
+            const rawAiResponseText = data.text;
 
             if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
 
+                let personalizedResponseText = rawAiResponseText;
+                if (currentUser && currentUser.name) {
+                    const greeting = `Hii ${currentUser.givenName || currentUser.name}, baik ini dia penjelasannya...\n\n`; // Use givenName for a more personal touch
+                    personalizedResponseText = greeting + rawAiResponseText;
+                }
+
                 let finalHtmlContent = '';
                 const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
                 let lastIndex = 0;
 
-                responseText.replace(codeBlockRegex, (match, language, code, offset) => {
-                    const plainText = responseText.substring(lastIndex, offset);
-                    const sanitizedText = plainText.replace(/</g, "<").replace(/>/g, ">");
+                personalizedResponseText.replace(codeBlockRegex, (match, language, code, offset) => {
+                    const plainText = personalizedResponseText.substring(lastIndex, offset);
+                    const sanitizedText = plainText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     finalHtmlContent += `<span>${sanitizedText}</span>`;
 
                     const lang = language || 'text';
-                    const sanitizedCode = code.trim().replace(/</g, "<").replace(/>/g, ">");
+                    const sanitizedCode = code.trim().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     const codeHtml = `
                         <div class="code-block">
                             <div class="code-header">
@@ -307,9 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     lastIndex = offset + match.length;
                 });
 
-                const remainingText = responseText.substring(lastIndex);
+                const remainingText = personalizedResponseText.substring(lastIndex);
                 if (remainingText) {
-                    const sanitizedRemainingText = remainingText.replace(/</g, "<").replace(/>/g, ">");
+                    const sanitizedRemainingText = remainingText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                     finalHtmlContent += `<span>${sanitizedRemainingText}</span>`;
                 }
 
@@ -363,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (initialChatMessageFromStorage) {
         localStorage.removeItem('initialChatMessage');
         showPage('chat', initialChatMessageFromStorage);
-    } else {
+    } else if (isLoggedIn === 'true') { // Only show welcome if logged in and no initial chat
         showPage('welcome');
     }
 
@@ -371,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); });
     backIcon.addEventListener('click', () => {
         showPage('welcome');
-        if (chatHistory && thinkingIndicator) {
+        if (chatHistory && thinkingIndicator) { // Ensure elements exist
              chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
         } else if (chatHistory) {
             chatHistory.innerHTML = '';
@@ -399,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggle.addEventListener('change', () => applyTheme(themeToggle.checked));
     themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
 
-    const translations = { /* Salin objek translations Anda yang LENGKAP di sini */
+    const translations = {
         en: { documentTitle: "NovaAI", welcomeTitle: "Welcome", helpText: "Hii, I Can Help You?", languageOption: "Language", themeMode: "Dark / Light Mode", privacyPolicy: "Privacy Policy", termsAndConditions: "Terms & Conditions", policy: "Policy", aboutUs: "About Us", settingsTitle: "Settings", quickSuggestions: [ "What's the weather like today?", "Tell me a fun fact about space.", "Explain AI in simple terms.", "Give me a recipe for cookies." ], privacyPolicyContent: `<h3>Privacy Policy</h3><p>Your privacy is important to us. It is NovaAI's policy to respect your privacy regarding any information we may collect from you across our website, and other sites we own and operate.</p><p>We only ask for personal information when we truly need it to provide a service to you. We collect it by fair and lawful means, with your knowledge and consent. We also let you know why we’re collecting it and how it will be used.</p><p>We only retain collected information for as long as necessary to provide you with your requested service. What data we store, we’ll protect within commercially acceptable means to prevent loss and theft, as well as unauthorized access, disclosure, copying, use or modification.</p><p>We don’t share any personally identifying information publicly or with third-parties, except when required to by law.</p><p>Our website may link to external sites that are not operated by us. Please be aware that we have no control over the content and practices of these sites, and cannot accept responsibility or liability for their respective privacy policies.</p><p>You are free to refuse our request for your personal information, with the understanding that we may be unable to provide you with some of your desired services.</p><p>Your continued use of our website will be regarded as acceptance of our practices around privacy and personal information. If you have any questions about how we handle user data and personal information, feel free to contact us.</p><p>This policy is effective as of June 7, 2025.</p>`, termsAndConditionsContent: `<h3>Terms & Conditions</h3><p>Welcome to NovaAI. By accessing or using our services, you agree to be bound by these Terms and Conditions.</p><p>These Terms apply to all visitors, users and others who access or use the Service.</p><p>By accessing or using the Service you agree to be bound by these Terms. If you disagree with any part of the terms then you may not access the Service.</p><h4>Intellectual Property</h4><p>The Service and its original content, features and functionality are and will remain the exclusive property of NovaAI and its licensors. The Service is protected by copyright, trademark, and other laws of both the Indonesia and foreign countries.</p><p>Our Service may contain links to third-party web sites or services that are not owned or controlled by NovaAI.</p><p>NovaAI has no control over, and assumes no responsibility for, the content, privacy policies, or practices of any third party web sites or services.</p><p>We strongly advise you to read the terms and conditions and privacy policies of any third-party web sites or services that you visit.</p><p>This document was last updated on June 7, 2025.</p>`, policyContent: `<h3>Policy</h3><p>This document outlines the general policies governing the use of NovaAI services.</p><p>1. **Acceptable Use:** Users must not use NovaAI for any unlawful or prohibited activities. This includes, but is not limited to, spamming, transmitting harmful code, or infringing on intellectual property rights.</p><p>2. **Content:** Users are solely responsible for the content they submit through NovaAI. NovaAI does not endorse or assume responsibility for any user-generated content.</p><p>3. **Service Availability:** While we strive for 24/7 availability, NovaAI may be temporarily unavailable due to maintenance, upgrades, or unforeseen technical issues.</p><p>4. **Modifications to Service:** NovaAI reserves the right to modify or discontinue, temporarily or permanently, the Service (or any part thereof) with or without notice.</p><p>For more detailed information, please refer to our Terms & Conditions and Privacy Policy.</p><p>Last modified: June 7, 2025.</p>`, aboutUsContent: `<h3>About Us</h3><p>NovaAI is an innovative AI assistant designed to simplify your daily tasks and provide quick, accurate information.</p><p>Our mission is to make advanced AI accessible and user-friendly for everyone. We believe in the power of artificial intelligence to enhance productivity, foster learning, and spark creativity.</p><p>Developed with a focus on privacy and user experience, NovaAI continuously evolves to meet the needs of our users. We are committed to transparency and providing a reliable service.</p><p>Thank you for choosing NovaAI. We're excited to grow and improve with your feedback.</p><p>Founded: 2025</p>` },
         id: { documentTitle: "NovaAI", welcomeTitle: "Selamat Datang", helpText: "Hai, Ada yang Bisa Saya Bantu?", languageOption: "Bahasa", themeMode: "Mode Gelap / Terang", privacyPolicy: "Kebijakan Privasi", termsAndConditions: "Syarat & Ketentuan", policy: "Kebijakan", aboutUs: "Tentang Kami", settingsTitle: "Pengaturan", quickSuggestions: [ "Bagaimana cuaca hari ini?", "Ceritakan fakta menarik tentang luar angkasa.", "Jelaskan AI dalam istilah sederhana.", "Berikan saya resep kue kering." ], privacyPolicyContent: `<h3>Kebijakan Privasi</h3><p>Privasi Anda penting bagi kami. Kebijakan NovaAI adalah untuk menghormati privasi Anda terkait informasi apa pun yang mungkin kami kumpulkan dari Anda di seluruh situs web kami, dan situs lain yang kami miliki dan operasikan.</p><p>Kami hanya meminta informasi pribadi jika kami benar-benar membutuhkannya untuk menyediakan layanan kepada Anda. Kami mengumpulkannya dengan cara yang adil dan sah, dengan pengetahuan dan persetujuan Anda. Kami juga memberi tahu Anda mengapa kami mengumpulkannya dan bagaimana itu akan digunakan.</p><p>Kami hanya menyimpan informasi yang dikumpulkan selama diperlukan untuk menyediakan layanan yang Anda minta. Data yang kami simpan, akan kami lindungi dengan cara yang dapat diterima secara komersial untuk mencegah kehilangan dan pencurian, serta akses, pengungkapan, penyalinan, penggunaan atau modifikasi yang tidak sah.</p><p>Kami tidak membagikan informasi identitas pribadi secara publik atau dengan pihak ketiga, kecuali jika diwajibkan oleh hukum.</p><p>Situs web kami dapat menautkan ke situs eksternal yang tidak dioperasikan oleh kami. Perlu diketahui bahwa kami tidak memiliki kendali atas konten dan praktik situs-situs ini, dan tidak dapat menerima tanggung jawab atas kebijakan privasi masing-masing.</p><p>Anda bebas untuk menolak permintaan kami untuk informasi pribadi Anda, dengan pemahaman bahwa kami mungkin tidak dapat menyediakan beberapa layanan yang Anda inginkan.</p><p>Penggunaan Anda yang berkelanjutan atas situs web kami akan dianggap sebagai penerimaan praktik kami seputar privasi dan informasi pribadi. Jika Anda memiliki pertanyaan tentang bagaimana kami menangani data pengguna dan informasi pribadi, jangan ragu untuk menghubungi kami.</p><p>Kebijakan ini berlaku efektif mulai 7 Juni 2025.</p>`, termsAndConditionsContent: `<h3>Syarat & Ketentuan</h3><p>Selamat datang di NovaAI. Dengan mengakses atau menggunakan layanan kami, Anda setuju untuk terikat dengan Syarat dan Ketentuan ini.</p><p>Ketentuan ini berlaku untuk semua pengunjung, pengguna, dan pihak lain yang mengakses atau menggunakan Layanan.</p><p>Dengan mengakses atau menggunakan Layanan, Anda setuju untuk terikat dengan Ketentuan ini. Jika Anda tidak setuju dengan bagian mana pun dari ketentuan, maka Anda tidak boleh mengakses Layanan.</p><h4>Kekayaan Intelektual</h4><p>Layanan dan konten asli, fitur, dan fungsionalitasnya adalah dan akan tetap menjadi milik eksklusif NovaAI dan pemberi lisensinya. Layanan ini dilindungi oleh hak cipta, merek dagang, dan undang-undang lain baik di Indonesia maupun negara asing.</p><p>Layanan kami mungkin berisi tautan ke situs web atau layanan pihak ketiga yang tidak dimiliki atau dikendalikan oleh NovaAI.</p><p>NovaAI tidak memiliki kendali atas, dan tidak bertanggung jawab atas, konten, kebijakan privasi, atau praktik situs web atau layanan pihak ketiga mana pun.</p><p>Kami sangat menyarankan Anda untuk membaca syarat dan ketentuan serta kebijakan privasi situs web atau layanan pihak ketiga mana pun yang Anda kunjungi.</p><p>Dokumen ini terakhir diperbarui pada 7 Juni 2025.</p>`, policyContent: `<h3>Kebijakan</h3><p>Dokumen ini menguraikan kebijakan umum yang mengatur penggunaan layanan NovaAI.</p><p>1. **Penggunaan yang Dapat Diterima:** Pengguna tidak boleh menggunakan NovaAI untuk kegiatan yang melanggar hukum atau dilarang. Ini termasuk, namun tidak terbatas pada, spamming, transmisi kode berbahaya, atau pelanggaran hak kekayaan intelektual.</p><p>2. **Konten:** Pengguna sepenuhnya bertanggung jawab atas konten yang mereka kirimkan melalui NovaAI. NovaAI tidak mendukung atau bertanggung jawab atas konten yang dibuat oleh pengguna.</p><p>3. **Ketersediaan Layanan:** Meskipun kami berusaha untuk ketersediaan 24/7, NovaAI mungkin sementara tidak tersedia karena pemeliharaan, peningkatan, atau masalah teknis yang tidak terduga.</p><p>4. **Modifikasi Layanan:** NovaAI berhak untuk memodifikasi atau menghentikan, sementara atau permanen, Layanan (atau bagian darinya) dengan atau tanpa pemberitahuan.</p><p>Untuk informasi lebih lanjut, silakan lihat Syarat & Ketentuan dan Kebijakan Privasi kami.</p><p>Terakhir dimodifikasi: 7 Juni 2025.</p>`, aboutUsContent: `<h3>Tentang Kami</h3><p>NovaAI adalah asisten AI inovatif yang dirancang untuk menyederhanakan tugas harian Anda dan memberikan informasi yang cepat dan akurat.</p><p>Misi kami adalah membuat AI canggih dapat diakses dan mudah digunakan untuk semua orang. Kami percaya pada kekuatan kecerdasan buatan untuk meningkatkan produktivitas, mendorong pembelajaran, dan memicu kreativitas.</p><p>Dikembangkan dengan fokus pada privasi dan pengalaman pengguna, NovaAI terus berkembang untuk memenuhi kebutuhan pengguna kami. Kami berkomitmen pada transparansi dan menyediakan layanan yang andal.</p><p>Terima kasih telah memilih NovaAI. Kami sangat antusias untuk tumbuh dan berkembang dengan masukan Anda.</p><p>Didirikan: 2025</p>` }
     };
@@ -409,17 +471,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function openModal(titleKey, contentKey) { modalTitle.textContent = translations[currentLanguage][titleKey]; modalBody.innerHTML = translations[currentLanguage][contentKey]; infoModalOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; }
     function closeModal() { infoModalOverlay.classList.remove('active'); document.body.style.overflow = ''; }
     modalCloseBtn.addEventListener('click', closeModal); infoModalOverlay.addEventListener('click', (e) => { if (e.target === infoModalOverlay) { closeModal(); } }); document.querySelectorAll('.sidebar-item[data-modal-target]').forEach(item => { item.addEventListener('click', function (e) { e.preventDefault(); sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); const targetKey = this.dataset.modalTarget; const titleKey = targetKey; const contentKey = targetKey + 'Content'; openModal(titleKey, contentKey); }); });
-    function setupRippleEffects() { const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn'); clickableElements.forEach(element => { const oldHandler = element._rippleHandler; if (oldHandler) { element.removeEventListener('click', oldHandler); } const newHandler = function (e) { if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') { return; } const ripple = document.createElement('span'); ripple.classList.add('ripple'); this.appendChild(ripple); const rect = this.getBoundingClientRect(); const size = Math.max(rect.width, rect.height); const x = e.clientX - rect.left - (size / 2); const y = e.clientY - rect.top - (size / 2); ripple.style.width = ripple.style.height = `${size}px`; ripple.style.left = `${x}px`; ripple.style.top = `${y}px`; ripple.addEventListener('animationend', () => { ripple.remove(); }); }; element.addEventListener('click', newHandler); element._rippleHandler = newHandler; }); }
+    function setupRippleEffects() { const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn'); clickableElements.forEach(element => { const oldHandler = element._rippleHandler; if (oldHandler) { element.removeEventListener('click', oldHandler); } const newHandler = function (e) { if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA' || e.target.closest('select')) { return; } const ripple = document.createElement('span'); ripple.classList.add('ripple'); this.appendChild(ripple); const rect = this.getBoundingClientRect(); const size = Math.max(rect.width, rect.height); const x = e.clientX - rect.left - (size / 2); const y = e.clientY - rect.top - (size / 2); ripple.style.width = ripple.style.height = `${size}px`; ripple.style.left = `${x}px`; ripple.style.top = `${y}px`; ripple.addEventListener('animationend', () => { ripple.remove(); }); }; element.addEventListener('click', newHandler); element._rippleHandler = newHandler; }); }
     setupRippleEffects();
     const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn'))) { needsRippleSetup = true; } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn'))) { needsRippleSetup = true; } } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
     if (chatHistory) observer.observe(chatHistory, { childList: true, subtree: true }); if (quickCompleteContainer) observer.observe(quickCompleteContainer, { childList: true, subtree: true }); if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
 
-    // Ganti nama fungsi menjadi updateInputAreaAppearance
     function updateInputAreaAppearance() {
         const inputWrapperHeight = inputWrapper.offsetHeight;
-        // Padding bawah main disesuaikan hanya dengan tinggi input-wrapper itu sendiri
-        const totalBottomSpace = inputWrapperHeight + 15; // 15px adalah margin bawah input-wrapper
-        mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`; // +20px buffer
+        const totalBottomSpace = inputWrapperHeight + 15;
+        mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`;
 
         if (chatHistory) {
             chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -462,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chipItem.appendChild(fileDetails);
 
         const removeButton = document.createElement('button');
-        removeButton.classList.add('remove-chip-btn'); // Ganti kelas
+        removeButton.classList.add('remove-chip-btn');
         removeButton.innerHTML = '×';
         removeButton.title = `Remove ${file.name}`;
         removeButton.addEventListener('click', (event) => {
@@ -471,11 +531,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         chipItem.appendChild(removeButton);
 
-        fileChipContainer.appendChild(chipItem); // Tambahkan ke fileChipContainer
+        fileChipContainer.appendChild(chipItem);
         setTimeout(() => chipItem.classList.add('visible'), 10);
 
         if (fileChipContainer.children.length > 0) {
-            fileChipContainer.style.display = 'flex'; // Pastikan terlihat
+            fileChipContainer.style.display = 'flex';
             fileChipContainer.scrollLeft = fileChipContainer.scrollWidth;
         }
         autoResizeTextarea();
@@ -507,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearAttachedFiles() {
         attachedFiles = [];
         fileChipContainer.innerHTML = '';
-        fileChipContainer.style.display = 'none'; // Sembunyikan jika kosong
+        fileChipContainer.style.display = 'none';
         autoResizeTextarea();
         updateInputAreaAppearance();
         if (messageInput.value.trim() === '' && currentActivePage === 'welcome') {
@@ -548,14 +608,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         newValidFiles.forEach(file => {
             attachedFiles.push(file);
-            displayFileChipItem(file); // Panggil fungsi baru untuk chip
+            displayFileChipItem(file);
         });
 
         fileInput.value = '';
         if (attachedFiles.length > 0 || messageInput.value.trim() !== '') {
             quickCompleteContainer.classList.remove('active');
         }
-         // updateInputAreaAppearance() akan dipanggil di dalam displayFileChipItem
     });
 
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
@@ -573,7 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         voiceInputButton.style.display = 'none';
     }
-    showPage(currentActivePage);
+    // showPage(currentActivePage); // Sudah dipanggil di blok pengecekan login jika berhasil
 });
 
 function copyCode(buttonElement) { const pre = buttonElement.closest('.code-block').querySelector('pre'); navigator.clipboard.writeText(pre.textContent).then(() => { const span = buttonElement.querySelector('span'); const originalText = span.textContent; span.textContent = 'Copied!'; setTimeout(() => { span.textContent = originalText; }, 2000); }).catch(err => { console.error('Failed to copy code: ', err); const span = buttonElement.querySelector('span'); span.textContent = 'Error!'; setTimeout(() => { span.textContent = 'Copy'; }, 2000); }); }

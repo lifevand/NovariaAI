@@ -1,58 +1,17 @@
 // File: /api/image.js
-// Endpoint untuk menghasilkan gambar menggunakan Hugging Face Inference API.
+// Endpoint untuk menghasilkan gambar menggunakan Hugging Face Inference API dengan model FLUX.
 
 import fetch from 'node-fetch';
 
-// Fungsi untuk menunggu model di Hugging Face siap jika sedang loading (opsional tapi berguna)
-// async function queryHuggingFace(payload, modelUrl, apiKey, retries = 5, delay = 5000) {
-//     for (let i = 0; i < retries; i++) {
-//         const response = await fetch(modelUrl, {
-//             method: 'POST',
-//             headers: {
-//                 'Authorization': `Bearer ${apiKey}`,
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(payload),
-//         });
-
-//         if (response.ok) {
-//             // Jika respons OK, coba dapatkan blob gambar
-//             // Hugging Face API untuk gambar mengembalikan blob, bukan JSON dengan base64
-//             // Kita perlu mengubah blob ini menjadi base64
-//             const imageBlob = await response.blob();
-//             const buffer = await imageBlob.arrayBuffer();
-//             const base64Image = Buffer.from(buffer).toString('base64');
-//             return `data:${imageBlob.type};base64,${base64Image}`;
-//         }
-
-//         // Jika model sedang loading (error 503)
-//         if (response.status === 503) {
-//             const errorData = await response.json();
-//             console.log(`[API /api/image] Model is loading (attempt ${i + 1}/${retries}). Estimated time: ${errorData.estimated_time}s. Retrying in ${delay / 1000}s...`);
-//             await new Promise(resolve => setTimeout(resolve, delay));
-//         } else {
-//             // Error lain
-//             let errorBody = `Hugging Face API Error (${response.status})`;
-//             try {
-//                 const errorJson = await response.json();
-//                 errorBody = errorJson.error || JSON.stringify(errorJson);
-//             } catch (e) {
-//                 errorBody = await response.text();
-//             }
-//             throw new Error(errorBody);
-//         }
-//     }
-//     throw new Error('Model did not become available after multiple retries.');
-// }
-
-
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
+        console.log(`[API /api/image] Method ${req.method} Not Allowed.`);
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
     const { prompt } = req.body;
     if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
+        console.log('[API /api/image] Bad Request: Missing or invalid prompt.');
         return res.status(400).json({ message: 'Deskripsi gambar tidak boleh kosong.' });
     }
 
@@ -62,9 +21,8 @@ export default async function handler(req, res) {
         return res.status(500).json({ message: 'Layanan pembuatan gambar tidak terkonfigurasi (Token Missing).' });
     }
 
-    // Ganti dengan ID model yang Anda pilih dari Hugging Face
-    // Contoh: 'stabilityai/stable-diffusion-xl-base-1.0' atau 'runwayml/stable-diffusion-v1-5'
-    const MODEL_ID = 'black-forest-labs/FLUX.1-dev'; // Model yang lebih ringan untuk testing awal
+    // Menggunakan model FLUX.1-dev
+    const MODEL_ID = 'black-forest-labs/FLUX.1-dev';
     const API_URL = `https://api-inference.huggingface.co/models/${MODEL_ID}`;
 
     console.log(`[API /api/image] Request: "${prompt}", Model: ${MODEL_ID}`);
@@ -72,8 +30,11 @@ export default async function handler(req, res) {
     try {
         const payload = {
             inputs: prompt,
-            // Beberapa model mungkin punya opsi tambahan, cek dokumentasi model di Hugging Face
-            // options: { wait_for_model: true } // Bisa membantu jika model sering loading
+            // FLUX mungkin tidak memerlukan parameter tambahan, tapi opsi ini bisa berguna
+            // untuk memaksa API menunggu model jika sedang tidak aktif.
+            // Namun, ini bisa menyebabkan timeout jika model terlalu lama loading.
+            // Sebaiknya frontend yang menangani retry jika model loading.
+            // options: { wait_for_model: true, use_gpu: true } 
         };
 
         const response = await fetch(API_URL, {
@@ -81,7 +42,7 @@ export default async function handler(req, res) {
             headers: {
                 'Authorization': `Bearer ${HF_API_TOKEN}`,
                 'Content-Type': 'application/json',
-                // 'Accept': 'image/png' // API HF mengembalikan blob gambar langsung
+                // 'Accept': 'image/png' // Tidak perlu Accept header spesifik, API akan return blob
             },
             body: JSON.stringify(payload),
         });
@@ -89,26 +50,48 @@ export default async function handler(req, res) {
         if (!response.ok) {
             let errorBody = `Hugging Face API Error (${response.status})`;
             let errorJson;
+            let isModelLoading = false;
+            let estimatedTime = 0;
+
             try {
-                errorJson = await response.json(); // Model loading error biasanya JSON
-                errorBody = errorJson.error || JSON.stringify(errorJson);
-                if (response.status === 503 && errorJson.estimated_time) {
-                     errorBody = `Model sedang dimuat, coba lagi dalam ${Math.ceil(errorJson.estimated_time)} detik. (${errorJson.error || ''})`;
+                const responseText = await response.text(); // Baca sebagai teks dulu
+                try {
+                    errorJson = JSON.parse(responseText); // Coba parse sebagai JSON
+                    errorBody = errorJson.error || JSON.stringify(errorJson);
+                    if (response.status === 503 && errorJson.estimated_time) {
+                        isModelLoading = true;
+                        estimatedTime = Math.ceil(errorJson.estimated_time);
+                        errorBody = `Model (${MODEL_ID}) sedang dimuat oleh Hugging Face. Perkiraan waktu: ${estimatedTime} detik.`;
+                    }
+                } catch (e) {
+                    // Jika parsing JSON gagal, berarti respons error bukan JSON
+                    errorBody = responseText.length > 500 ? response.statusText : responseText; // Batasi panjang error mentah
+                    console.warn('[API /api/image] Hugging Face error response was not JSON:', responseText);
                 }
             } catch (e) {
-                errorBody = await response.text(); // Error lain mungkin teks/HTML
+                // Gagal membaca body error sama sekali
+                errorBody = `Gagal membaca respons error dari Hugging Face: ${response.statusText}`;
             }
+            
             console.error(`[API /api/image] Hugging Face Error: ${errorBody}`);
-            return res.status(500).json({ message: errorBody });
+            // Kirim status loading jika itu masalahnya
+            if (isModelLoading) {
+                return res.status(503).json({ 
+                    message: errorBody, 
+                    errorType: 'model_loading',
+                    estimated_time: estimatedTime 
+                });
+            }
+            return res.status(response.status >= 400 && response.status < 500 ? response.status : 500)
+                      .json({ message: errorBody, errorType: 'api_error' });
         }
 
-        // Hugging Face API untuk gambar mengembalikan blob gambar langsung, bukan JSON
         const imageBlob = await response.blob();
         if (!imageBlob || imageBlob.size === 0) {
-            throw new Error('Received empty image blob from Hugging Face.');
+            console.error('[API /api/image] Received empty image blob from Hugging Face.');
+            throw new Error('Menerima blob gambar kosong dari layanan AI.');
         }
 
-        // Ubah blob menjadi base64 Data URL
         const buffer = await imageBlob.arrayBuffer();
         const base64Image = Buffer.from(buffer).toString('base64');
         const imageUrl = `data:${imageBlob.type || 'image/png'};base64,${base64Image}`;
@@ -118,6 +101,6 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error('[API /api/image] Catch block error:', error);
-        return res.status(500).json({ message: error.message || 'Terjadi kesalahan internal saat membuat gambar.' });
+        return res.status(500).json({ message: error.message || 'Terjadi kesalahan internal server saat membuat gambar.', errorType: 'internal_server_error' });
     }
-            }
+                }

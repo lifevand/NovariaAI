@@ -1,1 +1,1 @@
-# NusaAI
+# Novaria-AI

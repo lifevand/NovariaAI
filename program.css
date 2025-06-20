@@ -1,0 +1,116 @@
+/* program.css */
+
+/* Variabel tema (asumsikan diambil dari style.css global atau definisikan di sini) */
+:root {
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --input-bg: #1c1c1e; /* Warna input sedikit beda untuk program */
+  --button-bg: #333333;
+  --button-hover-bg: #555555;
+  --placeholder-color: rgba(255, 255, 255, 0.6);
+  --sidebar-bg: #1a1a1a;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(18, 18, 18, 0.75);
+  --glass-border-color: rgba(50, 50, 50, 0.5);
+  --code-block-bg: #161b22; /* Latar code block seperti GitHub */
+  --code-block-text: #c9d1d9; /* Teks code block seperti GitHub */
+  --code-block-border: #30363d; /* Border code block seperti GitHub */
+  --copy-button-bg: #21262d;
+  --copy-button-hover-bg: #30363d;
+  --code-language-tag-bg: #21262d;
+  --code-language-tag-text: #8b949e; /* Warna tag bahasa lebih soft */
+  --ai-message-color: rgba(255, 255, 255, 0.9);
+  --ai-thinking-color: rgba(255, 255, 255, 0.7);
+  --ai-model-tag-bg: var(--button-bg);
+  --ai-model-tag-text: var(--text-color);
+  --user-message-bg: #0d1117; /* Pesan user lebih gelap, mirip GitHub issues */
+  --user-message-text: #c9d1d9;
+}
+
+body.light-mode {
+  --bg-color: #f6f8fa; /* Latar GitHub light */
+  --text-color: #24292f;
+  --input-bg: #ffffff;
+  --button-bg: #f6f8fa;
+  --button-hover-bg: #e1e4e8;
+  --placeholder-color: rgba(0, 0, 0, 0.5);
+  --sidebar-bg: #ffffff;
+  --border-color: #d0d7de;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border-color: #d0d7de;
+  --code-block-bg: #f6f8fa;
+  --code-block-text: #24292f;
+  --code-block-border: #d0d7de;
+  --copy-button-bg: #f6f8fa;
+  --copy-button-hover-bg: #e1e4e8;
+  --code-language-tag-bg: #f6f8fa;
+  --code-language-tag-text: #57606a;
+  --ai-message-color: #24292f;
+  --ai-thinking-color: #57606a;
+  --ai-model-tag-bg: var(--button-bg);
+  --ai-model-tag-text: var(--text-color);
+  --user-message-bg: #ddf4ff; /* Pesan user light mode */
+  --user-message-text: #24292f;
+}
+
+body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+body.app-hidden { opacity: 0; pointer-events: none; }
+body.app-loaded { opacity: 1; pointer-events: auto; }
+*:focus { outline: none; box-shadow: none; }
+
+.program-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background-color: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--glass-border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 56px; box-sizing: border-box; }
+.header-left, .header-right { display: flex; align-items: center; }
+.header-center { font-size: 1.05em; font-weight: 600; color: var(--text-color); }
+.icon-button { background: none; border: none; color: var(--text-color); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background-color 0.2s ease; }
+.icon-button:hover { background-color: rgba(255,255,255,0.1); }
+body.light-mode .icon-button:hover { background-color: rgba(0,0,0,0.05); }
+.icon-button svg { width: 22px; height: 22px; }
+
+.program-main { flex-grow: 1; display: flex; justify-content: center; overflow: hidden; padding-top: 56px; }
+#programChatHistory { width: 100%; max-width: 850px; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; }
+
+.user-message, .ai-message { max-width: 95%; word-wrap: break-word; line-height: 1.6; font-size: 0.95em; border-radius: 8px; /* Sudut lebih tegas */ position: relative; }
+.user-message { background-color: var(--user-message-bg); color: var(--user-message-text); align-self: flex-end; border-bottom-right-radius: 2px; padding: 10px 15px; text-align: left; }
+.ai-message { color: var(--ai-message-color); align-self: flex-start; width: 100%; padding: 0; }
+.ai-message-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; padding: 8px 0 0 0; } /* Padding atas sedikit jika header saja */
+.ai-message.code-response .ai-message-header { padding-bottom: 8px; }
+.ai-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; border-radius: 6px; }
+.ai-name { font-weight: 600; font-size: 0.95em; color: var(--text-color); }
+.ai-model-tag { background-color: var(--ai-model-tag-bg); color: var(--ai-model-tag-text); padding: 2px 7px; border-radius: 10px; font-size: 0.7em; font-weight: 500; }
+.ai-message-content { /* Untuk AI text response */ }
+.ai-message.text-response .ai-message-content { padding: 0 0 10px 0; /* Padding bawah jika teks biasa */ }
+
+#programThinkingIndicator { color: var(--ai-thinking-color); font-style: italic; font-size: 0.9em; display: flex; align-items: center; gap: 2px; padding: 8px 0; opacity: 0; transition: opacity 0.3s ease; align-self: flex-start; }
+#programThinkingIndicator.hidden { display: none !important; }
+#programThinkingIndicator .dot { font-weight: 700; font-size: 1.2em; animation: pulse-dot 1.2s infinite ease-in-out both; }
+#programThinkingIndicator .dot:nth-child(1) { animation-delay: 0s; }
+#programThinkingIndicator .dot:nth-child(2) { animation-delay: 0.2s; }
+#programThinkingIndicator .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse-dot { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+
+.code-block-container { background-color: var(--code-block-bg); color: var(--code-block-text); padding: 12px; border-radius: 6px; margin-top: 0; position: relative; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.88em; line-height: 1.5; border: 1px solid var(--code-block-border); }
+.code-block-container pre { margin: 0; padding: 0; overflow-x: auto; white-space: pre; word-break: normal; scrollbar-width: thin; scrollbar-color: var(--button-hover-bg) transparent; }
+.code-block-container pre::-webkit-scrollbar { height: 6px; width: 6px; }
+.code-block-container pre::-webkit-scrollbar-track { background: transparent; }
+.code-block-container pre::-webkit-scrollbar-thumb { background-color: var(--button-hover-bg); border-radius: 3px; }
+.code-header-block { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--code-block-border); }
+.language-tag { background-color: var(--code-language-tag-bg); color: var(--code-language-tag-text); padding: 3px 7px; border-radius: 4px; font-size: 0.75em; font-weight: 500; text-transform: lowercase; }
+.copy-code-btn { background-color: var(--copy-button-bg); color: var(--code-language-tag-text); border: 1px solid var(--code-block-border); /* Tambah border */ padding: 4px 9px; /* Padding sedikit diubah */ border-radius: 6px; cursor: pointer; font-size: 0.8em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 4px; }
+.copy-code-btn:hover { background-color: var(--copy-button-hover-bg); }
+.copy-code-btn svg { width: 14px; height: 14px; stroke: var(--code-language-tag-text); }
+
+.program-input-wrapper { background-color: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--glass-border-color); border-radius: 26px; padding: 8px 10px 8px 15px; position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 30px); max-width: 800px; display: flex; align-items: flex-end; gap: 8px; min-height: 50px; max-height: 160px; box-sizing: border-box; transition: height 0.2s ease; z-index: 95; }
+.program-input-wrapper textarea { flex-grow: 1; background: none; border: none; color: var(--text-color); font-family: 'Inter', sans-serif; font-size: 0.95em; outline: none; resize: none; overflow-y: auto; padding: 7px 0; line-height: 1.45; min-height: 21px; max-height: 120px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; }
+.program-input-wrapper textarea::placeholder { color: var(--placeholder-color); font-weight: 400; }
+.send-button { background-color: var(--button-bg); border: none; border-radius: 20px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; padding: 0; }
+.send-button:hover { background-color: var(--button-hover-bg); }
+.send-button svg { width: 18px; height: 18px; fill: var(--text-color); }
+
+.sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.65); z-index: 999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-right: 1px solid var(--glass-border-color); z-index: 1000; transition: left 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; color: var(--text-color); }
+.sidebar.active { left: 0; }
+.sidebar-overlay.active { opacity: 1; visibility: visible; }
+.sidebar h2 { margin: 5px 0 15px 0; font-size: 1.4em; font-weight: 600; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); color: var(--text-color); }
+
+.hidden { display: none !important; }
+@media (max-width: 600px) { .program-input-wrapper { max-width: calc(100% - 24px); bottom: 10px; padding: 6px 8px 6px 12px; min-height: 46px; } .program-header { padding: 8px 12px; height: 50px; } .program-main { padding-top: 50px; } .header-center { font-size: 1em; } .icon-button svg { width: 20px; height: 20px; } #programChatHistory { padding: 12px; gap: 12px; } .user-message, .ai-message-header { font-size: 0.9em; } .code-block-container { font-size: 0.82em; } .send-button { width: 34px; height: 34px; } .send-button svg { width: 16px; height: 16px; } }

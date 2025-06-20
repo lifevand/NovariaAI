@@ -16,49 +16,53 @@ function jwt_decode(token) {
     }
 }
 
-// MODIFIKASI: handleCredentialResponse untuk membaca redirectAfterLogin
 function handleCredentialResponse(response) {
     const decodedToken = jwt_decode(response.credential);
     if (!decodedToken) return;
-    const userProfile = { 
-        id: decodedToken.sub, 
-        name: decodedToken.name, 
-        givenName: decodedToken.given_name, 
-        familyName: decodedToken.family_name, 
-        picture: decodedToken.picture, 
-        email: decodedToken.email 
+    const userProfile = {
+        id: decodedToken.sub,
+        name: decodedToken.name,
+        givenName: decodedToken.given_name,
+        familyName: decodedToken.family_name,
+        picture: decodedToken.picture,
+        email: decodedToken.email
     };
     localStorage.setItem('novaUser', JSON.stringify(userProfile));
     localStorage.setItem('isLoggedIn', 'true');
-    
-    // Baca tujuan redirect dari localStorage
-    const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'index.html'; // Default ke index.html
-    localStorage.removeItem('redirectAfterLogin'); // Hapus flag setelah dibaca
-    
-    // Hapus juga flag loginTriggeredByCard jika ada, karena sudah ditangani
-    if (localStorage.getItem('loginTriggeredByCard')) { 
-        localStorage.removeItem('loginTriggeredByCard'); 
+
+    const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'index.html';
+    localStorage.removeItem('redirectAfterLogin');
+
+    if (localStorage.getItem('loginTriggeredByCard')) {
+        localStorage.removeItem('loginTriggeredByCard');
     }
 
-    window.location.href = redirectUrl; // Arahkan ke URL yang disimpan atau default
+    window.location.href = redirectUrl;
 }
 
-// DATA UNTUK FITUR UNGGULAN NOVARIA
+// DATA UNTUK FITUR UNGGULAN NOVARIA (DIMODIFIKASI)
 const featureCardsData = [
-    { icon: "edit_document", title: "Makalah & Esai", description: "Nova bisa membantumu menulis makalah ilmiah, artikel, opini, laporan, dan tugas sekolah dengan struktur yang jelas dan bahasa yang baik.", image: "images/makalah-esai.png", actionType: "default_redirect" },
-    { icon: "trending_up", title: "Marketing Finance", description: "Analisis tren pasar, buat strategi marketing, dan kelola keuangan dengan bantuan insight dari Novaria.", image: "images/marketing-finance.png", actionType: "default_redirect" },
-    { icon: "school", title: "Membantu Tugas", description: "Dapatkan bantuan untuk mengerjakan PR, riset materi pelajaran, dan persiapan ujian dengan Novaria.", image: "images/bantu-tugas.png", actionType: "default_redirect" },
-    { icon: "psychology", title: "AI Profesional Ramah", description: "Novaria dirancang untuk menjadi partner AI yang profesional namun tetap ramah dan mudah diajak berinteraksi.", image: "images/ai-profesional.png", actionType: "default_redirect" },
-    { icon: "summarize", title: "Analisis Dokumen", description: "Unggah dokumen Anda dan biarkan Novaria membantu menganalisis, merangkum, atau mengekstrak informasi penting.", image: "images/analisis-dokumen.png", actionType: "default_redirect" },
-    // ===== KARTU BARU DENGAN actionType KHUSUS =====
-    { 
-        icon: "palette", // Atau ikon lain seperti 'image', 'brush'
-        title: "Generate Image", 
-        description: "Buat gambar unik dan kreatif dari deskripsi teks Anda dengan kekuatan AI.", 
-        image: "images/generate-image-feature.png", // PASTIKAN GAMBAR INI ADA di images/
-        actionType: "go_to_image_page" 
+    {
+        icon: "psychology",
+        title: "AI Profesional Ramah",
+        description: "Novaria dirancang untuk menjadi partner AI yang profesional namun tetap ramah dan mudah diajak berinteraksi.",
+        image: "images/ai-profesional.png", // Pastikan gambar ini ada
+        actionType: "default_redirect" // Mengarah ke index.html (chat utama)
+    },
+    {
+        icon: "palette", // Atau 'image', 'brush'
+        title: "Generate Image",
+        description: "Buat gambar unik dan kreatif dari deskripsi teks Anda dengan kekuatan AI.",
+        image: "images/generate-image-feature.png", // Pastikan gambar ini ada
+        actionType: "go_to_image_page" // Mengarah ke image.html
+    },
+    {
+        icon: "code", // Ikon untuk fitur kode
+        title: "Buat Program dengan AI",
+        description: "Rancang, tulis, dan debug kode dalam berbagai bahasa pemrograman dengan bantuan AI coder canggih.",
+        image: "images/buat-program-feature.png", // ANDA PERLU MENYEDIAKAN GAMBAR INI
+        actionType: "go_to_code_page" // Akan mengarah ke code-generator.html
     }
-    // ============================================
 ];
 
 function renderFeatureCards() {
@@ -69,7 +73,6 @@ function renderFeatureCards() {
         const cardElement = document.createElement('div');
         cardElement.className = 'feature-card';
         const iconName = card.icon || "help_outline";
-        // MODIFIKASI: Tambahkan data-action-type ke tombol
         cardElement.innerHTML = `
             <div class="card-header">
                 <span class="material-symbols-outlined card-icon">${iconName}</span>
@@ -84,20 +87,20 @@ function renderFeatureCards() {
         grid.appendChild(cardElement);
     });
 
-    // MODIFIKASI: Event listener untuk tombol kartu
     document.querySelectorAll('#featuresGrid .card-cta-button').forEach(button => {
         button.addEventListener('click', function() {
             const featureTitle = this.dataset.featureTitle;
             const actionType = this.dataset.actionType;
 
-            localStorage.setItem('loginTriggeredByCard', featureTitle); // Info umum kartu apa yang diklik
+            localStorage.setItem('loginTriggeredByCard', featureTitle);
 
             if (localStorage.getItem('isLoggedIn') === 'true') {
                 // Jika sudah login, langsung arahkan
                 if (actionType === "go_to_image_page") {
                     window.location.href = 'image.html';
-                } else {
-                    // Untuk kartu lain, bisa tetap ke index.html atau simpan info fitur jika perlu
+                } else if (actionType === "go_to_code_page") {
+                    window.location.href = 'code-generator.html'; // Halaman baru untuk generator kode
+                } else { // default_redirect
                     // localStorage.setItem('initialChatMessage', `Saya ingin mencoba fitur: ${featureTitle}`);
                     window.location.href = 'index.html';
                 }
@@ -105,19 +108,19 @@ function renderFeatureCards() {
                 // Jika belum login, simpan tujuan redirect setelah login berhasil
                 if (actionType === "go_to_image_page") {
                     localStorage.setItem('redirectAfterLogin', 'image.html');
-                } else {
-                    localStorage.setItem('redirectAfterLogin', 'index.html'); // Default redirect
+                } else if (actionType === "go_to_code_page") {
+                    localStorage.setItem('redirectAfterLogin', 'code-generator.html'); // Halaman baru
+                } else { // default_redirect
+                    localStorage.setItem('redirectAfterLogin', 'index.html');
                 }
-                
-                // Memicu prompt login Google One Tap
+
                 if (window.google && google.accounts && google.accounts.id) {
                     google.accounts.id.prompt(notification => {
                         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
                             console.log('Google One Tap tidak ditampilkan. Pengguna dapat menggunakan tombol login di header.');
                             const headerLoginButton = document.querySelector('#googleSignInButtonContainer button, #googleSignInButtonContainer > div > div');
-                            if (headerLoginButton) { 
-                                headerLoginButton.focus(); 
-                                // Tambahkan efek visual ke tombol login header jika One Tap tidak muncul
+                            if (headerLoginButton) {
+                                headerLoginButton.focus();
                                 headerLoginButton.style.outline = '2px solid var(--accent-gradient-start)';
                                 setTimeout(() => { headerLoginButton.style.outline = 'none'; }, 2500);
                             }
@@ -134,12 +137,16 @@ function renderFeatureCards() {
 // DATA UNTUK KARTU JELAJAHI AI LAIN (tetap sama)
 const exploreAiData = [
     { name: "Monica.im", logo: "images/explore/monica.png", description: "Asisten AI serbaguna untuk browsing, menulis, dan berkreasi dengan dukungan GPT-4.", url: "https://monica.im/", gradient: ['#f0abfc', '#a855f7'] },
-    // ... (sisa data exploreAiData seperti sebelumnya, pastikan path logo benar) ...
+    { name: "Perplexity AI", logo: "images/explore/perplexity.png", description: "Mesin penjawab bertenaga AI yang menyediakan sumber dan kutipan akurat.", url: "https://www.perplexity.ai/", gradient: ['#38bdf8', '#0ea5e9'] },
+    { name: "Hugging Face", logo: "images/explore/huggingface.png", description: "Komunitas dan platform untuk model machine learning open-source.", url: "https://huggingface.co/", gradient: ['#facc15', '#eab308'] },
+    { name: "Claude AI", logo: "images/explore/claude.png", description: "Model bahasa besar dari Anthropic dengan fokus pada keamanan dan keandalan.", url: "https://claude.ai/", gradient: ['#f97316', '#ea580c'] },
+    { name: "GitHub Copilot", logo: "images/explore/copilot.png", description: "Pair programmer AI yang membantu Anda menulis kode lebih cepat dan lebih baik.", url: "https://github.com/features/copilot", gradient: ['#6b7280', '#4b5563'] },
+    { name: "RunwayML", logo: "images/explore/runwayml.png", description: "Suite alat kreatif bertenaga AI untuk generasi video, gambar, dan lainnya.", url: "https://runwayml.com/", gradient: ['#ec4899', '#db2777'] },
+    { name: "Midjourney", logo: "images/explore/midjourney.png", description: "Laboratorium riset independen yang menghasilkan gambar dari deskripsi teks.", url: "https://www.midjourney.com/", gradient: ['#8b5cf6', '#7c3aed'] },
     { name: "Gemini", logo: "images/explore/gemini.png", description: "Model AI multimodal paling canggih dari Google DeepMind.", url: "https://deepmind.google/technologies/gemini/", gradient: ['#3b82f6', '#60a5fa'] }
 ];
 
 function renderExploreAiCards() {
-    // ... (fungsi renderExploreAiCards tetap sama seperti sebelumnya) ...
     const grid = document.getElementById('exploreAiGrid');
     if (!grid) { console.error("Element #exploreAiGrid tidak ditemukan."); return; }
     grid.innerHTML = '';
@@ -169,9 +176,7 @@ function renderExploreAiCards() {
     });
 }
 
-// LOGIKA THEME TOGGLE (tetap sama)
 function applyLoginTheme(isLightMode) {
-    // ... (fungsi applyLoginTheme tetap sama) ...
     if (isLightMode) {
         document.body.classList.add('light-mode');
         localStorage.setItem('novaria_theme', 'light');
@@ -182,7 +187,6 @@ function applyLoginTheme(isLightMode) {
 }
 
 function setupLoginThemeToggle() {
-    // ... (fungsi setupLoginThemeToggle tetap sama) ...
     const themeToggleLogin = document.getElementById('themeToggleLogin');
     if (!themeToggleLogin) return;
     const savedTheme = localStorage.getItem('novaria_theme');
@@ -202,14 +206,14 @@ window.onload = function () {
     const currentYearSpanLogin = document.getElementById('currentYearLogin');
     if (currentYearSpanLogin) { currentYearSpanLogin.textContent = new Date().getFullYear(); }
 
-    if (document.getElementById('featuresGrid')) { renderFeatureCards(); } // Memanggil render fitur Novaria
-    if (document.getElementById('exploreAiGrid')) { renderExploreAiCards(); } // Memanggil render jelajah AI
-    
-    setupLoginThemeToggle(); // Setup theme toggle
+    if (document.getElementById('featuresGrid')) { renderFeatureCards(); }
+    if (document.getElementById('exploreAiGrid')) { renderExploreAiCards(); }
+
+    setupLoginThemeToggle();
 
     const clientIdMeta = document.querySelector('meta[name="google-signin-client_id"]');
-    if (!clientIdMeta || !clientIdMeta.content || clientIdMeta.content === "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com") {
-        console.error("Google Client ID tidak ditemukan atau belum diganti.");
+    if (!clientIdMeta || !clientIdMeta.content || clientIdMeta.content === "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com" || clientIdMeta.content.length < 20) { // Tambah pengecekan panjang minimal
+        console.error("Google Client ID tidak ditemukan, belum diganti, atau tidak valid.");
         const errorDiv = document.getElementById('googleSignInError');
         if (errorDiv) { errorDiv.textContent = "Konfigurasi login tidak valid. Harap periksa Client ID."; errorDiv.style.display = 'block';}
         const signInBtnContainer = document.getElementById('googleSignInButtonContainer');
@@ -219,27 +223,25 @@ window.onload = function () {
     const clientId = clientIdMeta.content;
 
     try {
-        // Upaya untuk Mencegah One Tap Muncul Otomatis
         if (window.google && google.accounts && google.accounts.id && typeof google.accounts.id.disableAutoSelect === 'function') {
             google.accounts.id.disableAutoSelect();
         }
 
-        google.accounts.id.initialize({ 
-            client_id: clientId, 
-            callback: handleCredentialResponse 
-            // Tidak ada auto_select: true
+        google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleCredentialResponse
         });
 
         const signInButtonContainer = document.getElementById('googleSignInButtonContainer');
         if (signInButtonContainer) {
              if (localStorage.getItem('isLoggedIn') !== 'true') {
-                google.accounts.id.renderButton(signInButtonContainer, { 
-                    theme: "filled_black", 
-                    size: "medium",    
-                    type: "standard", 
-                    shape: "pill", 
-                    text: "signin", // Untuk teks "Login" atau "Masuk"
-                    logo_alignment: "left" 
+                google.accounts.id.renderButton(signInButtonContainer, {
+                    theme: "filled_black",
+                    size: "medium",
+                    type: "standard",
+                    shape: "pill",
+                    text: "signin",
+                    logo_alignment: "left"
                 });
             } else {
                 const user = JSON.parse(localStorage.getItem('novaUser'));
@@ -247,7 +249,6 @@ window.onload = function () {
                 signInButtonContainer.innerHTML = `<div class="user-greeting-header"><img src="${user.picture}" alt="${userName}" class="user-avatar-header"/><span>Hi, ${userName}!</span><a href="index.html" class="go-to-app-btn">Buka Aplikasi</a></div>`;
             }
         }
-        // Tidak ada pemanggilan google.accounts.id.prompt() otomatis di sini
     } catch (error) {
         console.error("Google Identity Services init error:", error);
         const errorDiv = document.getElementById('googleSignInError');

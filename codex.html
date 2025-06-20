@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com"> <!-- GANTI DENGAN CLIENT ID ANDA -->
+    <title>Novaria - Codex Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="codex.css">
+</head>
+<body class="app-hidden"> <!-- Mulai dengan tersembunyi -->
+
+    <header class="codex-header">
+        <div class="header-left">
+            <button class="icon-button" id="codexSidebarIcon" title="Menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 17h14M5 12h14M5 7h8"/></svg>
+            </button>
+        </div>
+        <div class="header-center">
+            <span class="page-title">Code Generator</span> <!-- Sesuai gambar -->
+        </div>
+        <div class="header-right">
+            <button class="icon-button" id="closeCodexPageIcon" title="Keluar">
+                <!-- SVG Icon X (Close) - Ini ikon silang standar -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="codex-main">
+        <div id="codexChatHistory">
+            <!-- Pesan sambutan dan model info akan ditambahkan oleh JS -->
+            <div id="codexThinkingIndicator" class="ai-message hidden">
+                <span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+            </div>
+            <!-- Pesan dan blok kode akan muncul di sini -->
+        </div>
+    </main>
+
+    <div class="codex-input-wrapper">
+        <textarea id="codexInput" placeholder="Tulis pertanyaan..." rows="1"></textarea> <!-- Sesuai gambar -->
+        <button class="send-button" id="sendCodexButton" title="Kirim">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m12 6l.707-.707L12 4.586l-.707.707zm-1 12a1 1 0 1 0 2 0zm5.707-8.707l-4-4l-1.414 1.414l4 4zm-5.414-4l-4 4l1.414 1.414l4-4zM11 6v12h2V6z"/></svg>
+        </button>
+    </div>
+
+    <div class="sidebar-overlay" id="codexSidebarOverlay"></div>
+    <aside class="sidebar" id="codexSidebar">
+        <h2>Menu</h2>
+        <!-- Sidebar kosong -->
+    </aside>
+
+    <script src="codex.js"></script>
+</body>
+</html>

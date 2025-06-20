@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     }
 
     // Menggunakan model FLUX.1-dev
-    const MODEL_ID = 'runwayml/stable-diffusion-v1-5';
+    const MODEL_ID = 'stabilityai/stable-diffusion-xl-base-1.0';
     const API_URL = `https://api-inference.huggingface.co/models/${MODEL_ID}`;
 
     console.log(`[API /api/image] Request: "${prompt}", Model: ${MODEL_ID}`);

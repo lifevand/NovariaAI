@@ -1,103 +1,97 @@
 // File: /api/image.js
-// Endpoint untuk menghasilkan gambar menggunakan Stability AI API.
-
-import fetch from 'node-fetch'; // Diperlukan untuk lingkungan Node.js di Vercel Serverless Functions
+import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
-    // 1. Hanya izinkan metode POST
     if (req.method !== 'POST') {
-        console.log(`Method ${req.method} Not Allowed for /api/image`);
+        console.log(`[API /api/image] Method ${req.method} Not Allowed.`);
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
-    // 2. Ambil prompt dari body request
     const { prompt } = req.body;
 
     if (!prompt || typeof prompt !== 'string' || prompt.trim() === '') {
-        console.log('Bad Request: Missing or invalid prompt for image generation.');
-        return res.status(400).json({ message: 'Missing or invalid prompt for image generation' });
+        console.log('[API /api/image] Bad Request: Missing or invalid prompt.');
+        return res.status(400).json({ message: 'Deskripsi gambar tidak boleh kosong.' });
     }
 
-    // 3. Ambil API Key dari Environment Variables
     const STABILITY_API_KEY = process.env.STABILITY_API_KEY;
     if (!STABILITY_API_KEY) {
-        console.error('Server Configuration Error: STABILITY_API_KEY is not set.');
-        return res.status(500).json({ message: 'Image generation service is currently unavailable due to server configuration.' });
+        console.error('[API /api/image] SERVER CONFIGURATION ERROR: STABILITY_API_KEY is not set.');
+        return res.status(500).json({ message: 'Layanan pembuatan gambar tidak terkonfigurasi dengan benar di server. (API Key Missing)' });
     }
 
-    // 4. Konfigurasi untuk API Stability AI
-    // Model engine yang direkomendasikan untuk kualitas tinggi: 'stable-diffusion-xl-1024-v1-0'
-    // Alternatif lebih ringan: 'stable-diffusion-v1-6'
-    // Selalu cek dokumentasi Stability AI untuk model terbaru dan yang paling sesuai.
     const engineId = 'stable-diffusion-xl-1024-v1-0'; 
-    const apiHost = process.env.API_HOST || 'https://api.stability.ai'; // Default host, biasanya tidak perlu diubah
+    const apiHost = 'https://api.stability.ai';
     const apiUrl = `${apiHost}/v1/generation/${engineId}/text-to-image`;
 
-    console.log(`[API /api/image] Received image generation request for prompt: "${prompt}" using engine: ${engineId}`);
+    console.log(`[API /api/image] Request: "${prompt}", Engine: ${engineId}`);
 
     try {
-        // 5. Buat payload untuk API Stability AI
         const payload = {
             text_prompts: [{ text: prompt }],
-            cfg_scale: 7,           // Seberapa ketat gambar mengikuti prompt (umumnya 5-15)
-            height: 512,            // Ukuran output gambar (tinggi). SDXL bisa 1024.
-            width: 512,             // Ukuran output gambar (lebar). SDXL bisa 1024.
-            samples: 1,             // Jumlah gambar yang ingin dihasilkan.
-            steps: 30,              // Jumlah langkah difusi (20-50 adalah umum).
-            // style_preset: "photographic", // Opsional: "photographic", "digital-art", "comic-book", "fantasy-art", "anime", "cinematic", dll.
-                                        // Lihat dokumentasi Stability AI untuk daftar lengkap style preset yang didukung engine.
-            // sampler: "K_DPMPP_2M",    // Opsional: Algoritma sampler. Default biasanya sudah baik.
-            // seed: 0,                  // Opsional: Seed untuk reproduktifitas. 0 berarti acak.
+            cfg_scale: 7,
+            height: 512,
+            width: 512,
+            samples: 1,
+            steps: 30,
+            // style_preset: "photographic", 
         };
 
-        console.log('[API /api/image] Sending request to Stability AI with payload:', JSON.stringify(payload, null, 2));
-
-        // 6. Kirim permintaan ke Stability AI API
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json', // Penting agar Stability AI mengembalikan JSON
+                'Accept': 'application/json', 
                 'Authorization': `Bearer ${STABILITY_API_KEY}`,
             },
             body: JSON.stringify(payload),
         });
 
-        // 7. Tangani respons dari Stability AI
         if (!response.ok) {
-            let errorBody = `Stability AI API Error (${response.status})`;
+            // Mencoba membaca respons error sebagai teks terlebih dahulu, karena bisa jadi bukan JSON
+            const errorText = await response.text();
+            console.error(`[API /api/image] Stability AI API Error (${response.status}): ${errorText}`);
+            
+            let userFriendlyMessage = `Gagal menghubungi layanan gambar (Status: ${response.status}).`;
+            // Coba parse sebagai JSON jika memungkinkan, untuk pesan error yang lebih spesifik dari Stability AI
             try {
-                const errorData = await response.json(); 
-                console.error('[API /api/image] Stability AI API Raw Error Response:', errorData);
-                const stabilityErrorMessage = errorData.message || (errorData.errors && errorData.errors.join(', ')) || JSON.stringify(errorData);
-                errorBody = `Failed to generate image: ${stabilityErrorMessage}`;
+                const errorJson = JSON.parse(errorText);
+                if (errorJson.message) {
+                    userFriendlyMessage = `Error dari layanan gambar: ${errorJson.message}`;
+                } else if (errorJson.errors && Array.isArray(errorJson.errors)) {
+                    userFriendlyMessage = `Error dari layanan gambar: ${errorJson.errors.join(', ')}`;
+                }
             } catch (e) {
-                const textError = await response.text(); // Jika respons error bukan JSON
-                console.error('[API /api/image] Stability AI API Raw Text Error Response:', textError);
-                errorBody = `Failed to generate image: ${response.statusText || textError}`;
+                // Jika parsing JSON gagal, gunakan errorText mentah (jika tidak terlalu teknis)
+                // Atau tetap gunakan pesan generik
+                if (errorText.length < 200) { // Jangan tampilkan HTML error yang panjang
+                    userFriendlyMessage = `Error dari layanan gambar: ${errorText}`;
+                }
             }
-            console.error(errorBody);
-            // Mengembalikan status error asli dari Stability jika memungkinkan, atau 500
-            return res.status(response.status < 500 ? response.status : 500).json({ message: errorBody });
+            
+            // Periksa error spesifik seperti API key tidak valid
+            if (response.status === 401) { // Unauthorized
+                userFriendlyMessage = "Autentikasi ke layanan gambar gagal. Periksa konfigurasi API Key.";
+            }
+
+            return res.status(500).json({ message: userFriendlyMessage });
         }
 
         const responseJSON = await response.json();
-        // console.log('[API /api/image] Stability AI API Raw Success Response:', responseJSON);
-
+        
         if (responseJSON.artifacts && responseJSON.artifacts.length > 0 && responseJSON.artifacts[0].base64) {
             const imageBase64 = responseJSON.artifacts[0].base64;
-            // Gambar dikirim sebagai Data URL (base64 encoded string) agar bisa langsung digunakan di tag <img>
             const imageUrl = `data:image/png;base64,${imageBase64}`;
-            
-            console.log('[API /api/image] Image generated successfully. Sending Data URL to client.');
-            res.status(200).json({ imageUrl: imageUrl });
+            console.log('[API /api/image] Image generated successfully.');
+            return res.status(200).json({ imageUrl: imageUrl });
         } else {
-            console.error('[API /api/image] No image artifacts found in Stability AI response despite OK status:', responseJSON);
-            throw new Error('No image artifacts found in Stability AI response.');
+            console.error('[API /api/image] No image artifacts in Stability AI response:', responseJSON);
+            return res.status(500).json({ message: 'Format respons dari layanan gambar tidak sesuai.' });
         }
 
     } catch (error) {
-        console.error('[API /api/image] Error in handler:', error.message);
-        res.status(500).json({ message: error.message || 'An internal server error occurred while generating the image.' });
+        console.error('[API /api/image] Catch block error:', error);
+        // Mengembalikan pesan error yang lebih umum jika terjadi kesalahan tak terduga
+        return res.status(500).json({ message: 'Terjadi kesalahan internal saat membuat gambar.' });
     }
             }

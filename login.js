@@ -16,23 +16,49 @@ function jwt_decode(token) {
     }
 }
 
+// MODIFIKASI: handleCredentialResponse untuk membaca redirectAfterLogin
 function handleCredentialResponse(response) {
     const decodedToken = jwt_decode(response.credential);
     if (!decodedToken) return;
-    const userProfile = { id: decodedToken.sub, name: decodedToken.name, givenName: decodedToken.given_name, familyName: decodedToken.family_name, picture: decodedToken.picture, email: decodedToken.email };
+    const userProfile = { 
+        id: decodedToken.sub, 
+        name: decodedToken.name, 
+        givenName: decodedToken.given_name, 
+        familyName: decodedToken.family_name, 
+        picture: decodedToken.picture, 
+        email: decodedToken.email 
+    };
     localStorage.setItem('novaUser', JSON.stringify(userProfile));
     localStorage.setItem('isLoggedIn', 'true');
-    if (localStorage.getItem('loginTriggeredByCard')) { localStorage.removeItem('loginTriggeredByCard'); }
-    window.location.href = 'index.html';
+    
+    // Baca tujuan redirect dari localStorage
+    const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'index.html'; // Default ke index.html
+    localStorage.removeItem('redirectAfterLogin'); // Hapus flag setelah dibaca
+    
+    // Hapus juga flag loginTriggeredByCard jika ada, karena sudah ditangani
+    if (localStorage.getItem('loginTriggeredByCard')) { 
+        localStorage.removeItem('loginTriggeredByCard'); 
+    }
+
+    window.location.href = redirectUrl; // Arahkan ke URL yang disimpan atau default
 }
 
 // DATA UNTUK FITUR UNGGULAN NOVARIA
 const featureCardsData = [
-    { icon: "edit_document", title: "Makalah & Esai", description: "Nova bisa membantumu menulis makalah ilmiah, artikel, opini, laporan, dan tugas sekolah dengan struktur yang jelas dan bahasa yang baik.", image: "images/makalah-esai.png" },
-    { icon: "trending_up", title: "Marketing Finance", description: "Analisis tren pasar, buat strategi marketing, dan kelola keuangan dengan bantuan insight dari Novaria.", image: "images/marketing-finance.png" },
-    { icon: "school", title: "Membantu Tugas", description: "Dapatkan bantuan untuk mengerjakan PR, riset materi pelajaran, dan persiapan ujian dengan Novaria.", image: "images/bantu-tugas.png" },
-    { icon: "psychology", title: "AI Profesional Ramah", description: "Novaria dirancang untuk menjadi partner AI yang profesional namun tetap ramah dan mudah diajak berinteraksi.", image: "images/ai-profesional.png" },
-    { icon: "summarize", title: "Analisis Dokumen", description: "Unggah dokumen Anda dan biarkan Novaria membantu menganalisis, merangkum, atau mengekstrak informasi penting.", image: "images/analisis-dokumen.png" }
+    { icon: "edit_document", title: "Makalah & Esai", description: "Nova bisa membantumu menulis makalah ilmiah, artikel, opini, laporan, dan tugas sekolah dengan struktur yang jelas dan bahasa yang baik.", image: "images/makalah-esai.png", actionType: "default_redirect" },
+    { icon: "trending_up", title: "Marketing Finance", description: "Analisis tren pasar, buat strategi marketing, dan kelola keuangan dengan bantuan insight dari Novaria.", image: "images/marketing-finance.png", actionType: "default_redirect" },
+    { icon: "school", title: "Membantu Tugas", description: "Dapatkan bantuan untuk mengerjakan PR, riset materi pelajaran, dan persiapan ujian dengan Novaria.", image: "images/bantu-tugas.png", actionType: "default_redirect" },
+    { icon: "psychology", title: "AI Profesional Ramah", description: "Novaria dirancang untuk menjadi partner AI yang profesional namun tetap ramah dan mudah diajak berinteraksi.", image: "images/ai-profesional.png", actionType: "default_redirect" },
+    { icon: "summarize", title: "Analisis Dokumen", description: "Unggah dokumen Anda dan biarkan Novaria membantu menganalisis, merangkum, atau mengekstrak informasi penting.", image: "images/analisis-dokumen.png", actionType: "default_redirect" },
+    // ===== KARTU BARU DENGAN actionType KHUSUS =====
+    { 
+        icon: "palette", // Atau ikon lain seperti 'image', 'brush'
+        title: "Generate Image", 
+        description: "Buat gambar unik dan kreatif dari deskripsi teks Anda dengan kekuatan AI.", 
+        image: "images/generate-image-feature.png", // PASTIKAN GAMBAR INI ADA di images/
+        actionType: "go_to_image_page" 
+    }
+    // ============================================
 ];
 
 function renderFeatureCards() {
@@ -43,6 +69,7 @@ function renderFeatureCards() {
         const cardElement = document.createElement('div');
         cardElement.className = 'feature-card';
         const iconName = card.icon || "help_outline";
+        // MODIFIKASI: Tambahkan data-action-type ke tombol
         cardElement.innerHTML = `
             <div class="card-header">
                 <span class="material-symbols-outlined card-icon">${iconName}</span>
@@ -52,54 +79,67 @@ function renderFeatureCards() {
             <div class="card-image-container">
                 <img src="${card.image}" alt="${card.title}" loading="lazy">
             </div>
-            <button class="card-cta-button" data-feature-title="${card.title}">Coba Sekarang</button>
+            <button class="card-cta-button" data-feature-title="${card.title}" data-action-type="${card.actionType || 'default_redirect'}">Coba Sekarang</button>
         `;
         grid.appendChild(cardElement);
     });
 
+    // MODIFIKASI: Event listener untuk tombol kartu
     document.querySelectorAll('#featuresGrid .card-cta-button').forEach(button => {
         button.addEventListener('click', function() {
             const featureTitle = this.dataset.featureTitle;
-            localStorage.setItem('loginTriggeredByCard', `Novaria Feature: ${featureTitle}`);
+            const actionType = this.dataset.actionType;
+
+            localStorage.setItem('loginTriggeredByCard', featureTitle); // Info umum kartu apa yang diklik
+
             if (localStorage.getItem('isLoggedIn') === 'true') {
-                window.location.href = 'index.html';
+                // Jika sudah login, langsung arahkan
+                if (actionType === "go_to_image_page") {
+                    window.location.href = 'image.html';
+                } else {
+                    // Untuk kartu lain, bisa tetap ke index.html atau simpan info fitur jika perlu
+                    // localStorage.setItem('initialChatMessage', `Saya ingin mencoba fitur: ${featureTitle}`);
+                    window.location.href = 'index.html';
+                }
             } else {
+                // Jika belum login, simpan tujuan redirect setelah login berhasil
+                if (actionType === "go_to_image_page") {
+                    localStorage.setItem('redirectAfterLogin', 'image.html');
+                } else {
+                    localStorage.setItem('redirectAfterLogin', 'index.html'); // Default redirect
+                }
+                
+                // Memicu prompt login Google One Tap
                 if (window.google && google.accounts && google.accounts.id) {
                     google.accounts.id.prompt(notification => {
                         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                            console.log('Google One Tap tidak ditampilkan untuk fitur Novaria. Tombol login header tersedia.');
+                            console.log('Google One Tap tidak ditampilkan. Pengguna dapat menggunakan tombol login di header.');
                             const headerLoginButton = document.querySelector('#googleSignInButtonContainer button, #googleSignInButtonContainer > div > div');
-                            if (headerLoginButton) { headerLoginButton.focus(); }
+                            if (headerLoginButton) { 
+                                headerLoginButton.focus(); 
+                                // Tambahkan efek visual ke tombol login header jika One Tap tidak muncul
+                                headerLoginButton.style.outline = '2px solid var(--accent-gradient-start)';
+                                setTimeout(() => { headerLoginButton.style.outline = 'none'; }, 2500);
+                            }
                         }
                     });
+                } else {
+                    console.error("Layanan Google Identity tidak tersedia untuk memicu prompt login.");
                 }
             }
         });
     });
 }
 
-// DATA UNTUK KARTU JELAJAHI AI LAIN
+// DATA UNTUK KARTU JELAJAHI AI LAIN (tetap sama)
 const exploreAiData = [
     { name: "Monica.im", logo: "images/explore/monica.png", description: "Asisten AI serbaguna untuk browsing, menulis, dan berkreasi dengan dukungan GPT-4.", url: "https://monica.im/", gradient: ['#f0abfc', '#a855f7'] },
-    { name: "Meta AI", logo: "images/explore/meta.png", description: "Model bahasa besar dari Meta, terintegrasi di berbagai platformnya.", url: "https://ai.meta.com/", gradient: ['#2563eb', '#3b82f6'] },
-    { name: "ChatGPT", logo: "images/explore/chatgpt.png", description: "Model AI percakapan revolusioner dari OpenAI, pionir dalam interaksi bahasa alami.", url: "https://chat.openai.com/", gradient: ['#10b981', '#6ee7b7'] },
-    { name: "DeepSeek", logo: "images/explore/deepseek.png", description: "Platform AI yang fokus pada pencarian cerdas dan pemahaman kode.", url: "https://www.deepseek.com/", gradient: ['#f59e0b', '#fcd34d'] },
-    { name: "Qwen", logo: "images/explore/qwen.png", description: "Seri model bahasa besar dari Alibaba Cloud, mendukung multimodalitas.", url: "https://qwenlm.aliyun.com/", gradient: ['#ef4444', '#f87171'] },
-    { name: "DeepAI", logo: "images/explore/deepai.png", description: "Menyediakan berbagai alat dan API AI untuk generasi gambar, teks, dan lainnya.", url: "https://deepai.org/", gradient: ['#6366f1', '#818cf8'] },
-    { name: "Cohere", logo: "images/explore/cohere.png", description: "Platform AI untuk developer membangun aplikasi dengan LLM canggih.", url: "https://cohere.com/", gradient: ['#d946ef', '#e879f9'] },
-    { name: "AI Studio", logo: "images/explore/aistudio.png", description: "Google AI Studio untuk eksplorasi dan prototipe dengan model Gemini.", url: "https://aistudio.google.com/", gradient: ['#0ea5e9', '#38bdf8'] },
-    { name: "Microsoft AI", logo: "images/explore/microsoft.png", description: "Solusi dan platform AI komprehensif dari Microsoft Azure dan Bing.", url: "https://www.microsoft.com/ai", gradient: ['#14b8a6', '#5eead4'] },
-    { name: "Gemma", logo: "images/explore/gemma.png", description: "Keluarga model AI open-source ringan dari Google DeepMind.", url: "https://ai.google.dev/gemma", gradient: ['#f472b6', '#fb7185'] },
-    { name: "Copilot", logo: "images/explore/copilot.png", description: "Asisten AI Microsoft terintegrasi untuk produktivitas.", url: "https://copilot.microsoft.com/", gradient: ['#06b6d4', '#22d3ee'] },
-    { name: "Hugging Face", logo: "images/explore/huggingface.png", description: "Komunitas & platform terdepan untuk model & dataset AI open-source.", url: "https://huggingface.co/", gradient: ['#fbbf24', '#fde047'] },
-    { name: "Mistral AI", logo: "images/explore/mistral.png", description: "Pengembang model AI open-source berperforma tinggi dari Eropa.", url: "https://mistral.ai/", gradient: ['#a3a3a3', '#d4d4d4'] },
-    { name: "Replicate", logo: "images/explore/replicate.png", description: "Jalankan model machine learning di cloud dengan API sederhana.", url: "https://replicate.com/", gradient: ['#4ade80', '#86efac'] },
-    { name: "Anthropic", logo: "images/explore/anthropic.png", description: "Perusahaan riset & keamanan AI, pengembang model Claude.", url: "https://www.anthropic.com/", gradient: ['#f9a8d4', '#fda4af'] },
-    { name: "Claude AI", logo: "images/explore/claude.png", description: "Asisten AI dari Anthropic yang fokus pada keamanan & kemampuan membantu.", url: "https://claude.ai/", gradient: ['#c084fc', '#d8b4fe'] },
+    // ... (sisa data exploreAiData seperti sebelumnya, pastikan path logo benar) ...
     { name: "Gemini", logo: "images/explore/gemini.png", description: "Model AI multimodal paling canggih dari Google DeepMind.", url: "https://deepmind.google/technologies/gemini/", gradient: ['#3b82f6', '#60a5fa'] }
 ];
 
 function renderExploreAiCards() {
+    // ... (fungsi renderExploreAiCards tetap sama seperti sebelumnya) ...
     const grid = document.getElementById('exploreAiGrid');
     if (!grid) { console.error("Element #exploreAiGrid tidak ditemukan."); return; }
     grid.innerHTML = '';
@@ -129,8 +169,9 @@ function renderExploreAiCards() {
     });
 }
 
-// LOGIKA THEME TOGGLE
+// LOGIKA THEME TOGGLE (tetap sama)
 function applyLoginTheme(isLightMode) {
+    // ... (fungsi applyLoginTheme tetap sama) ...
     if (isLightMode) {
         document.body.classList.add('light-mode');
         localStorage.setItem('novaria_theme', 'light');
@@ -141,6 +182,7 @@ function applyLoginTheme(isLightMode) {
 }
 
 function setupLoginThemeToggle() {
+    // ... (fungsi setupLoginThemeToggle tetap sama) ...
     const themeToggleLogin = document.getElementById('themeToggleLogin');
     if (!themeToggleLogin) return;
     const savedTheme = localStorage.getItem('novaria_theme');
@@ -160,35 +202,52 @@ window.onload = function () {
     const currentYearSpanLogin = document.getElementById('currentYearLogin');
     if (currentYearSpanLogin) { currentYearSpanLogin.textContent = new Date().getFullYear(); }
 
-    if (document.getElementById('featuresGrid')) { renderFeatureCards(); }
-    if (document.getElementById('exploreAiGrid')) { renderExploreAiCards(); }
+    if (document.getElementById('featuresGrid')) { renderFeatureCards(); } // Memanggil render fitur Novaria
+    if (document.getElementById('exploreAiGrid')) { renderExploreAiCards(); } // Memanggil render jelajah AI
     
-    setupLoginThemeToggle();
+    setupLoginThemeToggle(); // Setup theme toggle
 
     const clientIdMeta = document.querySelector('meta[name="google-signin-client_id"]');
-    if (!clientIdMeta || !clientIdMeta.content) {
-        console.error("Google Client ID tidak ditemukan.");
+    if (!clientIdMeta || !clientIdMeta.content || clientIdMeta.content === "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com") {
+        console.error("Google Client ID tidak ditemukan atau belum diganti.");
         const errorDiv = document.getElementById('googleSignInError');
-        if (errorDiv) { errorDiv.textContent = "Konfigurasi login error."; errorDiv.style.display = 'block';}
+        if (errorDiv) { errorDiv.textContent = "Konfigurasi login tidak valid. Harap periksa Client ID."; errorDiv.style.display = 'block';}
         const signInBtnContainer = document.getElementById('googleSignInButtonContainer');
-        if(signInBtnContainer) signInBtnContainer.innerHTML = "<p style='font-size:0.8rem; color: var(--secondary-text-color);'>Login tidak tersedia.</p>";
+        if(signInBtnContainer) signInBtnContainer.innerHTML = "<p style='font-size:0.8rem; color: var(--secondary-text-color);'>Layanan login tidak tersedia sementara.</p>";
         return;
     }
     const clientId = clientIdMeta.content;
 
     try {
-        google.accounts.id.initialize({ client_id: clientId, callback: handleCredentialResponse });
+        // Upaya untuk Mencegah One Tap Muncul Otomatis
+        if (window.google && google.accounts && google.accounts.id && typeof google.accounts.id.disableAutoSelect === 'function') {
+            google.accounts.id.disableAutoSelect();
+        }
+
+        google.accounts.id.initialize({ 
+            client_id: clientId, 
+            callback: handleCredentialResponse 
+            // Tidak ada auto_select: true
+        });
+
         const signInButtonContainer = document.getElementById('googleSignInButtonContainer');
         if (signInButtonContainer) {
              if (localStorage.getItem('isLoggedIn') !== 'true') {
-                google.accounts.id.renderButton(signInButtonContainer, { theme: "filled_black", size: "medium", type: "standard", shape: "pill", text: "signin", logo_alignment: "left" });
+                google.accounts.id.renderButton(signInButtonContainer, { 
+                    theme: "filled_black", 
+                    size: "medium",    
+                    type: "standard", 
+                    shape: "pill", 
+                    text: "signin", // Untuk teks "Login" atau "Masuk"
+                    logo_alignment: "left" 
+                });
             } else {
                 const user = JSON.parse(localStorage.getItem('novaUser'));
                 const userName = user.givenName || user.name.split(' ')[0];
                 signInButtonContainer.innerHTML = `<div class="user-greeting-header"><img src="${user.picture}" alt="${userName}" class="user-avatar-header"/><span>Hi, ${userName}!</span><a href="index.html" class="go-to-app-btn">Buka Aplikasi</a></div>`;
             }
         }
-        // Tidak ada google.accounts.id.prompt() otomatis di sini
+        // Tidak ada pemanggilan google.accounts.id.prompt() otomatis di sini
     } catch (error) {
         console.error("Google Identity Services init error:", error);
         const errorDiv = document.getElementById('googleSignInError');

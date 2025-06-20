@@ -4,12 +4,129 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com"> <!-- GANTI DENGAN CLIENT ID ANDA -->
-    <title>Novaria - Codex Generator</title>
+    <title>Novaria - Codex (Single File Test)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <link rel="stylesheet" href="codex.css">
+    <style>
+        /* --- CSS Inline (Diambil dari codex.css dan disesuaikan) --- */
+        :root {
+          --bg-color: #000000;
+          --text-color: #ffffff;
+          --input-bg: #1c1c1e;
+          --send-button-bg: #2a2a2e;
+          --send-button-hover-bg: #38383c;
+          --placeholder-color: rgba(255, 255, 255, 0.5);
+          --sidebar-bg: #101010;
+          --border-color: rgba(255, 255, 255, 0.1);
+          --header-bg: #000000;
+          --header-border-color: #222222;
+          --code-block-bg: #0e0e0e;
+          --code-block-text: #e0e0e0;
+          --code-block-border: #282828;
+          --copy-button-bg: #1f1f1f;
+          --copy-button-hover-bg: #2f2f2f;
+          --code-language-tag-bg: #1f1f1f;
+          --code-language-tag-text: #909090;
+          --ai-message-color: rgba(255, 255, 255, 0.9);
+          --ai-thinking-color: rgba(255, 255, 255, 0.7);
+          --ai-model-tag-bg: #252525;
+          --ai-model-tag-text: #b0b0b0;
+          --user-message-bg: #181818;
+          --user-message-text: #e0e0e0;
+        }
+
+        body.light-mode {
+          --bg-color: #f4f6f8;
+          --text-color: #121212;
+          /* ... (variabel light mode lain jika diperlukan) ... */
+          --input-bg: #ffffff;
+          --send-button-bg: #e9ecef;
+          --send-button-hover-bg: #ced4da;
+          --placeholder-color: rgba(0, 0, 0, 0.5);
+          --sidebar-bg: #ffffff;
+          --border-color: #d0d7de;
+          --header-bg: #ffffff;
+          --header-border-color: #e0e0e0;
+          --code-block-bg: #f9f9f9;
+          --code-block-text: #2d2d2d;
+          --code-block-border: #e0e0e0;
+          --copy-button-bg: #e9ecef;
+          --copy-button-hover-bg: #ced4da;
+          --code-language-tag-bg: #e9ecef;
+          --code-language-tag-text: #57606a;
+          --ai-message-color: #24292f;
+          --ai-thinking-color: #57606a;
+          --ai-model-tag-bg: #e9ecef;
+          --ai-model-tag-text: #57606a;
+          --user-message-bg: #e0f7fa;
+          --user-message-text: #24292f;
+        }
+
+        body { margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body.app-hidden { opacity: 0; pointer-events: none; }
+        body.app-loaded { opacity: 1; pointer-events: auto; }
+        *:focus { outline: none; box-shadow: none; }
+
+        .codex-header { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; background-color: var(--header-bg); border-bottom: 1px solid var(--header-border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 56px; box-sizing: border-box; }
+        .header-left, .header-right { display: flex; align-items: center; }
+        .header-center { font-size: 1.1em; font-weight: 500; color: var(--text-color); }
+        .icon-button { background: none; border: none; color: var(--text-color); cursor: pointer; padding: 8px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background-color 0.2s ease; }
+        .icon-button:hover { background-color: rgba(255,255,255,0.08); }
+        body.light-mode .icon-button:hover { background-color: rgba(0,0,0,0.05); }
+        .icon-button svg { width: 24px; height: 24px; }
+
+        .codex-main { flex-grow: 1; display: flex; justify-content: center; overflow: hidden; padding-top: 56px; }
+        #codexChatHistory { width: 100%; max-width: 800px; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; }
+
+        .user-message, .ai-message { max-width: 95%; word-wrap: break-word; line-height: 1.55; font-size: 0.92em; border-radius: 8px; position: relative; }
+        .user-message { background-color: var(--user-message-bg); color: var(--user-message-text); align-self: flex-end; border-bottom-right-radius: 3px; padding: 10px 14px; text-align: left; }
+        .ai-message { color: var(--ai-message-color); align-self: flex-start; width: 100%; padding: 0; }
+        .ai-intro-message { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; padding-left: 4px; }
+        .ai-logo { width: 28px; height: 28px; object-fit: contain; flex-shrink: 0; border-radius: 6px; }
+        .ai-name { font-weight: 600; font-size: 1em; color: var(--text-color); }
+        .ai-model-tag { background-color: var(--ai-model-tag-bg); color: var(--ai-model-tag-text); padding: 3px 9px; border-radius: 16px; font-size: 0.75em; font-weight: 500; }
+        .ai-message.code-response { margin-top: 8px; }
+        .ai-message.text-response .ai-message-content { padding: 8px 12px; background-color: var(--user-message-bg); border-radius: 8px; }
+
+
+        #codexThinkingIndicator { color: var(--ai-thinking-color); font-style: italic; font-size: 0.9em; display: flex; align-items: center; gap: 2px; padding: 8px 0; opacity: 0; transition: opacity 0.3s ease; align-self: flex-start; }
+        #codexThinkingIndicator.hidden { display: none !important; }
+        #codexThinkingIndicator .dot { font-weight: 700; font-size: 1.2em; animation: pulse-dot 1.2s infinite ease-in-out both; }
+        @keyframes pulse-dot { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+
+        .code-block-container { background-color: var(--code-block-bg); color: var(--code-block-text); padding: 10px 12px; border-radius: 6px; margin-top: 0; position: relative; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.85em; line-height: 1.5; border: 1px solid var(--code-block-border); }
+        .code-block-container pre { margin: 0; padding: 0; overflow-x: auto; white-space: pre; word-break: normal; scrollbar-width: thin; scrollbar-color: var(--send-button-hover-bg) transparent; }
+        .code-block-container pre::-webkit-scrollbar { height: 6px; width: 6px; }
+        .code-block-container pre::-webkit-scrollbar-track { background: transparent; }
+        .code-block-container pre::-webkit-scrollbar-thumb { background-color: var(--send-button-hover-bg); border-radius: 3px; }
+        .code-header-block { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--code-block-border); }
+        .language-tag { background-color: var(--code-language-tag-bg); color: var(--code-language-tag-text); padding: 2px 6px; border-radius: 4px; font-size: 0.75em; font-weight: 500; text-transform: lowercase; }
+        .copy-code-btn { background-color: var(--copy-button-bg); color: var(--code-language-tag-text); border: 1px solid var(--code-block-border); padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 0.75em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 4px; }
+        .copy-code-btn:hover { background-color: var(--copy-button-hover-bg); }
+        .copy-code-btn svg { width: 13px; height: 13px; stroke: var(--code-language-tag-text); }
+
+        .codex-input-wrapper { background-color: var(--input-bg); border: 1px solid var(--header-border-color); border-radius: 24px; padding: 6px 8px 6px 12px; position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 700px; display: flex; align-items: center; gap: 8px; min-height: 48px; max-height: 150px; box-sizing: border-box; transition: height 0.2s ease; z-index: 95; }
+        .codex-input-wrapper textarea { flex-grow: 1; background: none; border: none; color: var(--text-color); font-family: 'Inter', sans-serif; font-size: 0.95em; outline: none; resize: none; overflow-y: auto; padding: 8px 0; line-height: 1.4; min-height: 20px; max-height: 110px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; }
+        .codex-input-wrapper textarea::placeholder { color: var(--placeholder-color); font-weight: 400; }
+        .send-button { background-color: var(--send-button-bg); border: none; border-radius: 18px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; padding: 0; }
+        .send-button:hover { background-color: var(--send-button-hover-bg); }
+        .send-button svg { width: 18px; height: 18px; fill: var(--text-color); }
+
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100%; background-color: var(--sidebar-bg); /* Menggunakan --sidebar-bg */ border-right: 1px solid var(--header-border-color); z-index: 1000; transition: left 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94); padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; color: var(--text-color); /* Menggunakan --text-color */ }
+        .sidebar.active { left: 0; }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        .sidebar h2 { margin: 5px 0 15px 0; font-size: 1.4em; font-weight: 600; padding-bottom: 10px; border-bottom: 1px solid var(--header-border-color); color: var(--text-color); }
+
+        .hidden { display: none !important; }
+        /* Debug Message Styling */
+        #debug-message-container { position: fixed; top: 60px; left: 10px; right: 10px; background-color: lightyellow; border: 1px solid orange; padding: 10px; z-index: 9999; font-family: monospace; color: black; max-height: 200px; overflow-y: auto; font-size: 12px; line-height: 1.4; }
+        #debug-message-container p { margin: 2px 0; padding: 0; }
+        #debug-message-container p.error { color: red; font-weight: bold; }
+
+        @media (max-width: 600px) { .codex-input-wrapper { max-width: calc(100% - 20px); bottom: 10px; padding: 5px 6px 5px 10px; min-height: 44px; } .codex-header { padding: 0 12px; height: 50px; } .codex-main { padding-top: 50px; } .header-center { font-size: 1em; } .icon-button svg { width: 20px; height: 20px; } #codexChatHistory { padding: 10px; gap: 10px; } .user-message, .ai-message-header { font-size: 0.9em; } .code-block-container { font-size: 0.8em; } .send-button { width: 32px; height: 32px; } .send-button svg { width: 16px; height: 16px; } }
+    </style>
 </head>
-<body class="app-hidden"> <!-- Mulai dengan tersembunyi -->
+<body class="app-hidden">
 
     <header class="codex-header">
         <div class="header-left">
@@ -18,11 +135,10 @@
             </button>
         </div>
         <div class="header-center">
-            <span class="page-title">Code Generator</span> <!-- Sesuai gambar -->
+            <span class="page-title">Code Generator</span>
         </div>
         <div class="header-right">
             <button class="icon-button" id="closeCodexPageIcon" title="Keluar">
-                <!-- SVG Icon X (Close) - Ini ikon silang standar -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L6 18M6 6l12 12"/></svg>
             </button>
         </div>
@@ -30,16 +146,14 @@
 
     <main class="codex-main">
         <div id="codexChatHistory">
-            <!-- Pesan sambutan dan model info akan ditambahkan oleh JS -->
             <div id="codexThinkingIndicator" class="ai-message hidden">
                 <span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
             </div>
-            <!-- Pesan dan blok kode akan muncul di sini -->
         </div>
     </main>
 
     <div class="codex-input-wrapper">
-        <textarea id="codexInput" placeholder="Tulis pertanyaan..." rows="1"></textarea> <!-- Sesuai gambar -->
+        <textarea id="codexInput" placeholder="Tulis pertanyaan..." rows="1"></textarea>
         <button class="send-button" id="sendCodexButton" title="Kirim">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m12 6l.707-.707L12 4.586l-.707.707zm-1 12a1 1 0 1 0 2 0zm5.707-8.707l-4-4l-1.414 1.414l4 4zm-5.414-4l-4 4l1.414 1.414l4-4zM11 6v12h2V6z"/></svg>
         </button>
@@ -48,9 +162,223 @@
     <div class="sidebar-overlay" id="codexSidebarOverlay"></div>
     <aside class="sidebar" id="codexSidebar">
         <h2>Menu</h2>
-        <!-- Sidebar kosong -->
     </aside>
 
-    <script src="codex.js"></script>
+    <script>
+        // --- JavaScript Inline (Diambil dari codex.js versi debug) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("CODEX.HTML (Single File): DOMContentLoaded fired!");
+
+            function displayDebugMessageOnPage(message, isError = false) {
+                const body = document.body;
+                // Selalu pastikan body terlihat jika ada pesan debug
+                body.classList.remove('app-hidden');
+                body.classList.add('app-loaded');
+
+                let container = document.getElementById('debug-message-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'debug-message-container';
+                    // Styling untuk debug container sudah ada di CSS <style> di atas
+                    body.insertBefore(container, body.firstChild); // Taruh di paling atas body
+                }
+                const p = document.createElement('p');
+                p.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+                if (isError) {
+                    p.classList.add('error');
+                    container.style.backgroundColor = 'pink';
+                    container.style.borderColor = 'red';
+                } else {
+                     // Jangan ubah warna jika bukan error, biarkan default lightyellow
+                }
+                container.appendChild(p);
+                container.scrollTop = container.scrollHeight;
+                console.log(`DEBUG ON PAGE: ${message}`);
+            }
+
+            displayDebugMessageOnPage("DOM Content Loaded. Starting login check...");
+
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const storedUser = localStorage.getItem('novaUser'); // PASTIKAN KEY INI BENAR
+            let currentUser = null;
+
+            displayDebugMessageOnPage(`isLoggedIn: ${isLoggedIn}, storedUser (exists?): ${!!storedUser}`);
+
+            if (isLoggedIn === 'true' && storedUser) {
+                displayDebugMessageOnPage("Attempting to parse storedUser...");
+                try {
+                    currentUser = JSON.parse(storedUser);
+                    displayDebugMessageOnPage(`Parsed currentUser (type: ${typeof currentUser}): ${JSON.stringify(currentUser)}`);
+
+                    if (!currentUser || typeof currentUser.name === 'undefined' || currentUser.name === null) {
+                        displayDebugMessageOnPage("currentUser is null or 'name' property is missing/null.", true);
+                        throw new Error("Data pengguna tidak valid atau properti 'name' tidak ditemukan.");
+                    }
+
+                    displayDebugMessageOnPage(`User data valid (name: ${currentUser.name}). Removing 'app-hidden' (should already be done).`);
+                    document.body.classList.remove('app-hidden'); // Seharusnya sudah oleh displayDebugMessageOnPage
+                    document.body.classList.add('app-loaded');
+                    const debugContainer = document.getElementById('debug-message-container');
+                    if (debugContainer && debugContainer.style.backgroundColor !== 'pink') {
+                        debugContainer.style.backgroundColor = 'lightgreen'; // Tanda sukses login check
+                    }
+
+                } catch (e) {
+                    displayDebugMessageOnPage(`Error parsing user data: ${e.message}. Login ulang mungkin diperlukan.`, true);
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('novaUser');
+                    // Tidak redirect otomatis agar error terlihat
+                    return; // Hentikan eksekusi jika login gagal diproses
+                }
+            } else {
+                displayDebugMessageOnPage("Not logged in or no storedUser. Silakan login.", !isLoggedIn || !storedUser);
+                // Tidak redirect otomatis
+                return; // Hentikan eksekusi jika tidak login
+            }
+
+            displayDebugMessageOnPage("Login check passed. Initializing DOM elements.");
+
+            const codexInput = document.getElementById('codexInput');
+            const sendCodexButton = document.getElementById('sendCodexButton');
+            const codexChatHistory = document.getElementById('codexChatHistory');
+            const codexThinkingIndicator = document.getElementById('codexThinkingIndicator');
+            const codexSidebarIcon = document.getElementById('codexSidebarIcon');
+            const codexSidebar = document.getElementById('codexSidebar');
+            const codexSidebarOverlay = document.getElementById('codexSidebarOverlay');
+            const closeCodexPageIcon = document.getElementById('closeCodexPageIcon');
+            const codexMain = document.querySelector('.codex-main');
+            const codexInputWrapper = document.querySelector('.codex-input-wrapper');
+
+            if (!codexInput || !sendCodexButton || !codexChatHistory || !codexThinkingIndicator || !codexMain || !codexInputWrapper) {
+                displayDebugMessageOnPage("Satu atau lebih elemen penting halaman tidak ditemukan!", true);
+                return;
+            }
+            displayDebugMessageOnPage("All essential DOM elements found.");
+
+            // --- Fungsi-fungsi ---
+            function addInitialAiInfo() {
+                if (!codexChatHistory || !codexThinkingIndicator) return;
+                const introMessageElement = document.createElement('div');
+                introMessageElement.classList.add('ai-intro-message');
+                introMessageElement.innerHTML = `
+                    <img src="logo.png" alt="Novaria Logo" class="ai-logo">
+                    <span class="ai-name">Novaria</span>
+                    <span class="ai-model-tag">nova-coder-v3</span>
+                `;
+                codexChatHistory.insertBefore(introMessageElement, codexThinkingIndicator);
+                codexChatHistory.scrollTop = codexChatHistory.scrollHeight;
+            }
+
+            function autoResizeTextarea() {
+                if (!codexInput || !codexInputWrapper || !codexMain) return;
+                codexInput.style.height = 'auto';
+                let scrollHeight = codexInput.scrollHeight;
+                const maxHeight = 110;
+                codexInput.style.height = Math.min(scrollHeight, maxHeight) + 'px';
+                const inputWrapperHeight = codexInputWrapper.offsetHeight;
+                codexMain.style.paddingBottom = `${inputWrapperHeight + 20}px`;
+                if (codexChatHistory) codexChatHistory.scrollTop = codexChatHistory.scrollHeight;
+            }
+
+            function escapeHtml(unsafe) {
+                if (typeof unsafe !== 'string') return '';
+                return unsafe.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, """).replace(/'/g, "'");
+            }
+
+            function addCodexMessage(data, sender, isCodeBlock = false, language = 'plaintext') {
+                if (!codexChatHistory || !codexThinkingIndicator) return;
+                const messageElement = document.createElement('div');
+                messageElement.classList.add(sender === 'user' ? 'user-message' : 'ai-message');
+                if (sender === 'user') {
+                    messageElement.textContent = data.text;
+                } else {
+                    const contentContainer = document.createElement('div');
+                    contentContainer.classList.add('ai-message-content');
+                    if (isCodeBlock) {
+                        messageElement.classList.add('code-response');
+                        const codeBlockContainer = document.createElement('div');
+                        codeBlockContainer.classList.add('code-block-container');
+                        const codeToDisplay = data.code || "Error: Tidak ada kode.";
+                        const langToDisplay = language || 'plaintext';
+                        codeBlockContainer.innerHTML = `
+                            <div class="code-header-block">
+                                <span class="language-tag">${escapeHtml(langToDisplay)}</span>
+                                <button class="copy-code-btn" title="Salin Kode">
+                                    <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect height="8" width="8" x="8" y="2"/></svg>
+                                    <span>Salin</span>
+                                </button>
+                            </div>
+                            <pre><code>${escapeHtml(codeToDisplay)}</code></pre>`;
+                        codeBlockContainer.querySelector('.copy-code-btn').addEventListener('click', function() { copyCodeToClipboard(codeToDisplay, this); });
+                        contentContainer.appendChild(codeBlockContainer);
+                    } else {
+                        messageElement.classList.add('text-response');
+                        contentContainer.textContent = data.text || "Tidak ada respons.";
+                    }
+                    messageElement.appendChild(contentContainer);
+                }
+                codexChatHistory.insertBefore(messageElement, codexThinkingIndicator);
+                setTimeout(() => { codexChatHistory.scrollTop = codexChatHistory.scrollHeight; }, 50);
+            }
+
+            async function handleCodexGeneration() {
+                if (!codexInput || !codexThinkingIndicator) { displayDebugMessageOnPage("Input atau indikator tidak ditemukan saat generate!", true); return; }
+                const prompt = codexInput.value.trim();
+                if (!prompt) return;
+                addCodexMessage({ text: prompt }, 'user');
+                codexInput.value = '';
+                autoResizeTextarea();
+                codexThinkingIndicator.classList.remove('hidden');
+                codexThinkingIndicator.style.opacity = '1';
+                codexChatHistory.scrollTop = codexChatHistory.scrollHeight;
+                displayDebugMessageOnPage(`Sending prompt to /api/codex: "${prompt}"`);
+                try {
+                    const response = await fetch('/api/codex', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: prompt }), });
+                    displayDebugMessageOnPage(`API response status: ${response.status}`);
+                    const result = await response.json();
+                    displayDebugMessageOnPage(`API response JSON: ${JSON.stringify(result)}`);
+                    codexThinkingIndicator.style.opacity = '0';
+                    setTimeout(() => codexThinkingIndicator.classList.add('hidden'), 300);
+                    if (response.ok && result.code) {
+                        addCodexMessage({ code: result.code }, 'ai', true, result.language);
+                    } else {
+                        addCodexMessage({ text: `Error: ${result.message || 'Gagal menghasilkan kode dari API.'}` }, 'ai', false);
+                    }
+                } catch (error) {
+                    displayDebugMessageOnPage(`Error fetching from API: ${error.message}`, true);
+                    codexThinkingIndicator.style.opacity = '0';
+                    setTimeout(() => codexThinkingIndicator.classList.add('hidden'), 300);
+                    addCodexMessage({ text: `Error koneksi: ${error.message}` }, 'ai', false);
+                }
+            }
+
+            function copyCodeToClipboard(codeText, buttonElement) {
+                navigator.clipboard.writeText(codeText).then(() => {
+                    const originalButtonContent = buttonElement.innerHTML;
+                    buttonElement.innerHTML = `<svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" style="color: #66bb6a; width:13px; height:13px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg><span>Tersalin!</span>`;
+                    setTimeout(() => { buttonElement.innerHTML = originalButtonContent; }, 2000);
+                }).catch(err => { displayDebugMessageOnPage(`Gagal menyalin: ${err.message}`, true); });
+            }
+
+            // --- EVENT LISTENERS ---
+            addInitialAiInfo();
+            codexInput.addEventListener('input', autoResizeTextarea);
+            sendCodexButton.addEventListener('click', handleCodexGeneration);
+            codexInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleCodexGeneration(); } });
+            if (codexSidebarIcon && codexSidebar && codexSidebarOverlay) {
+                codexSidebarIcon.addEventListener('click', () => { codexSidebar.classList.toggle('active'); codexSidebarOverlay.classList.toggle('active'); });
+                codexSidebarOverlay.addEventListener('click', () => { codexSidebar.classList.remove('active'); codexSidebarOverlay.classList.remove('active'); });
+            }
+            if(closeCodexPageIcon) { closeCodexPageIcon.addEventListener('click', () => { window.location.href = 'login.html'; }); }
+
+            // Terapkan tema dari localStorage (jika ada)
+            const savedTheme = localStorage.getItem('novaria_theme') || localStorage.getItem('novaai_theme');
+            if (savedTheme === 'light' || savedTheme === 'light-mode') { document.body.classList.add('light-mode'); }
+            else { document.body.classList.remove('light-mode'); }
+
+            displayDebugMessageOnPage("CODEX.HTML (Single File): Script initialization complete.", false);
+
+        }); // Akhir DOMContentLoaded
+    </script>
 </body>
 </html>

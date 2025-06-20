@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="Yu5SrqKysJNrowL7W3-1r6kAGOf6GyertHg2MR-QMvg" />
   <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com">
-  <title data-key="documentTitle">NovaAI</title>
+  <title>NovaAI</title> <!-- Judul statis -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css">
@@ -43,8 +43,8 @@
 
   <main>
     <section id="welcomeSection" class="page-section active">
-        <h1 data-key="welcomeTitle">Welcome</h1>
-        <p data-key="helpText">Hii, I Can Help You?</p>
+        <h1>Welcome</h1> <!-- Teks statis -->
+        <p>Hii, I Can Help You?</p> <!-- Teks statis -->
     </section>
 
     <section id="chatSection" class="page-section hidden">
@@ -57,6 +57,7 @@
   </main>
 
   <div class="quick-complete-container" id="quickCompleteContainer">
+    <!-- Quick complete buttons akan dikosongkan oleh JS atau bisa dihapus jika tidak ada sumber data -->
   </div>
 
   <div class="input-wrapper">
@@ -89,84 +90,20 @@
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <aside class="sidebar" id="sidebar">
-    <h2 data-key="settingsTitle">Settings</h2>
-
-    <div class="sidebar-item language-select">
-      <span data-key="languageOption">Language</span>
-      <select id="languageSelect">
-        <option value="en">English</option>
-        <option value="id">Bahasa Indonesia</option>
-      </select>
-    </div>
-
-    <div class="theme-toggle-container">
-        <span data-key="themeMode">Dark / Light Mode</span>
-        <label class="switch">
-            <input type="checkbox" id="themeToggle">
-            <span class="slider">
-                <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path class="moon-shape" d="M12 8a2.83 2.83 0 0 0 4 4 4 4 0 1 1-4-4"/>
-                    <g class="sun-rays">
-                        <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.67 17.67 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.33 17.67-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
-                    </g>
-                </svg>
-            </span>
-        </label>
-    </div>
-
-    <div class="sidebar-item" data-modal-target="privacyPolicy">
-      <a href="#">
-        <svg viewBox="0 0 24 24" fill="currentColor"> <!-- Adjusted fill for visibility -->
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-        </svg>
-        <span data-key="privacyPolicy">Privacy Policy</span>
-      </a>
-    </div>
-    <div class="sidebar-item" data-modal-target="termsAndConditions">
-      <a href="#">
-        <svg viewBox="0 0 24 24" fill="currentColor"> <!-- Adjusted fill for visibility -->
-          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm-1 7V3.5L18.5 9H13z"/>
-        </svg>
-        <span data-key="termsAndConditions">Terms & Conditions</span>
-      </a>
-    </div>
-    <div class="sidebar-item" data-modal-target="policy">
-      <a href="#">
-        <svg viewBox="0 0 24 24" fill="currentColor"> <!-- Adjusted fill for visibility -->
-          <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-        </svg>
-        <span data-key="policy">Policy</span>
-      </a>
-    </div>
-    <div class="sidebar-item" data-modal-target="aboutUs">
-      <a href="#">
-        <svg viewBox="0 0 24 24" fill="currentColor"> <!-- Adjusted fill for visibility -->
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-        </svg>
-        <span data-key="aboutUs">About Us</span>
-      </a>
-    </div>
-     <div class="sidebar-item" id="logoutButton">
-      <a href="#">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-        </svg>
-        <span>Logout</span>
-      </a>
-    </div>
+    <!-- ISI SIDEBAR DIKOSONGKAN -->
+    <!-- Anda bisa menambahkan judul jika mau, misal: <h2>Menu</h2> -->
+    <!-- Atau biarkan benar-benar kosong -->
   </aside>
 
-  <div class="modal-overlay" id="infoModalOverlay">
+  <!-- Modal tidak akan digunakan lagi karena item pemicunya dihapus -->
+  <!-- <div class="modal-overlay" id="infoModalOverlay">
     <div class="modal-content" id="infoModalContent">
       <button class="modal-close-btn" id="modalCloseBtn">×</button>
       <h3 id="modalTitle">Modal Title</h3>
       <div id="modalBody">
         </div>
     </div>
-  </div>
+  </div> -->
 
   <script src="script.js"></script>
 </body>

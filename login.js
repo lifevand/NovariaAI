@@ -30,7 +30,7 @@ function handleCredentialResponse(response) {
     localStorage.setItem('novaUser', JSON.stringify(userProfile));
     localStorage.setItem('isLoggedIn', 'true');
 
-    const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'index.html';
+    const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'program.html';
     localStorage.removeItem('redirectAfterLogin');
 
     if (localStorage.getItem('loginTriggeredByCard')) {

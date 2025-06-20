@@ -61,7 +61,7 @@ const featureCardsData = [
         title: "Buat Program dengan AI",
         description: "Rancang, tulis, dan debug kode dalam berbagai bahasa pemrograman dengan bantuan AI coder canggih.",
         image: "images/buat-program-feature.png", // ANDA PERLU MENYEDIAKAN GAMBAR INI
-        actionType: "go_to_code_page" // Akan mengarah ke code-generator.html
+        actionType: "go_to_program_page" // Akan mengarah ke code-generator.html
     }
 ];
 

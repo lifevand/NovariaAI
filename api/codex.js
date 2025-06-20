@@ -1,4 +1,4 @@
-// api/program.js
+// api/codex.js
 import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
@@ -14,16 +14,15 @@ export default async function handler(req, res) {
 
     const HF_API_TOKEN = process.env.HF_API_TOKEN;
     if (!HF_API_TOKEN) {
-        console.error('[API /api/program] SERVER CONFIGURATION ERROR: HF_API_TOKEN is not set.');
-        return res.status(500).json({ message: 'Layanan pembuatan program tidak terkonfigurasi (Token API Hilang).' });
+        console.error('[API /api/codex] SERVER CONFIGURATION ERROR: HF_API_TOKEN is not set.');
+        return res.status(500).json({ message: 'Layanan Codex tidak terkonfigurasi (Token API Hilang).' });
     }
 
-    // Ganti MODEL_ID dengan model DeepSeek Coder yang Anda inginkan
-    const MODEL_ID = 'deepseek-ai/deepseek-coder-6.7b-instruct'; // Contoh
+    const MODEL_ID = 'deepseek-ai/deepseek-coder-6.7b-instruct'; // Atau model lain yang Anda pilih
     const API_URL = `https://api-inference.huggingface.co/models/${MODEL_ID}`;
-    const modelDisplayName = "nova-program-v3"; // Sesuai permintaan tampilan
+    // const modelDisplayName = "nova-coder-v3"; // Ini akan ditampilkan di UI dari JS awal
 
-    console.log(`[API /api/program] Request: "${prompt}", Model: ${MODEL_ID}`);
+    console.log(`[API /api/codex] Request: "${prompt}", Model: ${MODEL_ID}`);
 
     try {
         const payload = {
@@ -36,7 +35,7 @@ export default async function handler(req, res) {
                 do_sample: true,
             },
             options: {
-                wait_for_model: true,
+                wait_for_model: true, // Mungkin perlu diset false jika sering timeout dan handle 503 di frontend
                 use_cache: false
             }
         };
@@ -51,6 +50,7 @@ export default async function handler(req, res) {
         });
 
         if (!hfResponse.ok) {
+            // ... (Penanganan error sama seperti di api/program.js, ganti console log ke [API /api/codex]) ...
             let errorBody = `Hugging Face API Error (${hfResponse.status})`;
             let errorJson;
             let isModelLoading = false;
@@ -67,7 +67,7 @@ export default async function handler(req, res) {
                     }
                 } catch (e) { errorBody = responseText.length > 300 ? `${hfResponse.statusText} (Response too long)` : responseText; }
             } catch (e) { errorBody = `Gagal membaca respons error dari Hugging Face: ${hfResponse.statusText}`; }
-            console.error(`[API /api/program] Hugging Face Error: Status ${hfResponse.status}, Body: ${errorBody}`);
+            console.error(`[API /api/codex] Hugging Face Error: Status ${hfResponse.status}, Body: ${errorBody}`);
             if (isModelLoading) return res.status(503).json({ message: errorBody, errorType: 'model_loading', estimated_time: estimatedTime });
             let clientStatusCode = hfResponse.status >= 400 && hfResponse.status < 500 ? hfResponse.status : 500;
             return res.status(clientStatusCode).json({ message: `Gagal berkomunikasi dengan layanan AI: ${errorBody}`, errorType: 'api_error' });
@@ -82,19 +82,16 @@ export default async function handler(req, res) {
             if (codeBlockMatch) {
                 language = codeBlockMatch[1] || 'plaintext';
                 generatedCode = codeBlockMatch[2].trim();
-            } else {
-                if (prompt.toLowerCase().includes('python')) language = 'python';
-                else if (prompt.toLowerCase().includes('javascript')) language = 'javascript';
-                // ... deteksi bahasa lain ...
-            }
-            console.log('[API /api/program] Program/Code generated successfully.');
-            return res.status(200).json({ code: generatedCode, language: language, modelName: modelDisplayName });
+            } else { /* Deteksi bahasa sederhana */ }
+            console.log('[API /api/codex] Code generated successfully.');
+            // Tidak mengirim modelName dari sini karena sudah ada di UI awal
+            return res.status(200).json({ code: generatedCode, language: language });
         } else {
-            console.error('[API /api/program] Respons tidak valid atau format tidak terduga dari Hugging Face:', JSON.stringify(result, null, 2));
+            console.error('[API /api/codex] Respons tidak valid dari Hugging Face:', JSON.stringify(result, null, 2));
             throw new Error('Menerima format respons tidak terduga dari layanan AI.');
         }
     } catch (error) {
-        console.error('[API /api/program] Catch block error:', error.message);
+        console.error('[API /api/codex] Catch block error:', error.message);
         return res.status(500).json({ message: `Terjadi kesalahan internal server: ${error.message}`, errorType: 'internal_server_error' });
     }
-              }
+        }

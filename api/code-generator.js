@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
     // Model DeepSeek Coder V2 Lite Instruct (ganti jika ada model V3 yang lebih spesifik dan tersedia di API gratis)
     // Untuk DeepSeek Coder v2 Instruct:
-    const MODEL_ID = 'deepseek-ai/deepseek-coder-v2-lite-instruct';
+    const MODEL_ID = 'deepseek-ai/DeepSeek-R1-0528';
     // Atau jika ada model v3 yang spesifik, contoh: (pastikan model ID ini benar)
     // const MODEL_ID = 'deepseek-ai/deepseek-coder-33b-instruct'; // Ini contoh, mungkin perlu model ID yang lebih kecil/spesifik untuk inference API gratis
     const API_URL = `https://api-inference.huggingface.co/models/${MODEL_ID}`;

@@ -1,0 +1,20 @@
+{
+  "name": "novaria-ai",
+  "version": "1.0.0",
+  "description": "Aplikasi Novaria AI",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ai",
+    "chatbot",
+    "novaria"
+  ],
+  "author": "Nama Anda Atau Nama Tim",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}

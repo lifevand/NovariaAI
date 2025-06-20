@@ -64,7 +64,7 @@ export default async function handler(req, res) {
 
     // Ganti dengan ID model yang Anda pilih dari Hugging Face
     // Contoh: 'stabilityai/stable-diffusion-xl-base-1.0' atau 'runwayml/stable-diffusion-v1-5'
-    const MODEL_ID = 'runwayml/stable-diffusion-v1-5'; // Model yang lebih ringan untuk testing awal
+    const MODEL_ID = 'black-forest-labs/FLUX.1-dev'; // Model yang lebih ringan untuk testing awal
     const API_URL = `https://api-inference.huggingface.co/models/${MODEL_ID}`;
 
     console.log(`[API /api/image] Request: "${prompt}", Model: ${MODEL_ID}`);

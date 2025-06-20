@@ -30,7 +30,7 @@ function handleCredentialResponse(response) {
     localStorage.setItem('novaUser', JSON.stringify(userProfile));
     localStorage.setItem('isLoggedIn', 'true');
 
-    const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'program.html';
+    const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'index.html';
     localStorage.removeItem('redirectAfterLogin');
 
     if (localStorage.getItem('loginTriggeredByCard')) {
@@ -40,28 +40,29 @@ function handleCredentialResponse(response) {
     window.location.href = redirectUrl;
 }
 
-// DATA UNTUK FITUR UNGGULAN NOVARIA (DIMODIFIKASI)
+// DATA UNTUK FITUR UNGGULAN NOVARIA (DIMODIFIKASI UNTUK CODEX)
 const featureCardsData = [
+    // Kartu-kartu yang ingin Anda hapus sudah dihilangkan sesuai permintaan sebelumnya
     {
-        icon: "psychology",
+        icon: "psychology", // AI Profesional Ramah
         title: "AI Profesional Ramah",
         description: "Novaria dirancang untuk menjadi partner AI yang profesional namun tetap ramah dan mudah diajak berinteraksi.",
         image: "images/ai-profesional.png", // Pastikan gambar ini ada
         actionType: "default_redirect" // Mengarah ke index.html (chat utama)
     },
     {
-        icon: "palette", // Atau 'image', 'brush'
+        icon: "palette", // Generate Image
         title: "Generate Image",
         description: "Buat gambar unik dan kreatif dari deskripsi teks Anda dengan kekuatan AI.",
         image: "images/generate-image-feature.png", // Pastikan gambar ini ada
         actionType: "go_to_image_page" // Mengarah ke image.html
     },
     {
-        icon: "code", // Ikon untuk fitur kode
-        title: "Buat Program dengan AI",
+        icon: "code_blocks", // atau "terminal", "data_object"
+        title: "Codex Generator", // DIUBAH NAMANYA
         description: "Rancang, tulis, dan debug kode dalam berbagai bahasa pemrograman dengan bantuan AI coder canggih.",
-        image: "images/buat-program-feature.png", // ANDA PERLU MENYEDIAKAN GAMBAR INI
-        actionType: "go_to_program_page" // Akan mengarah ke code-generator.html
+        image: "images/codex-generator-feature.png", // GANTI NAMA GAMBAR JIKA PERLU, pastikan ada
+        actionType: "go_to_codex_page" // DIUBAH ACTION TYPE
     }
 ];
 
@@ -95,21 +96,18 @@ function renderFeatureCards() {
             localStorage.setItem('loginTriggeredByCard', featureTitle);
 
             if (localStorage.getItem('isLoggedIn') === 'true') {
-                // Jika sudah login, langsung arahkan
                 if (actionType === "go_to_image_page") {
                     window.location.href = 'image.html';
-                } else if (actionType === "go_to_program_page") {
-                    window.location.href = 'program.html'; // Halaman baru untuk generator kode
+                } else if (actionType === "go_to_codex_page") { // DIUBAH
+                    window.location.href = 'codex.html';    // DIUBAH
                 } else { // default_redirect
-                    // localStorage.setItem('initialChatMessage', `Saya ingin mencoba fitur: ${featureTitle}`);
                     window.location.href = 'index.html';
                 }
             } else {
-                // Jika belum login, simpan tujuan redirect setelah login berhasil
                 if (actionType === "go_to_image_page") {
                     localStorage.setItem('redirectAfterLogin', 'image.html');
-                } else if (actionType === "go_to_program_page") {
-                    localStorage.setItem('redirectAfterLogin', 'program.html'); // Halaman baru
+                } else if (actionType === "go_to_codex_page") { // DIUBAH
+                    localStorage.setItem('redirectAfterLogin', 'codex.html'); // DIUBAH
                 } else { // default_redirect
                     localStorage.setItem('redirectAfterLogin', 'index.html');
                 }
@@ -117,7 +115,7 @@ function renderFeatureCards() {
                 if (window.google && google.accounts && google.accounts.id) {
                     google.accounts.id.prompt(notification => {
                         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                            console.log('Google One Tap tidak ditampilkan. Pengguna dapat menggunakan tombol login di header.');
+                            console.log('Google One Tap tidak ditampilkan.');
                             const headerLoginButton = document.querySelector('#googleSignInButtonContainer button, #googleSignInButtonContainer > div > div');
                             if (headerLoginButton) {
                                 headerLoginButton.focus();
@@ -134,7 +132,7 @@ function renderFeatureCards() {
     });
 }
 
-// DATA UNTUK KARTU JELAJAHI AI LAIN (tetap sama)
+// DATA UNTUK KARTU JELAJAHI AI LAIN
 const exploreAiData = [
     { name: "Monica.im", logo: "images/explore/monica.png", description: "Asisten AI serbaguna untuk browsing, menulis, dan berkreasi dengan dukungan GPT-4.", url: "https://monica.im/", gradient: ['#f0abfc', '#a855f7'] },
     { name: "Perplexity AI", logo: "images/explore/perplexity.png", description: "Mesin penjawab bertenaga AI yang menyediakan sumber dan kutipan akurat.", url: "https://www.perplexity.ai/", gradient: ['#38bdf8', '#0ea5e9'] },
@@ -189,7 +187,7 @@ function applyLoginTheme(isLightMode) {
 function setupLoginThemeToggle() {
     const themeToggleLogin = document.getElementById('themeToggleLogin');
     if (!themeToggleLogin) return;
-    const savedTheme = localStorage.getItem('novaria_theme');
+    const savedTheme = localStorage.getItem('novaria_theme'); // Pastikan key tema konsisten
     if (savedTheme === 'light') {
         themeToggleLogin.checked = true;
         applyLoginTheme(true);
@@ -212,7 +210,7 @@ window.onload = function () {
     setupLoginThemeToggle();
 
     const clientIdMeta = document.querySelector('meta[name="google-signin-client_id"]');
-    if (!clientIdMeta || !clientIdMeta.content || clientIdMeta.content === "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com" || clientIdMeta.content.length < 20) { // Tambah pengecekan panjang minimal
+    if (!clientIdMeta || !clientIdMeta.content || clientIdMeta.content === "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com" || clientIdMeta.content.length < 20) {
         console.error("Google Client ID tidak ditemukan, belum diganti, atau tidak valid.");
         const errorDiv = document.getElementById('googleSignInError');
         if (errorDiv) { errorDiv.textContent = "Konfigurasi login tidak valid. Harap periksa Client ID."; errorDiv.style.display = 'block';}

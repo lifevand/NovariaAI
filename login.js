@@ -98,8 +98,8 @@ function renderFeatureCards() {
                 // Jika sudah login, langsung arahkan
                 if (actionType === "go_to_image_page") {
                     window.location.href = 'image.html';
-                } else if (actionType === "go_to_code_page") {
-                    window.location.href = 'code-generator.html'; // Halaman baru untuk generator kode
+                } else if (actionType === "go_to_program_page") {
+                    window.location.href = 'program.html'; // Halaman baru untuk generator kode
                 } else { // default_redirect
                     // localStorage.setItem('initialChatMessage', `Saya ingin mencoba fitur: ${featureTitle}`);
                     window.location.href = 'index.html';
@@ -108,8 +108,8 @@ function renderFeatureCards() {
                 // Jika belum login, simpan tujuan redirect setelah login berhasil
                 if (actionType === "go_to_image_page") {
                     localStorage.setItem('redirectAfterLogin', 'image.html');
-                } else if (actionType === "go_to_code_page") {
-                    localStorage.setItem('redirectAfterLogin', 'code-generator.html'); // Halaman baru
+                } else if (actionType === "go_to_program_page") {
+                    localStorage.setItem('redirectAfterLogin', 'program.html'); // Halaman baru
                 } else { // default_redirect
                     localStorage.setItem('redirectAfterLogin', 'index.html');
                 }

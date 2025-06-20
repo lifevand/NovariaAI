@@ -3,19 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Client ID Google juga diperlukan di sini jika Anda ingin melakukan pengecekan login
-         atau menampilkan info user dari localStorage, meskipun login utama terjadi di login.html -->
     <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com"> <!-- GANTI DENGAN CLIENT ID ANDA -->
     <title>Novaria - Code Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <link rel="stylesheet" href="code-generator.css">
+    <link rel="stylesheet" href="code-generator.css"> <!-- FIXED: Path ke CSS -->
 </head>
-<body class="app-hidden"> <!-- Class app-hidden untuk fade-in setelah login check -->
+<body class="app-hidden">
 
     <header class="code-header">
         <div class="header-left">
             <button class="icon-button" id="codeSidebarIcon" title="Menu">
+                <!-- SVG Sidebar dari Anda -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 17h14M5 12h14M5 7h8"/></svg>
             </button>
         </div>
@@ -24,6 +22,7 @@
         </div>
         <div class="header-right">
             <button class="icon-button" id="closeCodePageIcon" title="Keluar">
+                <!-- SVG Icon X (Home) dari Anda -->
                 <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21"><g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="m1.5 10.5l9-9l9 9"/><path d="M3.5 8.5v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></g></svg>
             </button>
         </div>
@@ -42,16 +41,17 @@
     <div class="code-input-wrapper">
         <textarea id="codeInput" placeholder="Tulis deskripsi kode yang Anda inginkan..." rows="1"></textarea>
         <button class="send-button" id="sendCodeButton" title="Kirim">
+            <!-- SVG Panah Atas dari Anda -->
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m12 6l.707-.707L12 4.586l-.707.707zm-1 12a1 1 0 1 0 2 0zm5.707-8.707l-4-4l-1.414 1.414l4 4zm-5.414-4l-4 4l1.414 1.414l4-4zM11 6v12h2V6z"/></svg>
         </button>
     </div>
 
     <div class="sidebar-overlay" id="codeSidebarOverlay"></div>
     <aside class="sidebar" id="codeSidebar">
-        <!-- Sidebar kosong untuk saat ini -->
         <h2>Menu</h2>
+        <!-- Sidebar masih kosong sesuai permintaan sebelumnya -->
     </aside>
 
-    <script src="code.js"></script>
+    <script src="code-generator.js"></script> <!-- FIXED: Path ke JS -->
 </body>
 </html>

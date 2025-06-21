@@ -1,23 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id"> <!-- Ganti ke 'id' jika bahasa default Indonesia -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="Yu5SrqKysJNrowL7W3-1r6kAGOf6GyertHg2MR-QMvg" />
   <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com">
-  <title>NovaAI</title> <!-- Judul statis -->
+  <title data-key="documentTitle">NovaAI</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="app-hidden"> <!-- Tambahkan class app-hidden -->
+<body class="app-hidden">
 
   <header>
     <div class="header-left-group">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-btn" id="menuIcon">
-        <path d="M17 12H7"/><path d="M19 18H5"/><path d="M21 6H3"/>
+        <path d="M3 12h18M3 6h18M3 18h18"/> <!-- Ikon menu standar -->
       </svg>
-      <svg viewBox="0 0 24 24" id="backIcon" class="icon-btn hidden">
+      <svg viewBox="0 0 24 24" id="backIcon" class="icon-btn hidden" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6" />
       </svg>
       <div class="app-brand">
@@ -43,8 +44,8 @@
 
   <main>
     <section id="welcomeSection" class="page-section active">
-        <h1>Welcome</h1> <!-- Teks statis -->
-        <p>Hii, I Can Help You?</p> <!-- Teks statis -->
+        <h1 data-key="welcomeTitle">Welcome</h1>
+        <p data-key="helpText">Hii, I Can Help You?</p>
     </section>
 
     <section id="chatSection" class="page-section hidden">
@@ -57,32 +58,25 @@
   </main>
 
   <div class="quick-complete-container" id="quickCompleteContainer">
-    <!-- Quick complete buttons akan dikosongkan oleh JS atau bisa dihapus jika tidak ada sumber data -->
   </div>
 
   <div class="input-wrapper">
     <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
-
     <button class="btn-circle btn-plus" id="plusButton">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19" />
-        <line x1="5" y1="12" x2="19" y2="12" />
+        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
       </svg>
     </button>
-
-    <div id="fileChipContainer" class="file-chip-container">
-        <!-- Item pratinjau file (chip) akan ditambahkan di sini oleh JavaScript -->
-    </div>
-
+    <div id="fileChipContainer" class="file-chip-container"></div>
     <button class="btn-circle btn-voice" id="voiceInputButton">
-        <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
+        <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line>
         </svg>
     </button>
     <textarea id="messageInput" placeholder="Ask me anything..." rows="1"></textarea>
     <button class="btn-circle btn-send" id="sendButton">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-            <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
         </svg>
     </button>
   </div>
@@ -90,20 +84,118 @@
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <aside class="sidebar" id="sidebar">
-    <!-- ISI SIDEBAR DIKOSONGKAN -->
-    <!-- Anda bisa menambahkan judul jika mau, misal: <h2>Menu</h2> -->
-    <!-- Atau biarkan benar-benar kosong -->
-  </aside>
+    <div class="sidebar-header">
+        <h2 data-key="settingsTitle">Pengaturan</h2>
+        <button class="icon-btn sidebar-close-btn" id="sidebarCloseBtn" title="Tutup Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+    </div>
 
-  <!-- Modal tidak akan digunakan lagi karena item pemicunya dihapus -->
-  <!-- <div class="modal-overlay" id="infoModalOverlay">
-    <div class="modal-content" id="infoModalContent">
-      <button class="modal-close-btn" id="modalCloseBtn">×</button>
-      <h3 id="modalTitle">Modal Title</h3>
-      <div id="modalBody">
+    <div class="sidebar-section">
+        <h3 class="sidebar-section-title">Profil</h3>
+        <div id="userProfileSidebar" class="sidebar-item user-profile-item">
+            <!-- Info profil akan diisi oleh JS -->
+            <span class="material-symbols-outlined">account_circle</span>
+            <span>Memuat profil...</span>
+        </div>
+        <div class="sidebar-item" id="loginButtonSidebar" style="display: none;"> <!-- Ditampilkan jika belum login -->
+             <a href="login.html">
+                <span class="material-symbols-outlined">login</span>
+                <span>Login</span>
+            </a>
+        </div>
+        <div class="sidebar-item" id="logoutButtonSidebar" style="display: none;"> <!-- Ditampilkan jika sudah login -->
+             <a href="#">
+                <span class="material-symbols-outlined">logout</span>
+                <span>Logout</span>
+            </a>
+        </div>
+        <div class="theme-toggle-container sidebar-item">
+            <div class="theme-toggle-text">
+                <span class="material-symbols-outlined">brightness_6</span>
+                <span data-key="themeMode">Mode Gelap/Terang</span>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="themeToggleSidebar">
+                <span class="slider">
+                    <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path class="moon-shape" d="M12 8a2.83 2.83 0 0 0 4 4 4 4 0 1 1-4-4"/>
+                        <g class="sun-rays"><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.67 17.67 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.33 17.67-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></g>
+                    </svg>
+                </span>
+            </label>
         </div>
     </div>
-  </div> -->
+
+    <div class="sidebar-section">
+        <h3 class="sidebar-section-title">Privasi & Keamanan</h3>
+        <div class="sidebar-item" data-modal-target="privacyPolicySidebar">
+          <a href="#">
+            <span class="material-symbols-outlined">shield</span>
+            <span data-key="privacyPolicy">Kebijakan Privasi</span>
+          </a>
+        </div>
+        <div class="sidebar-item" data-modal-target="termsAndConditionsSidebar">
+          <a href="#">
+            <span class="material-symbols-outlined">gavel</span>
+            <span data-key="termsAndConditions">Syarat & Ketentuan</span>
+          </a>
+        </div>
+    </div>
+
+    <div class="sidebar-section">
+        <h3 class="sidebar-section-title">Tentang</h3>
+        <div class="sidebar-item">
+          <a href="mailto:rizlifevandergamedev@gmail.com" target="_blank">
+            <span class="material-symbols-outlined">email</span>
+            <span>Email</span>
+          </a>
+        </div>
+        <div class="sidebar-item">
+          <a href="https://wa.me/6287729044780" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M19.05 4.91A9.816 9.816 0 0 0 12.04 2c-5.46 0-9.91 4.45-9.91 9.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91c0-2.76-1.12-5.28-2.95-7.11m-7.01 15.26c-1.48 0-2.93-.4-4.2-1.15l-.3-.18l-3.12.82l.83-3.04l-.2-.31a8.066 8.066 0 0 1-1.26-4.38c0-4.42 3.58-8.01 8.01-8.01c2.15 0 4.16.85 5.66 2.34c1.49 1.49 2.34 3.5 2.34 5.66c0 4.42-3.58 8.01-8.01 8.01m4.36-5.04c-.27-.13-1.59-.78-1.84-.88c-.25-.09-.43-.13-.62.13c-.19.27-.7.88-.86 1.06c-.16.19-.32.21-.59.08c-.27-.13-1.14-.42-2.18-1.34c-.81-.73-1.35-1.63-1.51-1.9c-.16-.27-.02-.43.12-.56c.12-.12.27-.31.4-.46c.13-.16.18-.27.27-.46c.09-.19.04-.37-.02-.51c-.07-.13-.62-1.49-.84-2.04c-.23-.55-.46-.48-.62-.49c-.16-.01-.34-.01-.51-.01c-.18 0-.46.07-.7.34c-.24.27-.92.9-.92 2.2c0 1.29.94 2.55 1.06 2.74c.12.19 1.86 2.86 4.51 3.97c.63.26 1.13.42 1.52.54c.54.16.94.14 1.3.08c.39-.06 1.59-.65 1.81-1.28c.23-.63.23-1.17.16-1.28c-.07-.13-.25-.21-.52-.34"/></svg>
+            <span>WhatsApp</span>
+          </a>
+        </div>
+        <div class="sidebar-item">
+          <a href="https://www.instagram.com/rizlifevander_" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8c1.99 0 3.6-1.61 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 1 1 0 2.5a1.25 1.25 0 0 1 0-2.5M12 7a5 5 0 1 1 0 10a5 5 0 0 1 0-10m0 2a3 3 0 1 0 0 6a3 3 0 0 0 0-6"/></svg>
+            <span>Instagram</span>
+          </a>
+        </div>
+    </div>
+
+    <div class="sidebar-section">
+        <h3 class="sidebar-section-title">Tool Novaria</h3>
+        <div class="sidebar-item" id="toolChat">
+             <a href="index.html"> <!-- Kembali ke halaman chat utama -->
+                <span class="material-symbols-outlined">chat</span>
+                <span>Obrolan AI Profesional</span>
+            </a>
+        </div>
+        <div class="sidebar-item" id="toolImage">
+            <a href="image.html">
+                <span class="material-symbols-outlined">image</span>
+                <span>Generate Gambar AI</span>
+            </a>
+        </div>
+        <div class="sidebar-item" id="toolCodex">
+            <a href="codex.html">
+                <span class="material-symbols-outlined">code_blocks</span>
+                <span>Buat Kode (Codex)</span>
+            </a>
+        </div>
+    </div>
+
+  </aside>
+
+  <div class="modal-overlay" id="infoModalOverlay">
+    <div class="modal-content" id="infoModalContent">
+      <button class="modal-close-btn" id="modalCloseBtnModal">×</button> <!-- ID diubah agar unik -->
+      <h3 id="modalTitle">Modal Title</h3>
+      <div id="modalBody"></div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

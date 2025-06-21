@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Akhir Logika Theme Toggle ---
 
     // --- Fungsi untuk Mengelola UI ---
-    function showLoadingState(message = "Sedang mencari gambar...") {
+    function showLoadingState(message = "Sedang membuat gambar...") {
         if (searchImageButton) searchImageButton.disabled = true;
         if (loadingIndicatorImage) loadingIndicatorImage.style.display = 'flex';
         if (loadingTextMessage) loadingTextMessage.textContent = message;
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentPromptForManualRetry = "";
         if (displayedImage) {
             displayedImage.src = imageUrl;
-            displayedImage.alt = `Hasil pencarian untuk: ${promptText}`; // Alt text disesuaikan
+            displayedImage.alt = `Hasil pembuatan untuk: ${promptText}`; // Alt text disesuaikan
             displayedImage.style.display = 'block';
         }
         if (imagePlaceholder) imagePlaceholder.style.display = 'none';
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentPrompt = promptTextToUse || (imagePromptInput ? imagePromptInput.value.trim() : "");
 
         if (!currentPrompt) {
-            alert("Masukkan deskripsi gambar yang ingin dicari!");
+            alert("Masukkan deskripsi gambar yang ingin digenerate!");
             if (imagePromptInput) imagePromptInput.focus();
             return;
         }
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) {
                 // Error akan ditangani oleh blok catch, data.message akan berisi pesan error dari backend
-                throw new Error(data.message || `Gagal mencari gambar (Status: ${response.status})`);
+                throw new Error(data.message || `Gagal membuat gambar (Status: ${response.status})`);
             }
 
             if (data.imageUrl) {
@@ -158,27 +158,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Ubah teks tombol jika perlu (misalnya dari "Generate Gambar" menjadi "Cari Gambar")
-        searchImageButton.textContent = "Cari Gambar";
+        searchImageButton.textContent = "Generate Gambar";
 
     } else {
-        console.error("Elemen input prompt atau tombol cari gambar tidak ditemukan.");
+        console.error("Elemen input prompt atau tombol buat gambar tidak ditemukan.");
     }
 
     // Ubah judul halaman dan placeholder jika perlu untuk konsistensi
     const pageTitleElement = document.querySelector('.prompt-container h1');
     if (pageTitleElement) {
-        pageTitleElement.textContent = "Cari Gambar dengan AI";
+        pageTitleElement.textContent = "Buat Gambar dengan AI";
     }
     const pageSubtitleElement = document.querySelector('.prompt-container p');
      if (pageSubtitleElement) {
-        pageSubtitleElement.textContent = "Masukkan deskripsi detail tentang gambar yang ingin Anda cari.";
+        pageSubtitleElement.textContent = "Masukkan deskripsi detail tentang gambar yang ingin Anda generate.";
     }
     if (imagePromptInput) {
         imagePromptInput.placeholder = "Contoh: Pemandangan gunung bersalju saat matahari terbit...";
     }
     const placeholderTextInsideResult = imagePlaceholder.querySelector('p');
     if (placeholderTextInsideResult) {
-        placeholderTextInsideResult.textContent = "Hasil pencarian gambar Anda akan muncul di sini";
+        placeholderTextInsideResult.textContent = "Hasil pembuatan gambar Anda akan muncul di sini";
     }
 
 

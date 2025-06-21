@@ -1,4 +1,4 @@
-/* style.css (Gabungan dengan Styling Sidebar Baru) */
+/* GANTI SELURUH ISI STYLE.CSS ANDA DENGAN KODE INI */
 
 /* CSS Variables for Themes */
 :root {
@@ -9,9 +9,9 @@
   --button-bg: #333333;
   --button-hover-bg: #555555;
   --placeholder-color: rgba(255, 255, 255, 0.6);
-  --sidebar-bg: #1a1a1a; /* Digunakan oleh sidebar */
-  --sidebar-text: #e0e0e0; /* Teks sidebar sedikit lebih soft */
-  --sidebar-item-hover: #2c2c2c; /* Hover item sidebar sedikit beda */
+  --sidebar-bg: #1a1a1a;
+  --sidebar-text: #ffffff;
+  --sidebar-item-hover: #3a3a3a;
   --ripple-color: rgba(255, 255, 255, 0.4);
   --border-color: rgba(255, 255, 255, 0.1);
   --modal-bg: #2a2a2a;
@@ -21,10 +21,10 @@
   --quick-complete-bg: #222222;
   --quick-complete-text: #ffffff;
   --quick-complete-hover-bg: #3a3a3a;
-  --user-message-color: #ffffff; /* Untuk chat di index.html */
-  --ai-message-color: rgba(255, 255, 255, 0.8); /* Untuk chat di index.html */
+  --user-message-color: #ffffff;
+  --ai-message-color: rgba(255, 255, 255, 0.8);
   --ai-thinking-color: rgba(255, 255, 255, 0.6);
-  --file-chip-bg: var(--button-hover-bg);
+  --file-chip-bg: var(--button-hover-bg); /* Latar chip file */
   --file-chip-text: var(--text-color);
   --file-chip-remove-hover-color: #ff6666;
   --ai-model-tag-bg: var(--button-bg);
@@ -33,7 +33,7 @@
   --action-button-bg: #333333;
   --action-button-hover-bg: #555555;
   --action-button-icon-color: #ffffff;
-  --code-block-bg: #282c34; /* Untuk code block di chat index.html */
+  --code-block-bg: #282c34;
   --code-block-text: #abb2bf;
   --code-block-border: #3a3f4b;
   --copy-button-bg: #4a4f59;
@@ -42,7 +42,6 @@
   --code-language-tag-text: #ffffff;
   --glass-bg: rgba(25, 25, 25, 0.6);
   --glass-border-color: rgba(255, 255, 255, 0.1);
-  --secondary-text-color: #8b949e; /* Tambahan untuk judul section sidebar */
 }
 
 body.light-mode {
@@ -53,7 +52,7 @@ body.light-mode {
   --button-hover-bg: #aaaaaa;
   --placeholder-color: rgba(0, 0, 0, 0.5);
   --sidebar-bg: #ffffff;
-  --sidebar-text: #444444;
+  --sidebar-text: #333333;
   --sidebar-item-hover: #f0f0f0;
   --ripple-color: rgba(0, 0, 0, 0.2);
   --border-color: rgba(0, 0, 0, 0.1);
@@ -83,259 +82,454 @@ body.light-mode {
   --copy-button-hover-bg: #a0a0a0;
   --code-language-tag-bg: #d0d0d0;
   --code-language-tag-text: #333333;
-  --glass-bg: rgba(255, 255, 255, 0.7); /* Penyesuaian untuk light mode */
+  --glass-bg: rgba(255, 255, 255, 0.5);
   --glass-border-color: rgba(0, 0, 0, 0.1);
-  --secondary-text-color: #57606a;
 }
 
-/* General Styles (Asumsi sudah ada dari file Anda) */
-body { margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-body.app-hidden { opacity: 0; pointer-events: none; }
-body.app-loaded { opacity: 1; pointer-events: auto; }
-*:focus { outline: none; box-shadow: none; }
+/* General Styles */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out; /* Tambahkan transisi opacity */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-/* Header (Asumsi sudah ada dari file Anda) */
-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--glass-border-color); position: fixed; top: 0; left: 0; right: 0; z-index: 100; box-sizing: border-box; }
+/* Sembunyikan body secara default, tampilkan setelah login diverifikasi */
+body.app-hidden {
+    opacity: 0;
+    pointer-events: none; /* Cegah interaksi saat tersembunyi */
+}
+
+body.app-loaded {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+
+*:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
 .header-left-group { display: flex; gap: 12px; align-items: center; }
 .app-brand { display: flex; align-items: center; gap: 8px; font-size: 1.3em; font-weight: 700; }
-.app-logo { width: 38px; height: 38px; object-fit: contain; display: block; }
+.app-logo {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    display: block;
+}
 .header-right-group { display: flex; gap: 16px; align-items: center; }
-.icon-btn { background: none; border: none; padding: 6px; border-radius: 50%; width: 36px; height: 36px; display:flex; align-items:center; justify-content:center; color: var(--text-color); stroke: var(--text-color); fill: none; stroke-width: 2; cursor: pointer; transition: background-color 0.2s ease, stroke 0.3s ease; }
-.icon-btn:hover { background-color: var(--button-hover-bg); }
-.icon-btn svg { width: 24px; height: 24px; } /* Pastikan ukuran SVG di dalam tombol konsisten */
+.icon-btn { width: 24px; height: 24px; stroke: var(--text-color); fill: none; stroke-width: 2; cursor: pointer; transition: stroke 0.3s ease; }
 
+/* Main Content Area */
+main {
+  flex-grow: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  /* padding-bottom akan diatur oleh JavaScript */
+}
 
-/* Main Content Area (Asumsi sudah ada) */
-main { flex-grow: 1; display: flex; position: relative; overflow: hidden; }
+/* Page Sections (Welcome and Chat) */
+.page-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
 
-/* Page Sections (Asumsi sudah ada) */
-.page-section { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; position: absolute; width: 100%; height: 100%; top: 0; left: 0; display: flex; flex-direction: column; box-sizing: border-box; }
-.page-section.active { opacity: 1; transform: translateY(0); position: relative; }
-.page-section.hidden { display: none !important; }
-#welcomeSection { justify-content: center; align-items: center; text-align: center; gap: 12px; }
+.page-section.active {
+  opacity: 1;
+  transform: translateY(0);
+  position: relative;
+}
+
+.page-section.hidden {
+  display: none !important;
+}
+
+#welcomeSection {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+}
 #welcomeSection h1 { font-size: 2.5em; margin: 0; font-weight: 700; }
 #welcomeSection p { font-size: 1.3em; margin: 0; font-weight: 400; color: var(--text-color); }
-#chatSection { justify-content: center; align-items: center; }
-#chatHistory { width: 100%; max-width: 700px; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-top: 90px; padding-bottom: 20px; padding-left: 20px; padding-right: 20px; box-sizing: border-box; position: relative; display: flex; flex-direction: column; }
-#chatHistory.has-scroll-fade::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 100px; background: linear-gradient(to top, var(--bg-color) 20%, transparent 100%); pointer-events: none; transition: opacity 0.3s ease; opacity: 1; }
-#chatHistory:not(.has-scroll-fade)::after { opacity: 0; }
-.chat-message { max-width: 95%; word-wrap: break-word; line-height: 1.6; font-size: 1em; text-align: left; margin-bottom: 16px; transition: opacity 0.5s ease, transform 0.5s ease; opacity: 0; transform: translateY(15px); }
-.user-message { color: var(--user-message-color); font-weight: 500; align-self: flex-start; max-width: 80%; } /* Ini mungkin perlu disesuaikan jika pesan user ingin di kanan */
-.ai-message { color: var(--ai-message-color); font-weight: 400; display: flex; flex-direction: column; gap: 8px; align-self: flex-start; }
-.ai-message-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.ai-message-header .ai-logo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; border-radius: 50%; }
-.ai-message-header .ai-name { font-weight: 600; font-size: 0.95em; color: var(--text-color); }
-.ai-message-header .ai-model-tag { background-color: var(--ai-model-tag-bg); color: var(--ai-model-tag-text); padding: 3px 8px; border-radius: 12px; font-size: 0.75em; font-weight: 500; white-space: nowrap; }
-.ai-message-content span { white-space: pre-wrap; }
+
+#chatSection {
+    justify-content: center;
+    align-items: center;
+}
+
+#chatHistory {
+    width: 100%;
+    max-width: 700px;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-top: 90px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+#chatHistory.has-scroll-fade::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(to top, var(--bg-color) 20%, transparent 100%);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 1;
+}
+#chatHistory:not(.has-scroll-fade)::after {
+  opacity: 0;
+}
+
+.chat-message {
+    max-width: 95%;
+    word-wrap: break-word;
+    line-height: 1.6;
+    font-size: 1em;
+    text-align: left;
+    margin-bottom: 16px;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0;
+    transform: translateY(15px);
+}
+
+.user-message {
+  color: var(--user-message-color);
+  font-weight: 500;
+  align-self: flex-start;
+  max-width: 80%;
+}
+
+.ai-message {
+  color: var(--ai-message-color);
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: flex-start;
+}
+
+.ai-message-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ai-message-header .ai-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.ai-message-header .ai-name {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: var(--text-color);
+}
+
+.ai-message-header .ai-model-tag {
+  background-color: var(--ai-model-tag-bg);
+  color: var(--ai-model-tag-text);
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.75em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.ai-message-content {
+    /* Styling jika perlu */
+}
+.ai-message-content span {
+    white-space: pre-wrap; /* Agar \n di teks biasa juga berfungsi */
+}
+
 .ai-message-actions { display: flex; gap: 8px; margin-top: 8px; }
 .ai-action-btn { background-color: var(--action-button-bg); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; color: var(--action-button-icon-color); }
 .ai-action-btn:hover { background-color: var(--action-button-hover-bg); }
 .ai-action-btn svg { width: 18px; height: 18px; stroke: var(--action-button-icon-color); fill: none; stroke-width: 2; }
 #thinkingIndicator { color: var(--ai-thinking-color); font-style: italic; font-size: 1em; display: flex; align-items: center; gap: 2px; padding: 4px 0; opacity: 0; transition: opacity 0.3s ease; align-self: flex-start; }
 #thinkingIndicator .dot { font-weight: 700; font-size: 1.2em; animation: pulse-dot 1.2s infinite ease-in-out both; }
+#thinkingIndicator .dot:nth-child(1) { animation-delay: 0s; }
+#thinkingIndicator .dot:nth-child(2) { animation-delay: 0.2s; }
+#thinkingIndicator .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes pulse-dot { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
 
-/* Input Wrapper & File Chips (Asumsi sudah ada) */
-.input-wrapper { background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border-color); box-shadow: none; border-radius: 28px; padding: 8px 10px; position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 900px; display: flex; align-items: flex-end; gap: 8px; min-height: 56px; max-height: 160px; box-sizing: border-box; transition: height 0.2s ease; z-index: 95; }
-.file-chip-container { display: flex; align-items: center; gap: 6px; overflow-x: auto; overflow-y: hidden; max-width: 40%; height: 40px; flex-shrink: 1; min-width: 0; margin-bottom: 2px; scrollbar-width: thin; scrollbar-color: var(--button-hover-bg) transparent; }
-.file-chip-container::-webkit-scrollbar { height: 4px; } .file-chip-container::-webkit-scrollbar-track { background: transparent; } .file-chip-container::-webkit-scrollbar-thumb { background-color: var(--button-hover-bg); border-radius: 2px; } .file-chip-container::-webkit-scrollbar-thumb:hover { background-color: var(--button-bg); }
-.file-chip-item { display: flex; align-items: center; background-color: var(--file-chip-bg); color: var(--file-chip-text); padding: 5px 10px; border-radius: 20px; font-size: 0.85em; gap: 6px; cursor: default; flex-shrink: 0; transition: background-color 0.2s ease, opacity 0.3s ease, transform 0.3s ease; white-space: nowrap; max-width: 150px; height: 30px; box-sizing: border-box; opacity: 0; transform: scale(0.9); }
-.file-chip-item.visible { opacity: 1; transform: scale(1); } .file-chip-item .file-icon svg { width: 16px; height: 16px; stroke: var(--file-chip-text); flex-shrink: 0; }
-.file-chip-item .file-details { display: flex; align-items: baseline; gap: 4px; overflow: hidden; text-align: left; line-height: 1; } .file-chip-item .file-name-preview { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .file-chip-item .file-size-preview { font-size: 0.9em; opacity: 0.8; white-space: nowrap; } .file-chip-item .remove-chip-btn { background: none; border: none; color: var(--file-chip-text); opacity: 0.7; font-size: 1.4em; line-height: 0.5; cursor: pointer; padding: 0; margin-left: 4px; transition: opacity 0.2s ease, transform 0.1s ease, color 0.2s ease; flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; }
-.file-chip-item .remove-chip-btn:hover { opacity: 1; color: var(--file-chip-remove-hover-color); transform: scale(1.1); }
-.input-wrapper textarea { flex-grow: 1; background: none; border: none; color: var(--text-color); font-family: 'Inter', sans-serif; font-size: 1.1em; outline: none; resize: none; overflow-y: auto; padding: 8px 0; margin-bottom: 2px; line-height: 1.4; min-height: 24px; max-height: 120px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; }
+.quick-complete-container { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 700px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; z-index: 90; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.quick-complete-container.active { opacity: 1; visibility: visible; }
+.quick-complete-btn { background-color: var(--quick-complete-bg); color: var(--quick-complete-text); border: 1px solid var(--border-color); border-radius: 20px; padding: 8px 15px; font-size: 0.95em; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; white-space: nowrap; position: relative; overflow: hidden; }
+.quick-complete-btn:hover { background-color: var(--quick-complete-hover-bg); border-color: var(--quick-complete-hover-bg); }
+
+
+.input-wrapper {
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border-color);
+  box-shadow: none;
+  border-radius: 28px;
+  padding: 8px 10px;
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 900px;
+  display: flex;
+  align-items: flex-end; /* Align items ke bawah */
+  gap: 8px;
+  min-height: 56px;
+  max-height: 160px; /* Batas tinggi keseluruhan input wrapper */
+  box-sizing: border-box;
+  transition: height 0.2s ease; /* Transisi untuk perubahan tinggi */
+  z-index: 95;
+}
+
+.file-chip-container {
+  display: flex; /* Item chip akan berbaris horizontal */
+  align-items: center; /* Tengah secara vertikal */
+  gap: 6px; /* Jarak antar chip */
+  overflow-x: auto; /* Scroll horizontal jika chip melebihi ruang */
+  overflow-y: hidden;
+  max-width: 40%; /* Batasi lebar agar textarea masih punya ruang. SESUAIKAN! */
+  height: 40px; /* Samakan dengan tinggi tombol agar rapi */
+  flex-shrink: 1; /* Biarkan menyusut jika textarea membesar */
+  min-width: 0; /* Penting untuk flexbox */
+  margin-bottom: 2px; /* Samakan dengan margin tombol */
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--button-hover-bg) transparent;
+}
+
+.file-chip-container::-webkit-scrollbar {
+  height: 4px;
+}
+.file-chip-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.file-chip-container::-webkit-scrollbar-thumb {
+  background-color: var(--button-hover-bg);
+  border-radius: 2px;
+}
+.file-chip-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--button-bg);
+}
+
+.file-chip-item {
+  display: flex;
+  align-items: center;
+  background-color: var(--file-chip-bg);
+  color: var(--file-chip-text);
+  padding: 5px 10px; /* Padding chip */
+  border-radius: 20px; /* Chip lebih bulat */
+  font-size: 0.85em; /* Font sedikit lebih kecil */
+  gap: 6px;
+  cursor: default;
+  flex-shrink: 0; /* Chip tidak mengecil */
+  transition: background-color 0.2s ease, opacity 0.3s ease, transform 0.3s ease;
+  white-space: nowrap;
+  max-width: 150px; /* Lebar maksimum satu chip, sesuaikan */
+  height: 30px; /* Tinggi chip, sesuaikan agar pas */
+  box-sizing: border-box;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.file-chip-item.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.file-chip-item .file-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--file-chip-text);
+  flex-shrink: 0;
+}
+
+.file-chip-item .file-details {
+  display: flex; /* Nama dan ukuran sejajar */
+  align-items: baseline; /* Agar teks baseline sejajar */
+  gap: 4px;
+  overflow: hidden;
+  text-align: left;
+  line-height: 1; /* Agar tidak ada spasi vertikal aneh */
+}
+
+.file-chip-item .file-name-preview {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-chip-item .file-size-preview {
+  font-size: 0.9em;
+  opacity: 0.8;
+  white-space: nowrap; /* Ukuran tidak boleh wrap */
+}
+
+.file-chip-item .remove-chip-btn {
+  background: none;
+  border: none;
+  color: var(--file-chip-text);
+  opacity: 0.7;
+  font-size: 1.4em; /* Ukuran 'x' */
+  line-height: 0.5; /* Turunkan 'x' agar pas di tengah chip */
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px; /* Jarak 'x' dari teks */
+  transition: opacity 0.2s ease, transform 0.1s ease, color 0.2s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px; /* Area klik tombol x */
+  height: 16px;
+}
+
+.file-chip-item .remove-chip-btn:hover {
+  opacity: 1;
+  color: var(--file-chip-remove-hover-color);
+  transform: scale(1.1);
+}
+
+.input-wrapper textarea {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1em;
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+  padding: 8px 0;
+  margin-bottom: 2px;
+  line-height: 1.4;
+  min-height: 24px;
+  max-height: 120px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
 .input-wrapper textarea::placeholder { color: var(--placeholder-color); transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; font-weight: 400; }
 .btn-circle { background-color: var(--button-bg); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; margin-bottom: 2px; }
 .btn-circle:hover { background-color: var(--button-hover-bg); }
-.btn-circle svg { stroke: var(--text-color); width: 20px; height: 20px; transition: stroke 0.3s ease; } /* Ini untuk SVG tombol plus dan voice */
-.btn-circle.btn-send svg { /* Khusus untuk tombol send jika ikonnya beda */
-    fill: var(--text-color); /* Jika ikon send pakai fill, contoh */
-    stroke: none; /* Matikan stroke jika pakai fill */
+.btn-circle svg { stroke: var(--text-color); width: 20px; height: 20px; transition: stroke 0.3s ease; }
+
+
+.ripple { position: absolute; border-radius: 50%; opacity: 0; background-color: var(--ripple-color); animation: ripple-animation 0.6s linear; transform: scale(0); pointer-events: none; }
+@keyframes ripple-animation { from { transform: scale(0); opacity: 0.6; } to { transform: scale(2.5); opacity: 0; } }
+
+.theme-toggle-landing, .theme-toggle-container { display: flex; align-items: center; }
+.theme-toggle-container { justify-content: space-between; padding: 12px 15px; border-radius: 8px; background-color: var(--sidebar-item-hover); font-size: 1.05em; font-weight: 500; }
+.switch { position: relative; display: inline-block; width: 48px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(100, 100, 100, 0.5); border: 1px solid var(--glass-border-color); transition: .4s; border-radius: 28px; display: flex; align-items: center; justify-content: flex-start; padding: 3px; box-sizing: border-box; }
+
+.slider-icon {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.4s ease, color 0.4s ease;
+    stroke-width: 2;
 }
+.slider-icon .sun-rays {
+    opacity: 0;
+    transform-origin: center;
+    transform: scale(0.6) rotate(-45deg);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    stroke: currentColor;
+    fill: none;
+}
+.slider-icon .moon-shape {
+    opacity: 1;
+    transform-origin: center;
+    transform: scale(1) rotate(0deg);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    fill: currentColor;
+    stroke: none;
+}
+input:checked + .slider {
+    background-color: #66bb6a;
+    justify-content: flex-end;
+}
+input:checked + .slider .slider-icon { color: white; }
+input:checked + .slider .slider-icon .sun-rays { opacity: 1; transform: scale(1) rotate(0deg); }
+input:checked + .slider .slider-icon .moon-shape { opacity: 0; transform: scale(0.6) rotate(45deg); }
+body:not(.light-mode) input:not(:checked) + .slider .slider-icon { color: white; }
+body.light-mode input:not(:checked) + .slider .slider-icon { color: #555; }
+input:not(:checked) + .slider .slider-icon .sun-rays { opacity: 0; transform: scale(0.6) rotate(-45deg); }
+input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: scale(1) rotate(0deg); }
 
-
-/* === AWAL STYLING SIDEBAR BARU === */
 .hidden { display: none !important; }
+.sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.sidebar { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-left: 1px solid var(--glass-border-color); box-shadow: none; z-index: 1000; transition: right 0.3s ease; padding: 25px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; color: var(--sidebar-text); }
+.sidebar.active { right: 0; }
+.sidebar-overlay.active { opacity: 1; visibility: visible; }
+.sidebar h2 { margin-top: 0; font-size: 1.6em; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; color: var(--sidebar-text); }
+.sidebar-item { padding: 12px 15px; cursor: pointer; border-radius: 8px; transition: background-color 0.2s ease, color 0.2s ease; display: flex; align-items: center; gap: 12px; font-size: 1.05em; font-weight: 500; position: relative; overflow: hidden; } /* Added position relative and overflow hidden for ripple */
+.sidebar-item:hover { background-color: var(--sidebar-item-hover); }
+.sidebar-item a { text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; width: 100%; }
+.sidebar-item svg { width: 22px; height: 22px; stroke: var(--sidebar-text); fill: none; stroke-width: 2; transition: stroke 0.3s ease; }
+.sidebar-item [fill="currentColor"] { /* For sidebar icons that use fill */
+    fill: var(--sidebar-text);
+    stroke: none; /* remove stroke if fill is used */
+}
+.sidebar-item.language-select { display: flex; justify-content: space-between; align-items: center; }
+.sidebar-item select { background-color: var(--button-bg); color: var(--text-color); border: none; padding: 8px 12px; border-radius: 6px; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 1em; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: right 8px center; background-size: 18px; transition: background-color 0.3s ease, color 0.3s ease; }
+body.light-mode .sidebar-item select { background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); }
+.sidebar-item select option { background-color: var(--button-bg); color: var(--text-color); }
 
-.sidebar-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.65); /* Lebih gelap sedikit */
-  z-index: 999;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-.sidebar-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  /* Sidebar muncul dari kiri, bukan kanan */
-  left: -320px;
-  width: 300px;
-  max-width: 85vw; /* Agar tidak terlalu lebar di layar kecil */
-  height: 100%;
-  background-color: var(--sidebar-bg); /* Menggunakan var(--sidebar-bg) */
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-right: 1px solid var(--border-color); /* Border di kanan jika sidebar dari kiri */
-  box-shadow: 2px 0 15px rgba(0,0,0,0.1);
-  z-index: 1000;
-  transition: left 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  padding: 0; /* Padding diatur oleh section */
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  color: var(--sidebar-text);
-  overflow-y: auto; /* Scroll jika konten panjang */
-}
-.sidebar.active {
-  left: 0;
-}
-
-.sidebar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px; /* Padding header sidebar */
-  border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0; /* Header tidak menyusut */
-}
-.sidebar-header h2 {
-  margin: 0;
-  font-size: 1.25em; /* Ukuran judul sidebar */
-  font-weight: 600;
-  color: var(--sidebar-text);
-}
-.sidebar-close-btn { /* Tombol close di dalam header sidebar */
-  /* Menggunakan styling .icon-btn yang sudah ada */
-}
-
-.sidebar-section {
-  padding: 15px 20px; /* Padding untuk setiap section */
-  border-bottom: 1px solid var(--border-color);
-}
-.sidebar-section:last-child {
-  border-bottom: none; /* Hapus border untuk section terakhir */
-  flex-grow: 1; /* Biarkan section terakhir (misal Tools) mengisi sisa ruang jika perlu */
-}
-
-.sidebar-section-title {
-  font-size: 0.75em; /* Judul section lebih kecil */
-  font-weight: 500; /* Sedikit lebih tebal */
-  text-transform: uppercase;
-  color: var(--secondary-text-color);
-  margin: 0 0 12px 0; /* Margin bawah lebih besar */
-  letter-spacing: 0.5px;
-}
-
-.sidebar-item {
-  padding: 10px 0px; /* Padding vertikal item, horizontal diatur oleh link */
-  cursor: pointer;
-  border-radius: 6px; /* Border radius item */
-  transition: background-color 0.2s ease, color 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.9em; /* Ukuran font item menu */
-  font-weight: 400;
-  position: relative;
-  overflow: hidden;
-  color: var(--sidebar-text); /* Teks item menggunakan sidebar-text */
-}
-.sidebar-item:hover {
-  background-color: var(--sidebar-item-hover);
-  color: var(--text-color); /* Teks lebih terang saat hover */
-}
-.sidebar-item a {
-  text-decoration: none;
-  color: inherit; /* Mewarisi warna dari .sidebar-item */
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 8px 10px; /* Padding di dalam link agar seluruh area bisa diklik */
-  border-radius: 6px; /* Border radius untuk area link */
-}
-.sidebar-item a:hover {
-    /* Hover effect sudah di .sidebar-item, jadi link tidak perlu hover sendiri */
-}
-
-.sidebar-item svg, /* Untuk SVG path */
-.sidebar-item .material-symbols-outlined { /* Untuk Material Symbols */
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  /* Warna akan diatur oleh 'currentColor' dari elemen <a> atau .sidebar-item */
-  fill: currentColor; /* Untuk SVG yang pakai fill seperti WhatsApp, Instagram */
-  stroke: none; /* Jika pakai fill, matikan stroke default dari .icon-btn */
-}
-.sidebar-item .material-symbols-outlined { /* Khusus Material Symbols, mereka pakai font, bukan fill/stroke */
-    fill: none; /* Pastikan tidak ada fill dari rule lain */
-    stroke: none; /* Pastikan tidak ada stroke dari rule lain */
-    font-variation-settings: 'FILL' 0; /* Default outlined */
-    font-size: 20px; /* Samakan dengan ukuran SVG */
-}
-.sidebar-item:hover .material-symbols-outlined,
-.sidebar-item:hover svg {
-    /* Warna ikon saat hover bisa diatur di sini jika beda dari teks */
-}
-
-
-/* Profil di Sidebar */
-.user-profile-item {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Jarak avatar dan info */
-    padding: 8px 10px; /* Samakan dengan padding link */
-    margin-bottom: 5px; /* Jarak ke item berikutnya */
-    /* Tidak perlu background atau border-radius khusus jika ingin menyatu */
-}
-.user-profile-item .profile-avatar-sidebar {
-    width: 36px; /* Avatar sedikit lebih besar */
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid var(--border-color);
-}
-.user-profile-item .profile-info-sidebar {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.3;
-}
-.user-profile-item .profile-name-sidebar {
-    font-weight: 500;
-    font-size: 0.9em;
-    color: var(--sidebar-text);
-}
-.user-profile-item .profile-email-sidebar {
-    font-size: 0.75em;
-    color: var(--secondary-text-color);
-    word-break: break-all; /* Agar email panjang tidak merusak layout */
-}
-
-
-/* Theme toggle di sidebar */
-.theme-toggle-container.sidebar-item {
-    padding: 8px 10px; /* Samakan dengan item lain */
-    justify-content: space-between;
-}
-.theme-toggle-text {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-/* Styling untuk .switch dan .slider sudah ada di root (global) */
-/* Pastikan variabel --slider-bg-dark, dll. ada di :root */
-
-/* Modal Styling (Asumsi sudah ada dari file Anda) */
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1001; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
 .modal-overlay.active { opacity: 1; visibility: visible; }
 .modal-content { background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border-color); box-shadow: none; color: var(--modal-text); padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; transform: translateY(20px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
@@ -345,30 +539,16 @@ main { flex-grow: 1; display: flex; position: relative; overflow: hidden; }
 .modal-close-btn { position: absolute; top: 15px; right: 15px; background: var(--modal-close-button); color: var(--modal-text); border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 1.5em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
 .modal-close-btn:hover { background: var(--modal-close-button-hover); transform: scale(1.05); }
 
-/* Code Block untuk chat (jika ada) */
 .code-block { background-color: var(--code-block-bg); color: var(--code-block-text); padding: 15px; border-radius: 8px; margin-top: 15px; margin-bottom: 10px; position: relative; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em; line-height: 1.5; border: 1px solid var(--code-block-border); text-align: left; white-space: pre-wrap; word-break: break-all; }
 .code-block pre { margin: 0; padding: 0; white-space: pre-wrap; word-break: break-all; }
 .code-block .code-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--code-block-border); }
 .code-block .language-tag { background-color: var(--code-language-tag-bg); color: var(--code-language-tag-text); padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 500; text-transform: uppercase; }
-.code-block .copy-code-btn { background-color: var(--copy-button-bg); color: var(--copy-button-text, #ffffff); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 5px; position: relative; overflow: hidden; }
+.code-block .copy-code-btn { background-color: var(--copy-button-bg); color: var(--copy-button-text, #ffffff); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 5px; position: relative; overflow: hidden; } /* Added position relative and overflow hidden for ripple */
 .code-block .copy-code-btn:hover { background-color: var(--copy-button-hover-bg); transform: translateY(-1px); }
 .code-block .copy-code-btn svg { width: 16px; height: 16px; stroke: var(--copy-button-text, #ffffff); fill: none; stroke-width: 2; }
 body.light-mode .code-block .copy-code-btn svg { stroke: var(--text-color); }
 
-/* Ripple Effect (Asumsi sudah ada) */
-.ripple { position: absolute; border-radius: 50%; opacity: 0; background-color: var(--ripple-color); animation: ripple-animation 0.6s linear; transform: scale(0); pointer-events: none; }
-@keyframes ripple-animation { from { transform: scale(0); opacity: 0.6; } to { transform: scale(2.5); opacity: 0; } }
-
-/* Theme Toggle di header (Asumsi sudah ada) */
-.theme-toggle-landing .switch { /* ... styling switch ... */ }
-.theme-toggle-landing .slider { /* ... styling slider ... */ }
-.theme-toggle-landing .slider-icon { /* ... styling slider-icon ... */ }
-
-/* Quick Complete (jika masih ada) */
-.quick-complete-container { /* ... */ }
-.quick-complete-btn { /* ... */ }
-
-/* Animasi Tombol (Asumsi sudah ada) */
+/* Animasi Tombol */
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .rotating { animation: spin 1.2s linear infinite; }
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }

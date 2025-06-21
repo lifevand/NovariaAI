@@ -135,12 +135,12 @@ function renderFeatureCards() {
 // DATA UNTUK KARTU JELAJAHI AI LAIN
 const exploreAiData = [
     { name: "Monica.im", logo: "images/explore/monica.png", description: "Asisten AI serbaguna untuk browsing, menulis, dan berkreasi dengan dukungan GPT-4.", url: "https://monica.im/", gradient: ['#f0abfc', '#a855f7'] },
-    { name: "Qwen", logo: "images/explore/qwen.png", description: "Mesin penjawab bertenaga AI yang menyediakan sumber dan kutipan akurat.", url: "https://chat.qwen.ai/", gradient: ['#38bdf8', '#0ea5e9'] },
+    { name: "Perplexity AI", logo: "images/explore/perplexity.png", description: "Mesin penjawab bertenaga AI yang menyediakan sumber dan kutipan akurat.", url: "https://www.perplexity.ai/", gradient: ['#38bdf8', '#0ea5e9'] },
     { name: "Hugging Face", logo: "images/explore/huggingface.png", description: "Komunitas dan platform untuk model machine learning open-source.", url: "https://huggingface.co/", gradient: ['#facc15', '#eab308'] },
     { name: "Claude AI", logo: "images/explore/claude.png", description: "Model bahasa besar dari Anthropic dengan fokus pada keamanan dan keandalan.", url: "https://claude.ai/", gradient: ['#f97316', '#ea580c'] },
     { name: "GitHub Copilot", logo: "images/explore/copilot.png", description: "Pair programmer AI yang membantu Anda menulis kode lebih cepat dan lebih baik.", url: "https://github.com/features/copilot", gradient: ['#6b7280', '#4b5563'] },
-    { name: "ChatGPT", logo: "images/explore/chatgpt.png", description: "GPT AI kreatif bertenaga AI untuk generasi video, gambar, dan lainnya.", url: "https://openai.com", gradient: ['#ec4899', '#db2777'] },
-    { name: "DeepSeek", logo: "images/explore/deepseek.png", description: "AI berfokus kepada sebuah coding dan membantu untuk pengembangan.", url: "https://www.deepseek.com/", gradient: ['#8b5cf6', '#7c3aed'] },
+    { name: "RunwayML", logo: "images/explore/runwayml.png", description: "Suite alat kreatif bertenaga AI untuk generasi video, gambar, dan lainnya.", url: "https://runwayml.com/", gradient: ['#ec4899', '#db2777'] },
+    { name: "Midjourney", logo: "images/explore/midjourney.png", description: "Laboratorium riset independen yang menghasilkan gambar dari deskripsi teks.", url: "https://www.midjourney.com/", gradient: ['#8b5cf6', '#7c3aed'] },
     { name: "Gemini", logo: "images/explore/gemini.png", description: "Model AI multimodal paling canggih dari Google DeepMind.", url: "https://deepmind.google/technologies/gemini/", gradient: ['#3b82f6', '#60a5fa'] }
 ];
 

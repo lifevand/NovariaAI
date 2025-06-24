@@ -1,5 +1,3 @@
-/* GANTI SELURUH ISI STYLE.CSS ANDA DENGAN KODE INI */
-
 /* CSS Variables for Themes */
 :root {
   /* Dark Mode Defaults */
@@ -9,9 +7,9 @@
   --button-bg: #333333;
   --button-hover-bg: #555555;
   --placeholder-color: rgba(255, 255, 255, 0.6);
-  --sidebar-bg: #1a1a1a;
+  --sidebar-bg: #1a1a1a; /* Warna latar sidebar */
   --sidebar-text: #ffffff;
-  --sidebar-item-hover: #3a3a3a;
+  --sidebar-item-hover: #3a3a3a; /* Latar item sidebar saat hover */
   --ripple-color: rgba(255, 255, 255, 0.4);
   --border-color: rgba(255, 255, 255, 0.1);
   --modal-bg: #2a2a2a;
@@ -51,9 +49,9 @@ body.light-mode {
   --button-bg: #cccccc;
   --button-hover-bg: #aaaaaa;
   --placeholder-color: rgba(0, 0, 0, 0.5);
-  --sidebar-bg: #ffffff;
+  --sidebar-bg: #ffffff; /* Warna latar sidebar */
   --sidebar-text: #333333;
-  --sidebar-item-hover: #f0f0f0;
+  --sidebar-item-hover: #f0f0f0; /* Latar item sidebar saat hover */
   --ripple-color: rgba(0, 0, 0, 0.2);
   --border-color: rgba(0, 0, 0, 0.1);
   --modal-bg: #ffffff;
@@ -118,7 +116,7 @@ body.app-loaded {
   box-shadow: none;
 }
 
-/* Header */
+/* Header - Modifikasi untuk posisi fixed dan z-index */
 header {
   display: flex;
   justify-content: space-between;
@@ -128,12 +126,13 @@ header {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--glass-border-color);
-  position: fixed;
+  position: fixed; /* Diubah menjadi fixed */
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
   box-sizing: border-box;
+  height: 60px; /* Tinggi tetap untuk header */
 }
 
 .header-left-group { display: flex; gap: 12px; align-items: center; }
@@ -144,16 +143,41 @@ header {
     object-fit: contain;
     display: block;
 }
-.header-right-group { display: flex; gap: 16px; align-items: center; }
-.icon-btn { width: 24px; height: 24px; stroke: var(--text-color); fill: none; stroke-width: 2; cursor: pointer; transition: stroke 0.3s ease; }
+.app-name { /* Tambahkan style untuk nama aplikasi */
+    font-weight: 700;
+    font-size: 1.3em;
+}
+.header-right-group {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+.icon-btn {
+    width: 24px;
+    height: 24px;
+    stroke: var(--text-color);
+    fill: none;
+    stroke-width: 2;
+    cursor: pointer;
+    transition: stroke 0.3s ease;
+}
 
-/* Main Content Area */
+/* Icon Home (Baru) */
+.icon-btn#homeIcon {
+    stroke: var(--text-color);
+    fill: none; /* Sesuaikan jika ingin fill */
+}
+
+
+/* Main Content Area - Modifikasi untuk memperhitungkan header dan input area */
 main {
-  flex-grow: 1;
-  display: flex;
-  position: relative;
-  overflow: hidden;
-  /* padding-bottom akan diatur oleh JavaScript */
+    flex-grow: 1;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    padding-top: 60px; /* Sesuaikan dengan tinggi header */
+    padding-bottom: 90px; /* Sesuaikan dengan tinggi input area default + margin */
+    box-sizing: border-box;
 }
 
 /* Page Sections (Welcome and Chat) */
@@ -175,7 +199,11 @@ main {
   opacity: 1;
   transform: translateY(0);
   position: relative;
+  /* Pastikan page section aktif memenuhi sisa tinggi main */
+  height: calc(100vh - 60px - 90px); /* Total height - header height - default input area height - bottom margin */
 }
+/* Penyesuaian tinggi chatSection jika input area membesar akan dilakukan oleh JS */
+
 
 .page-section.hidden {
   display: none !important;
@@ -186,22 +214,24 @@ main {
     align-items: center;
     text-align: center;
     gap: 12px;
+    width: 100%; /* Pastikan welcome section mengambil lebar penuh */
 }
 #welcomeSection h1 { font-size: 2.5em; margin: 0; font-weight: 700; }
 #welcomeSection p { font-size: 1.3em; margin: 0; font-weight: 400; color: var(--text-color); }
 
 #chatSection {
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start; /* Chat dimulai dari atas */
+    align-items: center; /* Tengah secara horizontal */
+    width: 100%; /* Pastikan chat section mengambil lebar penuh */
 }
 
 #chatHistory {
     width: 100%;
-    max-width: 700px;
-    height: 100%;
+    max-width: 700px; /* Lebar maksimum area chat */
+    height: 100%; /* Mengisi tinggi yang tersedia di chatSection */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding-top: 90px;
+    padding-top: 20px; /* Padding dalam chat history */
     padding-bottom: 20px;
     padding-left: 20px;
     padding-right: 20px;
@@ -226,6 +256,7 @@ main {
 #chatHistory:not(.has-scroll-fade)::after {
   opacity: 0;
 }
+
 
 .chat-message {
     max-width: 95%;
@@ -310,6 +341,7 @@ main {
 .quick-complete-btn:hover { background-color: var(--quick-complete-hover-bg); border-color: var(--quick-complete-hover-bg); }
 
 
+/* Input Area - Modifikasi untuk posisi fixed */
 .input-wrapper {
   background-color: var(--glass-bg);
   backdrop-filter: blur(12px);
@@ -318,7 +350,7 @@ main {
   box-shadow: none;
   border-radius: 28px;
   padding: 8px 10px;
-  position: fixed;
+  position: fixed; /* Diubah menjadi fixed */
   bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
@@ -513,31 +545,161 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 
 .hidden { display: none !important; }
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
-.sidebar { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-left: 1px solid var(--glass-border-color); box-shadow: none; z-index: 1000; transition: right 0.3s ease; padding: 25px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; color: var(--sidebar-text); }
-.sidebar.active { right: 0; }
-.sidebar-overlay.active { opacity: 1; visibility: visible; }
-.sidebar h2 { margin-top: 0; font-size: 1.6em; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; color: var(--sidebar-text); }
-.sidebar-item { padding: 12px 15px; cursor: pointer; border-radius: 8px; transition: background-color 0.2s ease, color 0.2s ease; display: flex; align-items: center; gap: 12px; font-size: 1.05em; font-weight: 500; position: relative; overflow: hidden; } /* Added position relative and overflow hidden for ripple */
-.sidebar-item:hover { background-color: var(--sidebar-item-hover); }
-.sidebar-item a { text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; width: 100%; }
-.sidebar-item svg { width: 22px; height: 22px; stroke: var(--sidebar-text); fill: none; stroke-width: 2; transition: stroke 0.3s ease; }
-.sidebar-item [fill="currentColor"] { /* For sidebar icons that use fill */
-    fill: var(--sidebar-text);
-    stroke: none; /* remove stroke if fill is used */
+/* Sidebar - Modifikasi untuk posisi dan animasi */
+.sidebar {
+    position: fixed; /* Diubah menjadi fixed */
+    top: 0;
+    right: -320px; /* Dimulai di luar layar */
+    width: 300px;
+    height: 100%;
+    background-color: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-left: 1px solid var(--glass-border-color);
+    box-shadow: none;
+    z-index: 1000;
+    transition: right 0.3s ease; /* Transisi untuk animasi geser */
+    padding: 25px 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Kurangi gap untuk item histori */
+    color: var(--sidebar-text);
+    overflow-y: auto; /* Tambahkan scroll jika histori banyak */
 }
-.sidebar-item.language-select { display: flex; justify-content: space-between; align-items: center; }
-.sidebar-item select { background-color: var(--button-bg); color: var(--text-color); border: none; padding: 8px 12px; border-radius: 6px; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 1em; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: right 8px center; background-size: 18px; transition: background-color 0.3s ease, color 0.3s ease; }
-body.light-mode .sidebar-item select { background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); }
-.sidebar-item select option { background-color: var(--button-bg); color: var(--text-color); }
+.sidebar.active {
+    right: 0; /* Geser ke dalam saat aktif */
+}
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
 
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1001; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
-.modal-overlay.active { opacity: 1; visibility: visible; }
-.modal-content { background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border-color); box-shadow: none; color: var(--modal-text); padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; transform: translateY(20px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
-.modal-overlay.active .modal-content { transform: translateY(0); opacity: 1; }
-.modal-content h3 { margin-top: 0; font-size: 1.8em; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; color: var(--modal-text); }
-.modal-content p { font-size: 1em; line-height: 1.6; text-align: left; margin-bottom: 1em; color: var(--modal-text); }
-.modal-close-btn { position: absolute; top: 15px; right: 15px; background: var(--modal-close-button); color: var(--modal-text); border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 1.5em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
-.modal-close-btn:hover { background: var(--modal-close-button-hover); transform: scale(1.05); }
+.sidebar h2 {
+    margin-top: 0;
+    font-size: 1.6em;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    margin-bottom: 10px; /* Kurangi margin bawah judul */
+    color: var(--sidebar-text);
+    display: flex; /* Gunakan flexbox untuk judul dan ikon hapus histori */
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Kontainer untuk item histori chat */
+.sidebar-chat-history {
+    flex-grow: 1; /* Mengisi sisa ruang */
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Jarak antar item histori */
+    padding-right: 5px; /* Sedikit padding kanan jika ada scrollbar */
+}
+
+/* Item Histori Chat (Baru) */
+.history-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: flex;
+    justify-content: space-between; /* Judul dan ikon 3 titik di pinggir */
+    align-items: center;
+    font-size: 1em; /* Ukuran font item histori */
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--sidebar-item-hover); /* Latar default */
+    border: 1px solid transparent; /* Border untuk indikator aktif */
+}
+.history-item:hover {
+    background-color: var(--button-hover-bg); /* Latar saat hover */
+}
+.history-item.active {
+    background-color: var(--button-bg); /* Latar saat aktif */
+    border-color: var(--text-color); /* Border saat aktif */
+}
+
+.history-item-title {
+    flex-grow: 1; /* Memungkinkan judul mengisi ruang */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Tambahkan elipsis jika judul terlalu panjang */
+    margin-right: 10px; /* Jarak dari ikon 3 titik */
+}
+
+.history-item-options {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Jarak antar ikon (misal: ikon 3 titik) */
+}
+
+/* Ikon 3 titik pada item histori */
+.history-item-options .options-icon {
+    width: 20px;
+    height: 20px;
+    stroke: var(--sidebar-text);
+    fill: none;
+    cursor: pointer;
+    transition: stroke 0.2s ease;
+}
+.history-item:hover .history-item-options .options-icon {
+     stroke: var(--text-color);
+}
+
+/* Ikon Hapus Histori (Baru) */
+.delete-history-icon {
+     width: 24px;
+    height: 24px;
+    stroke: var(--sidebar-text);
+    fill: none;
+    cursor: pointer;
+    transition: stroke 0.2s ease, color 0.2s ease;
+}
+.delete-history-icon:hover {
+    stroke: red; /* Warna merah saat hover */
+}
+
+/* Tombol New Chat (Baru) */
+.new-chat-button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    background-color: var(--button-bg); /* Latar tombol */
+    color: var(--text-color); /* Warna teks tombol */
+    font-size: 1.05em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    margin-top: 15px; /* Jarak dari histori chat */
+    border: none; /* Hapus border default tombol */
+    width: 100%; /* Tombol mengambil lebar penuh sidebar */
+    justify-content: center; /* Tengah konten tombol */
+}
+.new-chat-button:hover {
+    background-color: var(--button-hover-bg); /* Latar saat hover */
+}
+.new-chat-button svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--text-color);
+    fill: none;
+    stroke-width: 2;
+}
+
+
+/* Modal tidak akan digunakan lagi karena item pemicunya dihapus */
+/* .modal-overlay { ... } */
+/* .modal-content { ... } */
+/* .modal-close-btn { ... } */
+/* .modal-content h3 { ... } */
+/* .modal-content p { ... } */
+
 
 .code-block { background-color: var(--code-block-bg); color: var(--code-block-text); padding: 15px; border-radius: 8px; margin-top: 15px; margin-bottom: 10px; position: relative; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em; line-height: 1.5; border: 1px solid var(--code-block-border); text-align: left; white-space: pre-wrap; word-break: break-all; }
 .code-block pre { margin: 0; padding: 0; white-space: pre-wrap; word-break: break-all; }

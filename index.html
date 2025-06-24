@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="Yu5SrqKysJNrowL7W3-1r6kAGOf6GyertHg2MR-QMvg" />
   <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com">
-  <title>NovaAI</title> <!-- Judul statis -->
+  <title>Novaria</title> <!-- Judul diubah menjadi Novaria -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css">
@@ -14,17 +14,31 @@
 
   <header>
     <div class="header-left-group">
+      <!-- Ikon Menu (Hamburger) -->
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-btn" id="menuIcon">
         <path d="M17 12H7"/><path d="M19 18H5"/><path d="M21 6H3"/>
       </svg>
+      <!-- Ikon Back (untuk mode Chat) -->
       <svg viewBox="0 0 24 24" id="backIcon" class="icon-btn hidden">
         <polyline points="15 18 9 12 15 6" />
       </svg>
+       <!-- Logo dan Nama Aplikasi -->
       <div class="app-brand">
-          <img src="logo.png" alt="NovaAI Logo" class="app-logo"> <div class="app-name">NovaAI</div>
+          <img src="logo.png" alt="Novaria Logo" class="app-logo"> <div class="app-name">Novaria</div>
       </div>
     </div>
     <div class="header-right-group">
+        <!-- Ikon Home (untuk kembali ke login) -->
+         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-btn" id="homeIcon">
+             <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+         </svg>
+         <!-- Ikon Pesan Baru (New Chat) -->
+         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-btn" id="newChatButtonHeader">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <line x1="12" y1="11" x2="12" y2="17"/>
+            <line x1="9" y1="14" x2="15" y2="14"/>
+        </svg>
+        <!-- Toggle Tema (tetap di header) -->
         <div id="landingThemeToggleContainer" class="theme-toggle-landing">
             <label class="switch">
                 <input type="checkbox" id="themeToggleLanding">
@@ -44,14 +58,17 @@
   <main>
     <section id="welcomeSection" class="page-section active">
         <h1>Welcome</h1> <!-- Teks statis -->
-        <p>Hii, I Can Help You?</p> <!-- Teks statis -->
+        <!-- Teks sambutan dipindahkan ke sini -->
+        <p>Hii, Fariz I Can Help You?</p>
     </section>
 
     <section id="chatSection" class="page-section hidden">
         <div id="chatHistory">
+            <!-- Thinking indicator tetap ada -->
             <div id="thinkingIndicator" class="ai-message hidden">
                 <span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
             </div>
+             <!-- Pesan chat akan ditambahkan di sini oleh JavaScript -->
         </div>
     </section>
   </main>
@@ -61,8 +78,10 @@
   </div>
 
   <div class="input-wrapper">
+    <!-- File Input (tetap ada) -->
     <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
 
+    <!-- Tombol Plus (tetap ada) -->
     <button class="btn-circle btn-plus" id="plusButton">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="12" y1="5" x2="12" y2="19" />
@@ -70,16 +89,20 @@
       </svg>
     </button>
 
+    <!-- Kontainer Chip File (tetap ada) -->
     <div id="fileChipContainer" class="file-chip-container">
         <!-- Item pratinjau file (chip) akan ditambahkan di sini oleh JavaScript -->
     </div>
 
+    <!-- Tombol Voice Input (tetap ada) -->
     <button class="btn-circle btn-voice" id="voiceInputButton">
         <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
         </svg>
     </button>
+    <!-- Textarea Input (tetap ada) -->
     <textarea id="messageInput" placeholder="Ask me anything..." rows="1"></textarea>
+    <!-- Tombol Send (tetap ada) -->
     <button class="btn-circle btn-send" id="sendButton">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
             <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
@@ -87,23 +110,44 @@
     </button>
   </div>
 
+  <!-- Sidebar Overlay (tetap ada) -->
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+  <!-- Sidebar (struktur diubah) -->
   <aside class="sidebar" id="sidebar">
-    <!-- ISI SIDEBAR DIKOSONGKAN -->
-    <!-- Anda bisa menambahkan judul jika mau, misal: <h2>Menu</h2> -->
-    <!-- Atau biarkan benar-benar kosong -->
+    <h2>
+        History Chat
+        <!-- Ikon Hapus Semua Histori -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="delete-history-icon" id="deleteHistoryIcon">
+            <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
+    </h2>
+     <!-- Kontainer untuk daftar histori chat -->
+    <div class="sidebar-chat-history" id="sidebarChatHistory">
+        <!-- Item histori chat akan ditambahkan di sini oleh JavaScript -->
+        <!-- Contoh struktur item: -->
+        <!-- <div class="history-item" data-chat-id="123">
+             <span class="history-item-title">History 1</span>
+              <span class="history-item-options">
+                 <svg>...</svg> (ikon 3 titik jika perlu)
+              </span>
+         </div> -->
+    </div>
+
+     <!-- Tombol New Chat di Sidebar -->
+     <button class="new-chat-button" id="newChatButton">
+         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+             <line x1="12" y1="5" x2="12" y2="19"/>
+             <line x1="5" y1="12" x2="19" y2="12"/>
+         </svg>
+         New Chat
+     </button>
+
   </aside>
 
   <!-- Modal tidak akan digunakan lagi karena item pemicunya dihapus -->
-  <!-- <div class="modal-overlay" id="infoModalOverlay">
-    <div class="modal-content" id="infoModalContent">
-      <button class="modal-close-btn" id="modalCloseBtn">×</button>
-      <h3 id="modalTitle">Modal Title</h3>
-      <div id="modalBody">
-        </div>
-    </div>
-  </div> -->
+  <!-- <div class="modal-overlay" id="infoModalOverlay"> ... </div> -->
+
 
   <script src="script.js"></script>
 </body>

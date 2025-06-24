@@ -32,14 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendButton = document.getElementById('sendButton');
     const menuIcon = document.getElementById('menuIcon');
     const backIcon = document.getElementById('backIcon');
+    const homeIcon = document.getElementById('homeIcon'); // Ikon Home baru
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
-    // themeToggle (sidebar) dihapus, themeToggleLanding (header) tetap
     const themeToggleLanding = document.getElementById('themeToggleLanding');
-    // languageSelect dihapus
-    // docTitle dihapus karena terjemahan judul dihapus
     const quickCompleteContainer = document.getElementById('quickCompleteContainer');
-    const chatHistory = document.getElementById('chatHistory');
+    const chatHistoryElement = document.getElementById('chatHistory'); // Ganti nama variabel agar tidak bentrok dengan histori data
     const thinkingIndicator = document.getElementById('thinkingIndicator');
 
     const welcomeSection = document.getElementById('welcomeSection');
@@ -48,12 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.querySelector('main');
 
     let currentActivePage = 'welcome';
-
-    // Modal dan elemen terkait dihapus
-    // const infoModalOverlay = document.getElementById('infoModalOverlay');
-    // const modalCloseBtn = document.getElementById('modalCloseBtn');
-    // const modalTitle = document.getElementById('modalTitle');
-    // const modalBody = document.getElementById('modalBody');
 
     const plusButton = document.getElementById('plusButton');
     const fileInput = document.getElementById('fileInput');
@@ -68,104 +60,373 @@ document.addEventListener('DOMContentLoaded', () => {
     const voiceInputButton = document.getElementById('voiceInputButton');
     let recognition;
 
-    // Tombol Logout di sidebar dan fungsinya dihapus
-    // const logoutButton = document.getElementById('logoutButton');
+    // === AWAL: LOGIKA HISTORI CHAT ===
+    const sidebarChatHistoryElement = document.getElementById('sidebarChatHistory'); // Kontainer histori di sidebar
+    const newChatButton = document.getElementById('newChatButton'); // Tombol New Chat
+    const deleteHistoryIcon = document.getElementById('deleteHistoryIcon'); // Ikon hapus histori (total)
+
+    let chatHistories = loadChatHistories(); // Memuat histori saat script dimulai
+    let currentChatId = null; // ID chat yang sedang aktif
+
+    function loadChatHistories() {
+        const storedHistories = localStorage.getItem('novaai_chat_histories');
+        try {
+            return storedHistories ? JSON.parse(storedHistories) : [];
+        } catch (e) {
+            console.error("Error parsing chat histories from localStorage:", e);
+            return []; // Kembali ke array kosong jika terjadi error parsing
+        }
+    }
+
+    function saveChatHistories() {
+        localStorage.setItem('novaai_chat_histories', JSON.stringify(chatHistories));
+    }
+
+    function renderChatHistoryList() {
+        if (!sidebarChatHistoryElement) return;
+
+        sidebarChatHistoryElement.innerHTML = ''; // Bersihkan daftar histori
+
+        if (chatHistories.length === 0) {
+            sidebarChatHistoryElement.innerHTML = '<div style="text-align: center; opacity: 0.7; margin-top: 20px;">No chat history yet.</div>';
+            deleteHistoryIcon.classList.add('hidden'); // Sembunyikan ikon hapus jika kosong
+            return;
+        } else {
+             deleteHistoryIcon.classList.remove('hidden'); // Tampilkan ikon hapus jika ada histori
+        }
+
+
+        chatHistories.forEach(history => {
+            const historyItem = document.createElement('div');
+            historyItem.classList.add('history-item');
+            if (history.id === currentChatId) {
+                historyItem.classList.add('active');
+            }
+            historyItem.dataset.chatId = history.id;
+
+            const titleSpan = document.createElement('span');
+            titleSpan.classList.add('history-item-title');
+            // Gunakan judul atau pesan pertama jika judul kosong
+            titleSpan.textContent = history.title || (history.messages.length > 0 ? history.messages[0].content.substring(0, 30) + '...' : 'New Chat');
+            historyItem.appendChild(titleSpan);
+
+            // Ikon 3 titik (opsional, bisa ditambahkan fungsi dropdown nanti)
+            const optionsSpan = document.createElement('span');
+            optionsSpan.classList.add('history-item-options');
+            // const optionsIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="options-icon"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>`;
+            // optionsSpan.innerHTML = optionsIconSvg;
+            // historyItem.appendChild(optionsSpan);
+
+            historyItem.addEventListener('click', () => {
+                loadChatHistory(history.id);
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            });
+
+            sidebarChatHistoryElement.appendChild(historyItem);
+        });
+    }
+
+    function startNewChat() {
+        // Opsional: Simpan chat saat ini sebelum memulai yang baru
+        // saveCurrentChat(); // Implementasikan ini jika Anda ingin menyimpan chat yang belum diberi judul saat membuat yang baru
+
+        currentChatId = null; // Set ID chat saat ini menjadi null
+        clearChatDisplay(); // Bersihkan tampilan chat
+
+        // Jika page saat ini adalah welcome, tetap di welcome
+        // Jika page saat ini adalah chat, tampilkan halaman chat kosong
+        if (currentActivePage !== 'welcome') {
+             showPage('welcome'); // Kembali ke halaman sambutan
+        }
+
+        clearAttachedFiles();
+        updateInputAreaAppearance();
+
+        // Tampilkan quick suggestions jika di welcome dan input kosong
+         if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
+             quickCompleteContainer.classList.add('active');
+         } else {
+             quickCompleteContainer.classList.remove('active');
+         }
+
+
+        renderChatHistoryList(); // Perbarui daftar histori di sidebar
+    }
+
+    function loadChatHistory(chatId) {
+        const historyToLoad = chatHistories.find(history => history.id === chatId);
+        if (historyToLoad) {
+            // saveCurrentChat(); // Simpan chat yang sedang aktif sebelum memuat yang baru (opsional)
+            currentChatId = chatId;
+            clearChatDisplay(); // Bersihkan tampilan chat
+            historyToLoad.messages.forEach(msg => {
+                 // Perlu sanitasi HTML jika content berisi markdown yang sudah di-render
+                 // Sederhananya, kita asumsikan content sudah siap render HTML
+                addChatMessage(msg.content, msg.sender);
+            });
+             showPage('chat'); // Pindah ke halaman chat
+             clearAttachedFiles(); // Kosongkan file saat memuat histori
+             updateInputAreaAppearance();
+             quickCompleteContainer.classList.remove('active'); // Sembunyikan quick suggestions di mode chat
+             renderChatHistoryList(); // Perbarui tampilan item aktif di sidebar
+        } else {
+            console.warn("Chat history not found with ID:", chatId);
+        }
+    }
+
+     function saveCurrentChat(userMessageContent, aiResponseHtml) {
+         // Dapatkan semua pesan dari DOM, atau simpan dari array jika Anda menyimpan semua pesan di JS
+         // Untuk kesederhanaan, kita akan membuat objek histori baru atau memperbarui yang sudah ada.
+
+         // Jika belum ada chat ID (chat baru) atau chat ID saat ini tidak ditemukan di histori
+         if (currentChatId === null || !chatHistories.find(h => h.id === currentChatId)) {
+             currentChatId = Date.now(); // Buat ID baru berbasis timestamp
+             const newHistory = {
+                 id: currentChatId,
+                 title: userMessageContent.substring(0, 50) + (userMessageContent.length > 50 ? '...' : ''), // Judul dari pesan pertama
+                 messages: [
+                     { sender: 'user', content: userMessageContent },
+                     { sender: 'ai', content: aiResponseHtml } // Simpan AI response dalam format HTML
+                 ],
+                 timestamp: Date.now()
+             };
+             chatHistories.unshift(newHistory); // Tambahkan di awal daftar
+         } else {
+             // Jika chat ID sudah ada, tambahkan pesan baru ke histori yang sudah ada
+             const existingHistory = chatHistories.find(h => h.id === currentChatId);
+             if (existingHistory) {
+                 existingHistory.messages.push({ sender: 'user', content: userMessageContent });
+                 existingHistory.messages.push({ sender: 'ai', content: aiResponseHtml });
+                 existingHistory.timestamp = Date.now(); // Update timestamp
+                 // Opsional: Perbarui judul jika pesan pertama berubah atau setelah beberapa pesan
+                 if (!existingHistory.title || existingHistory.title.endsWith('...')) {
+                     existingHistory.title = existingHistory.messages[0].content.substring(0, 50) + (existingHistory.messages[0].content.length > 50 ? '...' : '');
+                 }
+             }
+         }
+         saveChatHistories(); // Simpan ke localStorage
+         renderChatHistoryList(); // Render ulang daftar histori
+     }
+
+
+    function clearChatDisplay() {
+        if (chatHistoryElement) {
+             // Kosongkan hanya pesan, pertahankan thinking indicator
+             const messages = chatHistoryElement.querySelectorAll('.chat-message');
+             messages.forEach(msg => msg.remove());
+        }
+        // Reset thinking indicator state
+        if (thinkingIndicator) {
+            thinkingIndicator.classList.add('hidden');
+            thinkingIndicator.style.opacity = '0';
+        }
+         // Bersihkan file yang dilampirkan di UI
+         clearAttachedFiles();
+         // Reset input text
+         messageInput.value = '';
+         autoResizeTextarea();
+         // Reset placeholder animation
+         startPlaceholderAnimation();
+
+    }
+
+    function deleteAllHistories() {
+        if (confirm("Are you sure you want to delete all chat histories? This cannot be undone.")) {
+            chatHistories = [];
+            saveChatHistories();
+            clearChatDisplay(); // Bersihkan tampilan chat saat ini juga
+             currentChatId = null; // Reset current chat ID
+            renderChatHistoryList();
+            showPage('welcome'); // Kembali ke halaman sambutan
+
+        }
+    }
+
+    // Event listeners untuk fitur histori chat
+     if (newChatButton) {
+         newChatButton.addEventListener('click', startNewChat);
+     }
+     if (deleteHistoryIcon) {
+         deleteHistoryIcon.addEventListener('click', deleteAllHistories);
+     }
+     // Event listener untuk ikon Home (mengarah ke login.html)
+     if(homeIcon) {
+         homeIcon.addEventListener('click', () => {
+             // Opsional: Simpan chat saat ini sebelum pindah halaman
+             // saveCurrentChat();
+             window.location.href = 'login.html';
+         });
+     }
+
+
+    // Render histori chat saat DOM fully loaded
+     renderChatHistoryList();
+
+    // === AKHIR: LOGIKA HISTORI CHAT ===
 
 
     function checkScrollable() {
         setTimeout(() => {
-            if (!chatHistory) return;
-            const isScrollable = chatHistory.scrollHeight > chatHistory.clientHeight;
-            const isAtBottom = chatHistory.scrollHeight - chatHistory.scrollTop <= chatHistory.clientHeight + 5;
+            if (!chatHistoryElement) return;
+            const isScrollable = chatHistoryElement.scrollHeight > chatHistoryElement.clientHeight;
+            const isAtBottom = chatHistoryElement.scrollHeight - chatHistoryElement.scrollTop <= chatHistoryElement.clientHeight + 5;
             if (isScrollable && !isAtBottom) {
-                chatHistory.classList.add('has-scroll-fade');
+                chatHistoryElement.classList.add('has-scroll-fade');
             } else {
-                chatHistory.classList.remove('has-scroll-fade');
+                chatHistoryElement.classList.remove('has-scroll-fade');
             }
         }, 100);
     }
-    if (chatHistory) {
-      chatHistory.addEventListener('scroll', checkScrollable);
+    if (chatHistoryElement) {
+      chatHistoryElement.addEventListener('scroll', checkScrollable);
     }
 
     function showPage(pageName, initialMessage = null) {
-        if (currentActivePage === pageName && !initialMessage) return;
+        // Jika sudah di halaman yang diminta dan tidak ada pesan awal, keluar
+        if (currentActivePage === pageName && !initialMessage && chatHistoryElement.children.length > (thinkingIndicator ? 1 : 0)) {
+             // Tambahan: Jika di chat page dan sudah ada pesan, jangan alihkan ke welcome
+             if (pageName === 'welcome' && chatHistoryElement.children.length > (thinkingIndicator ? 1 : 0)) {
+                 return; // Jangan kembali ke welcome jika chat tidak kosong
+             }
+             if (pageName === 'chat' && chatHistoryElement.children.length <= (thinkingIndicator ? 1 : 0)) {
+                  // Jika di chat page tapi kosong, biarkan proses lanjut untuk menampilkan pesan awal
+             } else if (currentActivePage === pageName && !initialMessage) {
+                 return; // Jika halaman sama dan tidak ada pesan awal
+             }
+        }
+
         const currentPageElement = document.getElementById(currentActivePage + 'Section');
         if (currentPageElement) {
             currentPageElement.classList.remove('active');
+            // Tambahkan delay untuk memastikan animasi selesai sebelum display: none
             setTimeout(() => { currentPageElement.classList.add('hidden'); }, 500);
         }
+
         const nextPageElement = document.getElementById(pageName + 'Section');
         if (nextPageElement) {
             nextPageElement.classList.remove('hidden');
+            // Kecilkan delay sebelum menambah active class
             setTimeout(() => { nextPageElement.classList.add('active'); }, 10);
         }
         currentActivePage = pageName;
+
         if (pageName === 'chat') {
-            landingThemeToggleContainer.classList.add('hidden');
-            menuIcon.classList.add('hidden');
-            backIcon.classList.remove('hidden');
+            // landingThemeToggleContainer.classList.add('hidden'); // Sembunyikan toggle tema di header
+            menuIcon.classList.add('hidden'); // Sembunyikan ikon menu
+            backIcon.classList.remove('hidden'); // Tampilkan ikon back
+             homeIcon.classList.add('hidden'); // Sembunyikan ikon home di mode chat (jika ada di header)
+
+            // Pastikan chat history scroll ke bawah setelah transisi
             setTimeout(() => {
-                if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+                if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
                 checkScrollable();
-            }, 10);
-            quickCompleteContainer.classList.remove('active'); // Quick suggestions dinonaktifkan
-        } else {
-            landingThemeToggleContainer.classList.remove('hidden');
-            menuIcon.classList.remove('hidden');
-            backIcon.classList.add('hidden');
-            // Quick suggestions dinonaktifkan
-            // if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
-            //     quickCompleteContainer.classList.add('active');
-            // }
+            }, 50); // Sesuaikan delay jika perlu
+
+            quickCompleteContainer.classList.remove('active'); // Quick suggestions dinonaktifkan di chat page
+
+        } else { // pageName === 'welcome'
+            // landingThemeToggleContainer.classList.remove('hidden'); // Tampilkan toggle tema di header
+            menuIcon.classList.remove('hidden'); // Tampilkan ikon menu
+            backIcon.classList.add('hidden'); // Sembunyikan ikon back
+             homeIcon.classList.remove('hidden'); // Tampilkan ikon home di welcome (jika ada di header)
+
+             // Tampilkan quick suggestions jika di welcome page dan input kosong
+             if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
+                 quickCompleteContainer.classList.add('active');
+             }
         }
+         // Update padding-bottom main content
+         updateInputAreaAppearance();
+
+
         if (pageName === 'chat' && initialMessage) {
+            // Jika ini pesan awal untuk chat baru, jangan buat histori langsung di sini
+            // Histori akan dibuat/diperbarui setelah AI merespons di generateRealAIResponse
             addChatMessage(initialMessage, 'user');
             generateRealAIResponse(initialMessage, attachedFiles);
         }
-        updateInputAreaAppearance();
+
     }
 
     // Placeholder disederhanakan, tidak lagi multilingual
     const placeholders_en = ["Ask me anything...","What's on your mind?","Tell me a story...","How can I help you today?","Start a conversation...","I'm ready to chat!","Let's explore together...","What do you want to learn?"];
     let currentPlaceholderIndex = 0;
-    function animatePlaceholder() {
-        if (messageInput.value.trim() !== '') return;
-        messageInput.style.opacity = '0';
-        messageInput.style.transform = 'translateY(-10px)';
-        setTimeout(() => {
-            currentPlaceholderIndex = (currentPlaceholderIndex + 1) % placeholders_en.length;
-            messageInput.placeholder = placeholders_en[currentPlaceholderIndex];
-            messageInput.style.opacity = '1';
-            messageInput.style.transform = 'translateY(0)';
-        }, 500);
-    }
-    let placeholderInterval = setInterval(animatePlaceholder, 3000);
-    animatePlaceholder(); // Panggil sekali di awal
-    messageInput.addEventListener('focus', () => {
-        clearInterval(placeholderInterval);
-        quickCompleteContainer.classList.remove('active'); // Quick suggestions dinonaktifkan
-    });
-    messageInput.addEventListener('blur', () => {
-        if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
-            placeholderInterval = setInterval(animatePlaceholder, 3000);
-            // Quick suggestions dinonaktifkan
-            // if (currentActivePage === 'welcome') {
-            //     quickCompleteContainer.classList.add('active');
-            // }
+    let placeholderInterval; // Variabel untuk menyimpan ID interval
+
+     function updatePlaceholder() {
+         if (messageInput.value.trim() !== '') return; // Jangan ubah placeholder jika ada teks
+
+         messageInput.style.opacity = '0';
+         messageInput.style.transform = 'translateY(-10px)';
+
+         setTimeout(() => {
+             currentPlaceholderIndex = (currentPlaceholderIndex + 1) % placeholders_en.length;
+             messageInput.placeholder = placeholders_en[currentPlaceholderIndex];
+             messageInput.style.opacity = '1';
+             messageInput.style.transform = 'translateY(0)';
+         }, 500); // Durasi sama dengan CSS transition
+     }
+
+    function startPlaceholderAnimation() {
+        // Hentikan interval lama jika ada
+        if (placeholderInterval) {
+            clearInterval(placeholderInterval);
         }
+         // Mulai animasi placeholder hanya jika input kosong dan tidak ada file dan di halaman welcome
+         if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
+            updatePlaceholder(); // Panggil sekali di awal untuk set placeholder
+            placeholderInterval = setInterval(updatePlaceholder, 3000);
+         }
+    }
+
+    function stopPlaceholderAnimation() {
+        if (placeholderInterval) {
+            clearInterval(placeholderInterval);
+        }
+    }
+
+
+    messageInput.addEventListener('focus', () => {
+        stopPlaceholderAnimation(); // Hentikan animasi saat fokus
+        quickCompleteContainer.classList.remove('active'); // Sembunyikan quick suggestions saat input fokus
     });
+
+    messageInput.addEventListener('blur', () => {
+         // Mulai kembali animasi jika input kosong dan tidak ada file setelah blur
+         startPlaceholderAnimation();
+
+         // Tampilkan quick suggestions jika input kosong, tidak ada file, dan di welcome page setelah blur
+         if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
+             quickCompleteContainer.classList.add('active');
+         }
+    });
+
     messageInput.addEventListener('input', () => {
-        // Quick suggestions dinonaktifkan
-        // if (messageInput.value.trim() !== '' || attachedFiles.length > 0) {
-        //     quickCompleteContainer.classList.remove('active');
-        // } else {
-        //     if (currentActivePage === 'welcome') {
-        //         quickCompleteContainer.classList.add('active');
-        //     }
-        // }
+        // Sembunyikan quick suggestions saat ada input teks atau file dilampirkan
+        if (messageInput.value.trim() !== '' || attachedFiles.length > 0) {
+            quickCompleteContainer.classList.remove('active');
+            stopPlaceholderAnimation(); // Hentikan animasi placeholder jika ada input
+             messageInput.placeholder = "Ask me anything..."; // Reset placeholder ke default
+        } else {
+            // Jika input kosong dan tidak ada file, dan di welcome page, tampilkan quick suggestions
+             if (currentActivePage === 'welcome') {
+                quickCompleteContainer.classList.add('active');
+                startPlaceholderAnimation(); // Mulai animasi placeholder jika input kosong
+             }
+        }
         autoResizeTextarea();
     });
+
+    // Mulai animasi placeholder saat pertama kali dimuat jika di welcome page
+    if (currentActivePage === 'welcome') {
+        startPlaceholderAnimation();
+         // Tampilkan quick suggestions di awal jika input kosong dan di welcome page
+         if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
+             quickCompleteContainer.classList.add('active');
+         }
+    }
+
 
     function autoResizeTextarea() {
         messageInput.style.height = 'auto';
@@ -213,10 +474,10 @@ document.addEventListener('DOMContentLoaded', () => {
             messageElement.appendChild(aiContentContainer);
         }
 
-        if (chatHistory && thinkingIndicator) {
-            chatHistory.insertBefore(messageElement, thinkingIndicator);
-        } else if (chatHistory) {
-            chatHistory.appendChild(messageElement);
+        if (chatHistoryElement && thinkingIndicator) {
+            chatHistoryElement.insertBefore(messageElement, thinkingIndicator);
+        } else if (chatHistoryElement) {
+            chatHistoryElement.appendChild(messageElement);
         }
 
         setTimeout(() => {
@@ -225,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 10);
 
         setTimeout(() => {
-            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+            if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
             checkScrollable();
         }, 50);
 
@@ -273,12 +534,12 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'copy', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullContent(contentContainer); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
             { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getResponseText(contentContainer); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; /* Bahasa diset default karena fitur bahasa dihapus */ const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
             { name: 'like', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>', title: 'Like', action: (buttonEl) => { buttonEl.classList.toggle('liked'); } },
-            { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => { const svg = buttonEl.querySelector('svg'); svg.classList.add('rotating'); buttonEl.disabled = true; buttonEl.style.cursor = 'wait'; const lastUserMessage = Array.from(chatHistory.querySelectorAll('.user-message')).pop(); if (lastUserMessage) { msgEl.remove(); generateRealAIResponse(lastUserMessage.textContent, attachedFiles); } else { svg.classList.remove('rotating'); buttonEl.disabled = false; buttonEl.style.cursor = 'pointer'; } } },
+            { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => { const svg = buttonEl.querySelector('svg'); svg.classList.add('rotating'); buttonEl.disabled = true; buttonEl.style.cursor = 'wait'; const lastUserMessage = Array.from(chatHistoryElement.querySelectorAll('.user-message')).pop(); if (lastUserMessage) { msgEl.remove(); generateRealAIResponse(lastUserMessage.textContent, attachedFiles); } else { svg.classList.remove('rotating'); buttonEl.disabled = false; buttonEl.style.cursor = 'pointer'; } } },
             { name: 'share', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>', title: 'Share', action: (buttonEl, _messageEl) => { const fullContent = getFullContent(contentContainer); if (navigator.share) { navigator.share({ title: 'NovaAI Response', text: fullContent, url: window.location.href, }).catch((error) => console.log('Error sharing', error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
         ];
         buttons.forEach((btnInfo) => { const button = document.createElement('button'); button.classList.add('ai-action-btn'); button.title = btnInfo.title; button.innerHTML = btnInfo.icon; button.addEventListener('click', () => btnInfo.action(button, aiMessageElement)); actionsContainer.appendChild(button); });
         contentContainer.appendChild(actionsContainer);
-        setTimeout(() => { if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; }, 0);
+        setTimeout(() => { if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight; }, 0);
     }
 
 
@@ -288,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
             thinkingIndicator.style.opacity = '1';
         }
         setTimeout(() => {
-            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+            if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
             checkScrollable();
         }, 0);
 
@@ -370,6 +631,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const aiMessageElement = addChatMessage(finalHtmlContent, 'ai');
                 addAiMessageActions(aiMessageElement); // Tambahkan tombol aksi ke pesan AI
+
+                // Simpan chat ke histori setelah mendapatkan respons AI
+                 saveCurrentChat(userMessage, finalHtmlContent); // Simpan pesan user asli dan respons AI dalam HTML
+
+
                 clearAttachedFiles(); // Bersihkan file setelah respons diterima
                 checkScrollable();
             }, 300);
@@ -381,6 +647,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
                 const errorMessage = `<span>Maaf, terjadi kesalahan: ${error.message}. Silakan coba lagi.</span>`;
                 addChatMessage(errorMessage, 'ai');
+
+                 // Jika terjadi error, simpan pesan user tapi tidak simpan pesan error dari AI (opsional)
+                 // Atau simpan error message jika Anda ingin merekam error dalam histori
+                // saveCurrentChat(userMessage, errorMessage);
+
             }, 300);
         }
     }
@@ -388,58 +659,78 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sendButton.addEventListener('click', () => {
         const message = messageInput.value.trim();
+        // Hanya kirim jika ada pesan teks atau file dilampirkan
         if (message !== '' || attachedFiles.length > 0) {
             let finalPrompt = message;
-            if (attachedFiles.length > 0 && message === '') {
-                const fileNames = attachedFiles.map(f => f.name).join(', ');
-                finalPrompt = `Harap menganalisis file-file ini: ${fileNames}`;
-            } else if (attachedFiles.length > 0) {
-                const fileNames = attachedFiles.map(f => f.name).join(', ');
-                finalPrompt = `${message} (Dilampirkan: ${fileNames})`;
-            }
+             // Jika hanya ada file, buat prompt default
+             if (attachedFiles.length > 0 && message === '') {
+                 const fileNames = attachedFiles.map(f => f.name).join(', ');
+                 finalPrompt = `Harap menganalisis file-file ini: ${fileNames}`;
+             } else if (attachedFiles.length > 0) {
+                 // Jika ada teks dan file, tambahkan catatan tentang file ke prompt
+                 const fileNames = attachedFiles.map(f => f.name).join(', ');
+                 finalPrompt = `${message} (Dilampirkan: ${fileNames})`;
+             }
 
+
+            // Jika di halaman welcome, pindah ke chat dan mulai chat baru
             if (currentActivePage === 'welcome') {
-                showPage('chat', finalPrompt);
+                showPage('chat', finalPrompt); // Panggil showPage dengan pesan awal
             } else {
+                // Jika sudah di halaman chat, tambahkan pesan dan panggil generate response
                 addChatMessage(finalPrompt, 'user');
                 generateRealAIResponse(finalPrompt, attachedFiles);
             }
+
+            // Bersihkan input setelah dikirim
             messageInput.value = '';
             autoResizeTextarea();
-            // Quick suggestions dinonaktifkan
-            // if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
-            //     quickCompleteContainer.classList.add('active');
-            // } else {
-            //     quickCompleteContainer.classList.remove('active');
-            // }
+            clearAttachedFiles(); // Bersihkan file setelah dikirim
+
+            // Sembunyikan quick suggestions setelah mengirim pesan
+            quickCompleteContainer.classList.remove('active');
+            stopPlaceholderAnimation(); // Hentikan animasi placeholder
+
         }
     });
+    // Kirim pesan saat Enter (tanpa Shift+Enter)
     messageInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendButton.click(); } });
 
     // Hapus initialChatMessageFromStorage karena terjemahan dan quick suggestions dihapus
     // const initialChatMessageFromStorage = localStorage.getItem('initialChatMessage');
+    // Panggil showPage setelah semua setup, memastikan halaman yang benar ditampilkan
+    // Tentukan halaman awal: jika ada histori atau pesan di local storage, tampilkan chat, jika tidak, welcome
     if (isLoggedIn === 'true') {
-        showPage('welcome');
+        // Cek apakah ada histori chat yang bisa dimuat sebagai chat saat ini (opsional)
+        // Misalnya, selalu muat chat terakhir yang diakses jika ada
+        // Untuk kesederhanaan, kita akan mulai dari welcome kecuali ada chat ID yang tersimpan sebagai 'lastActiveChatId'
+        const lastActiveChatId = localStorage.getItem('novaai_last_active_chat_id');
+        if (lastActiveChatId) {
+             loadChatHistory(parseInt(lastActiveChatId, 10)); // Muat chat terakhir jika ada
+        } else {
+             showPage('welcome'); // Jika tidak ada, tampilkan welcome
+        }
     }
 
-    menuIcon.addEventListener('click', () => { sidebar.classList.add('active'); sidebarOverlay.classList.add('active'); });
-    sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); });
-    backIcon.addEventListener('click', () => {
-        showPage('welcome');
-        if (chatHistory && thinkingIndicator) {
-             chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
-        } else if (chatHistory) {
-            chatHistory.innerHTML = '';
-        }
-        messageInput.value = '';
-        autoResizeTextarea();
-        clearAttachedFiles();
-        updateInputAreaAppearance();
-        // Quick suggestions dinonaktifkan
-        // if (currentActivePage === 'welcome') {
-        //     quickCompleteContainer.classList.add('active');
-        // }
+
+    // Event listener untuk sidebar
+    menuIcon.addEventListener('click', () => {
+         sidebar.classList.add('active');
+         sidebarOverlay.classList.add('active');
+         renderChatHistoryList(); // Render ulang histori saat sidebar dibuka
     });
+    sidebarOverlay.addEventListener('click', () => {
+        sidebar.classList.remove('active');
+        sidebarOverlay.classList.remove('active');
+    });
+    // Event listener untuk ikon Back (kembali ke welcome, clear chat)
+    backIcon.addEventListener('click', () => {
+        // Opsional: Simpan chat saat ini sebelum kembali ke welcome
+        // saveCurrentChat();
+
+        startNewChat(); // Gunakan fungsi startNewChat untuk membersihkan dan kembali ke welcome
+    });
+
 
     // Tema hanya dikontrol dari header sekarang
     const savedTheme = localStorage.getItem('novaai_theme');
@@ -451,16 +742,8 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleLanding.checked = false;
     }
     function applyTheme(isLightMode) { if (isLightMode) { document.body.classList.add('light-mode'); localStorage.setItem('novaai_theme', 'light-mode'); } else { document.body.classList.remove('light-mode'); localStorage.setItem('novaai_theme', 'dark-mode'); } themeToggleLanding.checked = isLightMode; }
-    // themeToggle (sidebar) dihapus, hanya themeToggleLanding (header)
-    themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
 
-    // Objek translations dan fungsi terkait dihapus
-    // const translations = { ... };
-    // function updateTextContent(lang) { ... }
-    // function updateQuickSuggestions(lang) { ... }
-    // languageSelect.value = currentLanguage;
-    // updateTextContent(currentLanguage);
-    // languageSelect.addEventListener('change', ...);
+    themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
 
     // Hapus semua fungsi modal
     // function openModal(titleKey, contentKey) { ... }
@@ -470,13 +753,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // document.querySelectorAll('.sidebar-item[data-modal-target]').forEach(...);
 
     function setupRippleEffects() {
-        const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn');
+        const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .new-chat-button'); // Tambahkan .new-chat-button
         clickableElements.forEach(element => {
             const oldHandler = element._rippleHandler;
             if (oldHandler) {
                 element.removeEventListener('click', oldHandler);
             }
             const newHandler = function (e) {
+                // Jangan picu ripple jika klik ikon hapus di sidebar histori
+                 if (e.target.closest('.delete-history-icon')) {
+                     return;
+                 }
+
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA' || e.target.closest('select')) {
                     return;
                 }
@@ -499,21 +787,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     setupRippleEffects();
-    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn'))) { needsRippleSetup = true; } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn'))) { needsRippleSetup = true; } } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
-    if (chatHistory) observer.observe(chatHistory, { childList: true, subtree: true });
+    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.history-item') || node.matches('.new-chat-button'))) { needsRippleSetup = true; } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.history-item') || node.querySelector('.new-chat-button'))) { needsRippleSetup = true; } } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
+    if (chatHistoryElement) observer.observe(chatHistoryElement, { childList: true, subtree: true });
     // quickCompleteContainer tidak lagi di-observe karena tidak diisi dinamis
     // if (quickCompleteContainer) observer.observe(quickCompleteContainer, { childList: true, subtree: true });
     if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
+     // Observe sidebarChatHistoryElement untuk item histori baru
+     if (sidebarChatHistoryElement) observer.observe(sidebarChatHistoryElement, { childList: true, subtree: true });
+
 
     function updateInputAreaAppearance() {
         const inputWrapperHeight = inputWrapper.offsetHeight;
-        const totalBottomSpace = inputWrapperHeight + 15;
-        mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`;
+        const totalBottomSpace = inputWrapperHeight + 15; // 15px bottom margin
 
-        if (chatHistory) {
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+        // Sesuaikan padding-bottom main content agar input area tidak menutupi chat history
+        mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`; // Tambahkan sedikit ruang extra
+
+        // Sesuaikan tinggi chatHistoryElement agar scrollbar berfungsi dengan baik
+        if (chatHistoryElement) {
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const mainPaddingTop = parseInt(window.getComputedStyle(mainContent).paddingTop, 10);
+             const mainPaddingBottom = parseInt(window.getComputedStyle(mainContent).paddingBottom, 10);
+            chatHistoryElement.style.height = `calc(100% - ${headerHeight}px - ${inputWrapperHeight}px - ${15 + 20}px)`; // Hitung tinggi yang tersedia
+             // Alternatif: atur flex-grow untuk chatHistoryElement dalam chatSection (jika chatSection display flex)
+             // chatHistoryElement.style.flexGrow = 1;
+             // chatHistoryElement.style.height = 'auto'; // Biarkan flexbox menentukan tinggi
         }
+
+        // Scroll to bottom setelah update tata letak
+        setTimeout(() => {
+            if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
+            checkScrollable();
+        }, 50); // Small delay to allow layout to update
     }
+     // Panggil updateInputAreaAppearance saat window resize juga
+     window.addEventListener('resize', updateInputAreaAppearance);
+     // Panggil setelah DOM loaded
+     updateInputAreaAppearance();
+
 
     plusButton.addEventListener('click', () => { fileInput.click(); });
 
@@ -585,12 +896,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 autoResizeTextarea();
                 updateInputAreaAppearance();
+
+                // Tampilkan quick suggestions jika tidak ada file dan tidak ada teks setelah menghapus file
+                 if (attachedFiles.length === 0 && messageInput.value.trim() === '' && currentActivePage === 'welcome') {
+                     quickCompleteContainer.classList.add('active');
+                     startPlaceholderAnimation(); // Mulai animasi placeholder
+                 }
+
             }, 300);
         }
-        // Quick suggestions dinonaktifkan
-        // if (attachedFiles.length === 0 && messageInput.value.trim() === '' && currentActivePage === 'welcome') {
-        //     quickCompleteContainer.classList.add('active');
-        // }
     }
 
     function clearAttachedFiles() {
@@ -599,10 +913,11 @@ document.addEventListener('DOMContentLoaded', () => {
         fileChipContainer.style.display = 'none';
         autoResizeTextarea();
         updateInputAreaAppearance();
-        // Quick suggestions dinonaktifkan
-        // if (messageInput.value.trim() === '' && currentActivePage === 'welcome') {
-        //     quickCompleteContainer.classList.add('active');
-        // }
+        // Tampilkan quick suggestions jika tidak ada file dan tidak ada teks setelah membersihkan file
+         if (messageInput.value.trim() === '' && currentActivePage === 'welcome') {
+             quickCompleteContainer.classList.add('active');
+             startPlaceholderAnimation(); // Mulai animasi placeholder
+         }
     }
 
     fileInput.addEventListener('change', (event) => {
@@ -642,10 +957,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         fileInput.value = '';
-        // Quick suggestions dinonaktifkan
-        // if (attachedFiles.length > 0 || messageInput.value.trim() !== '') {
-        //     quickCompleteContainer.classList.remove('active');
-        // }
+        // Sembunyikan quick suggestions saat ada file baru ditambahkan
+         if (attachedFiles.length > 0 || messageInput.value.trim() !== '') {
+             quickCompleteContainer.classList.remove('active');
+             stopPlaceholderAnimation(); // Hentikan animasi placeholder
+             messageInput.placeholder = "Ask me anything..."; // Reset placeholder ke default
+         }
     });
 
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
@@ -655,10 +972,10 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.continuous = false;
         recognition.interimResults = true;
         let finalTranscript = '';
-        recognition.onstart = () => { voiceInputButton.style.backgroundColor = 'red'; messageInput.placeholder = 'Listening...'; };
+        recognition.onstart = () => { voiceInputButton.style.backgroundColor = 'red'; messageInput.placeholder = 'Listening...'; stopPlaceholderAnimation(); quickCompleteContainer.classList.remove('active'); }; // Hentikan animasi placeholder dan sembunyikan quick suggestions
         recognition.onresult = (event) => { let interimTranscript = ''; for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) { finalTranscript += event.results[i][0].transcript; } else { interimTranscript += event.results[i][0].transcript; } } messageInput.value = finalTranscript + interimTranscript; autoResizeTextarea(); };
-        recognition.onend = () => { voiceInputButton.style.backgroundColor = ''; if (finalTranscript.trim() !== '') { messageInput.value = finalTranscript.trim(); } if (messageInput.value.trim() === '') { messageInput.placeholder = placeholders_en[currentPlaceholderIndex]; } finalTranscript = ''; };
-        recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; messageInput.placeholder = placeholders_en[currentPlaceholderIndex]; finalTranscript = ''; alert('Speech recognition error: ' + event.error); };
+        recognition.onend = () => { voiceInputButton.style.backgroundColor = ''; if (finalTranscript.trim() !== '') { messageInput.value = finalTranscript.trim(); } if (messageInput.value.trim() === '') { startPlaceholderAnimation(); quickCompleteContainer.classList.add('active'); } else { messageInput.placeholder = "Ask me anything..."; } finalTranscript = ''; }; // Mulai animasi placeholder dan tampilkan quick suggestions jika input kosong setelah selesai
+        recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; if (messageInput.value.trim() === '') { startPlaceholderAnimation(); quickCompleteContainer.classList.add('active'); } else { messageInput.placeholder = "Ask me anything..."; } finalTranscript = ''; alert('Speech recognition error: ' + event.error); }; // Mulai animasi placeholder dan tampilkan quick suggestions jika input kosong setelah error
         voiceInputButton.addEventListener('click', () => { try { if (recognition && typeof recognition.stop === 'function' && recognition.recording) { recognition.stop(); } else { recognition.start(); } } catch (e) { if (recognition && typeof recognition.stop === 'function') recognition.stop(); } });
     } else {
         voiceInputButton.style.display = 'none';
@@ -666,6 +983,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Panggil showPage setelah semua setup, memastikan halaman yang benar ditampilkan
     // showPage(currentActivePage); // Sudah dipanggil di blok pengecekan login jika berhasil
+
 });
 
 // Fungsi global untuk copy code tetap ada

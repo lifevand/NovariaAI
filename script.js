@@ -1,4 +1,4 @@
-// === GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI ===
+// === FULL MODIFIED SCRIPT.JS ===
 
 document.addEventListener('DOMContentLoaded', () => {
     // === AWAL: PENGECEKAN LOGIN ===
@@ -30,14 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendButton');
-    const menuIcon = document.getElementById('menuIcon');
+    const menuIcon = document.getElementById('menuIcon'); // Updated ID
     const backIcon = document.getElementById('backIcon');
-    const homeIcon = document.getElementById('homeIcon'); // Ikon Home baru
+    const homeIcon = document.getElementById('homeIcon');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     const themeToggleLanding = document.getElementById('themeToggleLanding');
     const quickCompleteContainer = document.getElementById('quickCompleteContainer');
-    const chatHistoryElement = document.getElementById('chatHistory'); // Ganti nama variabel agar tidak bentrok dengan histori data
+    const chatHistoryElement = document.getElementById('chatHistory');
     const thinkingIndicator = document.getElementById('thinkingIndicator');
 
     const welcomeSection = document.getElementById('welcomeSection');
@@ -61,12 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let recognition;
 
     // === AWAL: LOGIKA HISTORI CHAT ===
-    const sidebarChatHistoryElement = document.getElementById('sidebarChatHistory'); // Kontainer histori di sidebar
-    const newChatButton = document.getElementById('newChatButton'); // Tombol New Chat
-    const deleteHistoryIcon = document.getElementById('deleteHistoryIcon'); // Ikon hapus histori (total)
+    const sidebarChatHistoryElement = document.getElementById('sidebarChatHistory');
+    const newChatButton = document.getElementById('newChatButton');
+    const deleteHistoryIcon = document.getElementById('deleteHistoryIcon');
+    const newChatHeaderIcon = document.getElementById('newChatHeaderIcon'); // New chat icon in header
 
-    let chatHistories = loadChatHistories(); // Memuat histori saat script dimulai
-    let currentChatId = null; // ID chat yang sedang aktif
+    let chatHistories = loadChatHistories();
+    let currentChatId = null;
 
     function loadChatHistories() {
         const storedHistories = localStorage.getItem('novaai_chat_histories');
@@ -74,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return storedHistories ? JSON.parse(storedHistories) : [];
         } catch (e) {
             console.error("Error parsing chat histories from localStorage:", e);
-            return []; // Kembali ke array kosong jika terjadi error parsing
+            return [];
         }
     }
 
@@ -85,18 +86,21 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderChatHistoryList() {
         if (!sidebarChatHistoryElement) return;
 
-        sidebarChatHistoryElement.innerHTML = ''; // Bersihkan daftar histori
+        sidebarChatHistoryElement.innerHTML = '';
 
         if (chatHistories.length === 0) {
-            sidebarChatHistoryElement.innerHTML = '<div style="text-align: center; opacity: 0.7; margin-top: 20px;">No chat history yet.</div>';
-            deleteHistoryIcon.classList.add('hidden'); // Sembunyikan ikon hapus jika kosong
+            sidebarChatHistoryElement.innerHTML = '<div style="text-align: center; opacity: 0.7; margin-top: 20px; font-size: 0.9em;">No chat history yet.</div>';
+            deleteHistoryIcon.classList.add('hidden');
             return;
         } else {
-             deleteHistoryIcon.classList.remove('hidden'); // Tampilkan ikon hapus jika ada histori
+             deleteHistoryIcon.classList.remove('hidden');
         }
 
+        // Sort by timestamp descending
+        const sortedHistories = chatHistories.sort((a, b) => b.timestamp - a.timestamp);
 
-        chatHistories.forEach(history => {
+
+        sortedHistories.forEach(history => {
             const historyItem = document.createElement('div');
             historyItem.classList.add('history-item');
             if (history.id === currentChatId) {
@@ -106,16 +110,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const titleSpan = document.createElement('span');
             titleSpan.classList.add('history-item-title');
-            // Gunakan judul atau pesan pertama jika judul kosong
-            titleSpan.textContent = history.title || (history.messages.length > 0 ? history.messages[0].content.substring(0, 30) + '...' : 'New Chat');
+            // Use title or first user message as title
+             const displayTitle = history.title || (history.messages.length > 0 ? history.messages[0].content.substring(0, 40) + (history.messages[0].content.length > 40 ? '...' : '') : 'New Chat');
+            titleSpan.textContent = displayTitle;
             historyItem.appendChild(titleSpan);
 
-            // Ikon 3 titik (opsional, bisa ditambahkan fungsi dropdown nanti)
-            const optionsSpan = document.createElement('span');
-            optionsSpan.classList.add('history-item-options');
-            // const optionsIconSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="options-icon"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>`;
-            // optionsSpan.innerHTML = optionsIconSvg;
-            // historyItem.appendChild(optionsSpan);
+            // Optional: Options icon (e.g., 3 dots) can be added here
 
             historyItem.addEventListener('click', () => {
                 loadChatHistory(history.id);
@@ -128,91 +128,106 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function startNewChat() {
-        // Opsional: Simpan chat saat ini sebelum memulai yang baru
-        // saveCurrentChat(); // Implementasikan ini jika Anda ingin menyimpan chat yang belum diberi judul saat membuat yang baru
-
-        currentChatId = null; // Set ID chat saat ini menjadi null
-        clearChatDisplay(); // Bersihkan tampilan chat
-
-        // Jika page saat ini adalah welcome, tetap di welcome
-        // Jika page saat ini adalah chat, tampilkan halaman chat kosong
-        if (currentActivePage !== 'welcome') {
-             showPage('welcome'); // Kembali ke halaman sambutan
+        // Save current chat if it has messages before starting a new one
+        if (currentChatId !== null && chatHistories.find(h => h.id === currentChatId)?.messages.length > 0) {
+             // Logic to save the *current* state might be needed if you allow leaving a chat mid-response
+             // For now, we assume chat is saved after AI response.
+             // If user starts new chat *before* AI responds, the previous chat won't be saved automatically here.
         }
 
+        currentChatId = null;
+        localStorage.removeItem('novaai_last_active_chat_id'); // Clear last active chat
+        clearChatDisplay();
+
+        // If currently on chat page, transition back to welcome
+        if (currentActivePage !== 'welcome') {
+             showPage('welcome');
+        }
+
+        // Clear attached files UI
         clearAttachedFiles();
         updateInputAreaAppearance();
 
-        // Tampilkan quick suggestions jika di welcome dan input kosong
-         if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
+        // Reset placeholder and quick suggestions state
+        startPlaceholderAnimation();
+        if (currentActivePage === 'welcome') {
              quickCompleteContainer.classList.add('active');
-         } else {
-             quickCompleteContainer.classList.remove('active');
          }
 
 
-        renderChatHistoryList(); // Perbarui daftar histori di sidebar
+        renderChatHistoryList(); // Update sidebar list to show no active chat
     }
 
     function loadChatHistory(chatId) {
         const historyToLoad = chatHistories.find(history => history.id === chatId);
         if (historyToLoad) {
-            // saveCurrentChat(); // Simpan chat yang sedang aktif sebelum memuat yang baru (opsional)
+            // Save current chat state before loading a new one if necessary
+            // ... (add save logic here if needed)
+
             currentChatId = chatId;
-            clearChatDisplay(); // Bersihkan tampilan chat
+            localStorage.setItem('novaai_last_active_chat_id', chatId); // Save last active chat
+            clearChatDisplay();
             historyToLoad.messages.forEach(msg => {
-                 // Perlu sanitasi HTML jika content berisi markdown yang sudah di-render
-                 // Sederhananya, kita asumsikan content sudah siap render HTML
+                 // Use innerHTML for messages assuming they are stored as sanitized HTML
+                 // This might need adjustment if you store raw markdown/text
                 addChatMessage(msg.content, msg.sender);
             });
-             showPage('chat'); // Pindah ke halaman chat
-             clearAttachedFiles(); // Kosongkan file saat memuat histori
+            // Re-add actions to AI messages after loading
+            chatHistoryElement.querySelectorAll('.ai-message').forEach(msgEl => {
+                addAiMessageActions(msgEl);
+            });
+
+             showPage('chat');
+             clearAttachedFiles(); // Clear file attachments when loading history
              updateInputAreaAppearance();
-             quickCompleteContainer.classList.remove('active'); // Sembunyikan quick suggestions di mode chat
-             renderChatHistoryList(); // Perbarui tampilan item aktif di sidebar
+             quickCompleteContainer.classList.remove('active'); // Hide quick suggestions in chat mode
+             renderChatHistoryList(); // Update active item in sidebar
+
         } else {
             console.warn("Chat history not found with ID:", chatId);
+             // If loading fails, perhaps start a new chat
+             startNewChat();
         }
     }
 
-     function saveCurrentChat(userMessageContent, aiResponseHtml) {
-         // Dapatkan semua pesan dari DOM, atau simpan dari array jika Anda menyimpan semua pesan di JS
-         // Untuk kesederhanaan, kita akan membuat objek histori baru atau memperbarui yang sudah ada.
-
-         // Jika belum ada chat ID (chat baru) atau chat ID saat ini tidak ditemukan di histori
-         if (currentChatId === null || !chatHistories.find(h => h.id === currentChatId)) {
-             currentChatId = Date.now(); // Buat ID baru berbasis timestamp
+     // Function to add messages to the *current* chat history object
+     function addMessageToCurrentChatHistory(sender, content) {
+         if (currentChatId === null) {
+             // If no active chat, create a new one
+             currentChatId = Date.now(); // New ID
              const newHistory = {
                  id: currentChatId,
-                 title: userMessageContent.substring(0, 50) + (userMessageContent.length > 50 ? '...' : ''), // Judul dari pesan pertama
-                 messages: [
-                     { sender: 'user', content: userMessageContent },
-                     { sender: 'ai', content: aiResponseHtml } // Simpan AI response dalam format HTML
-                 ],
+                 title: '', // Title will be set after the first AI response
+                 messages: [],
                  timestamp: Date.now()
              };
-             chatHistories.unshift(newHistory); // Tambahkan di awal daftar
-         } else {
-             // Jika chat ID sudah ada, tambahkan pesan baru ke histori yang sudah ada
-             const existingHistory = chatHistories.find(h => h.id === currentChatId);
-             if (existingHistory) {
-                 existingHistory.messages.push({ sender: 'user', content: userMessageContent });
-                 existingHistory.messages.push({ sender: 'ai', content: aiResponseHtml });
-                 existingHistory.timestamp = Date.now(); // Update timestamp
-                 // Opsional: Perbarui judul jika pesan pertama berubah atau setelah beberapa pesan
-                 if (!existingHistory.title || existingHistory.title.endsWith('...')) {
-                     existingHistory.title = existingHistory.messages[0].content.substring(0, 50) + (existingHistory.messages[0].content.length > 50 ? '...' : '');
-                 }
-             }
+             chatHistories.unshift(newHistory); // Add at the beginning
+             localStorage.setItem('novaai_last_active_chat_id', currentChatId); // Set as last active
          }
-         saveChatHistories(); // Simpan ke localStorage
-         renderChatHistoryList(); // Render ulang daftar histori
+
+         const activeHistory = chatHistories.find(h => h.id === currentChatId);
+         if (activeHistory) {
+             activeHistory.messages.push({ sender: sender, content: content });
+             activeHistory.timestamp = Date.now(); // Update timestamp
+
+             // Set/update title after the first AI response
+             if (sender === 'ai' && !activeHistory.title) {
+                  // Find the corresponding user message
+                  const userMsgIndex = activeHistory.messages.findIndex(msg => msg.sender === 'user');
+                  if(userMsgIndex !== -1) {
+                      activeHistory.title = activeHistory.messages[userMsgIndex].content.substring(0, 50) + (activeHistory.messages[userMsgIndex].content.length > 50 ? '...' : '');
+                  }
+             }
+
+             saveChatHistories(); // Save to localStorage
+             renderChatHistoryList(); // Update sidebar
+         }
      }
 
 
     function clearChatDisplay() {
         if (chatHistoryElement) {
-             // Kosongkan hanya pesan, pertahankan thinking indicator
+             // Keep thinking indicator, remove messages
              const messages = chatHistoryElement.querySelectorAll('.chat-message');
              messages.forEach(msg => msg.remove());
         }
@@ -221,46 +236,56 @@ document.addEventListener('DOMContentLoaded', () => {
             thinkingIndicator.classList.add('hidden');
             thinkingIndicator.style.opacity = '0';
         }
-         // Bersihkan file yang dilampirkan di UI
+         // Clear attached files UI
          clearAttachedFiles();
          // Reset input text
          messageInput.value = '';
          autoResizeTextarea();
-         // Reset placeholder animation
-         startPlaceholderAnimation();
-
+         // Reset placeholder animation state
+         if (currentActivePage === 'welcome') {
+            startPlaceholderAnimation();
+         } else {
+             stopPlaceholderAnimation();
+             messageInput.placeholder = "Ask me anything..."; // Default placeholder in chat
+         }
     }
 
     function deleteAllHistories() {
         if (confirm("Are you sure you want to delete all chat histories? This cannot be undone.")) {
             chatHistories = [];
             saveChatHistories();
-            clearChatDisplay(); // Bersihkan tampilan chat saat ini juga
-             currentChatId = null; // Reset current chat ID
+            clearChatDisplay();
+            currentChatId = null;
+            localStorage.removeItem('novaai_last_active_chat_id'); // Clear last active
             renderChatHistoryList();
-            showPage('welcome'); // Kembali ke halaman sambutan
+            showPage('welcome');
 
         }
     }
 
-    // Event listeners untuk fitur histori chat
+    // Event listeners for chat history features
      if (newChatButton) {
          newChatButton.addEventListener('click', startNewChat);
      }
+     // Event listener for new chat icon in header
+     if (newChatHeaderIcon) {
+         newChatHeaderIcon.addEventListener('click', startNewChat);
+     }
+
      if (deleteHistoryIcon) {
          deleteHistoryIcon.addEventListener('click', deleteAllHistories);
      }
-     // Event listener untuk ikon Home (mengarah ke login.html)
+     // Event listener for Home icon (redirect to login.html)
      if(homeIcon) {
          homeIcon.addEventListener('click', () => {
-             // Opsional: Simpan chat saat ini sebelum pindah halaman
-             // saveCurrentChat();
+             // Optional: Save current chat before leaving
+             // saveCurrentChat(); // Consider how to save unsaved current messages if any
              window.location.href = 'login.html';
          });
      }
 
 
-    // Render histori chat saat DOM fully loaded
+    // Render chat history list on DOMContentLoaded
      renderChatHistoryList();
 
     // === AKHIR: LOGIKA HISTORI CHAT ===
@@ -270,92 +295,104 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (!chatHistoryElement) return;
             const isScrollable = chatHistoryElement.scrollHeight > chatHistoryElement.clientHeight;
-            const isAtBottom = chatHistoryElement.scrollHeight - chatHistoryElement.scrollTop <= chatHistoryElement.clientHeight + 5;
+            // Check if near the bottom (within 10px buffer)
+            const isAtBottom = chatHistoryElement.scrollHeight - chatHistoryElement.scrollTop <= chatHistoryElement.clientHeight + 10;
             if (isScrollable && !isAtBottom) {
                 chatHistoryElement.classList.add('has-scroll-fade');
             } else {
                 chatHistoryElement.classList.remove('has-scroll-fade');
             }
-        }, 100);
+        }, 50); // Reduced delay
     }
     if (chatHistoryElement) {
       chatHistoryElement.addEventListener('scroll', checkScrollable);
     }
 
     function showPage(pageName, initialMessage = null) {
-        // Jika sudah di halaman yang diminta dan tidak ada pesan awal, keluar
-        if (currentActivePage === pageName && !initialMessage && chatHistoryElement.children.length > (thinkingIndicator ? 1 : 0)) {
-             // Tambahan: Jika di chat page dan sudah ada pesan, jangan alihkan ke welcome
-             if (pageName === 'welcome' && chatHistoryElement.children.length > (thinkingIndicator ? 1 : 0)) {
-                 return; // Jangan kembali ke welcome jika chat tidak kosong
-             }
-             if (pageName === 'chat' && chatHistoryElement.children.length <= (thinkingIndicator ? 1 : 0)) {
-                  // Jika di chat page tapi kosong, biarkan proses lanjut untuk menampilkan pesan awal
-             } else if (currentActivePage === pageName && !initialMessage) {
-                 return; // Jika halaman sama dan tidak ada pesan awal
-             }
-        }
-
         const currentPageElement = document.getElementById(currentActivePage + 'Section');
-        if (currentPageElement) {
+        const nextPageElement = document.getElementById(pageName + 'Section');
+
+         // If trying to go to welcome, but chat history is not empty, stay in chat
+         if (pageName === 'welcome' && chatHistoryElement && chatHistoryElement.children.length > (thinkingIndicator ? 1 : 0)) {
+              // If thinking indicator is present, count only actual messages (elements without 'ai-message' or 'user-message' like the indicator)
+              // A better check: count chat-message elements
+              const messageCount = chatHistoryElement.querySelectorAll('.chat-message').length;
+              if (messageCount > 0) {
+                 console.log("Chat history not empty, staying in chat.");
+                 return; // Prevent returning to welcome if chat has messages
+              }
+         }
+
+
+        if (currentPageElement && currentPageElement.classList.contains('active')) {
             currentPageElement.classList.remove('active');
-            // Tambahkan delay untuk memastikan animasi selesai sebelum display: none
-            setTimeout(() => { currentPageElement.classList.add('hidden'); }, 500);
+            setTimeout(() => { currentPageElement.classList.add('hidden'); }, 500); // Wait for animation
+        } else if (currentPageElement) {
+             currentPageElement.classList.add('hidden'); // Ensure it's hidden if not active initially
         }
 
-        const nextPageElement = document.getElementById(pageName + 'Section');
+
         if (nextPageElement) {
-            nextPageElement.classList.remove('hidden');
-            // Kecilkan delay sebelum menambah active class
-            setTimeout(() => { nextPageElement.classList.add('active'); }, 10);
+             nextPageElement.classList.remove('hidden');
+             // Small delay before adding active class to trigger transition
+            requestAnimationFrame(() => {
+                setTimeout(() => { nextPageElement.classList.add('active'); }, 10);
+            });
         }
         currentActivePage = pageName;
 
         if (pageName === 'chat') {
-            // landingThemeToggleContainer.classList.add('hidden'); // Sembunyikan toggle tema di header
-            menuIcon.classList.add('hidden'); // Sembunyikan ikon menu
-            backIcon.classList.remove('hidden'); // Tampilkan ikon back
-             homeIcon.classList.add('hidden'); // Sembunyikan ikon home di mode chat (jika ada di header)
+            // landingThemeToggleContainer.classList.add('hidden'); // Keep theme toggle in header for consistency
+            menuIcon.classList.add('hidden');
+            backIcon.classList.remove('hidden');
+             homeIcon.classList.add('hidden'); // Hide home icon in chat mode
 
-            // Pastikan chat history scroll ke bawah setelah transisi
+            quickCompleteContainer.classList.remove('active'); // Hide quick suggestions in chat page
+             stopPlaceholderAnimation(); // Stop placeholder animation in chat page
+             messageInput.placeholder = "Ask me anything..."; // Default placeholder in chat
+
+
+            // Scroll to bottom and check scrollable after transition
             setTimeout(() => {
                 if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
                 checkScrollable();
-            }, 50); // Sesuaikan delay jika perlu
+            }, 550); // Delay after page transition
 
-            quickCompleteContainer.classList.remove('active'); // Quick suggestions dinonaktifkan di chat page
 
         } else { // pageName === 'welcome'
-            // landingThemeToggleContainer.classList.remove('hidden'); // Tampilkan toggle tema di header
-            menuIcon.classList.remove('hidden'); // Tampilkan ikon menu
-            backIcon.classList.add('hidden'); // Sembunyikan ikon back
-             homeIcon.classList.remove('hidden'); // Tampilkan ikon home di welcome (jika ada di header)
+            // landingThemeToggleContainer.classList.remove('hidden'); // Keep theme toggle
+            menuIcon.classList.remove('hidden');
+            backIcon.classList.add('hidden');
+             homeIcon.classList.remove('hidden'); // Show home icon in welcome mode
 
-             // Tampilkan quick suggestions jika di welcome page dan input kosong
+             // Show quick suggestions and start placeholder animation in welcome page if input is empty
              if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
                  quickCompleteContainer.classList.add('active');
+                 startPlaceholderAnimation();
              }
         }
-         // Update padding-bottom main content
+         // Update padding-bottom main content after page switch
          updateInputAreaAppearance();
 
 
         if (pageName === 'chat' && initialMessage) {
-            // Jika ini pesan awal untuk chat baru, jangan buat histori langsung di sini
-            // Histori akan dibuat/diperbarui setelah AI merespons di generateRealAIResponse
-            addChatMessage(initialMessage, 'user');
+            // Add user message to display immediately
+             addChatMessage(initialMessage, 'user');
+             // Add user message to history before sending to API
+             addMessageToCurrentChatHistory('user', initialMessage); // Add to history object
+            // Then generate AI response
             generateRealAIResponse(initialMessage, attachedFiles);
         }
 
     }
 
-    // Placeholder disederhanakan, tidak lagi multilingual
+    // Placeholder logic
     const placeholders_en = ["Ask me anything...","What's on your mind?","Tell me a story...","How can I help you today?","Start a conversation...","I'm ready to chat!","Let's explore together...","What do you want to learn?"];
     let currentPlaceholderIndex = 0;
-    let placeholderInterval; // Variabel untuk menyimpan ID interval
+    let placeholderInterval;
 
      function updatePlaceholder() {
-         if (messageInput.value.trim() !== '') return; // Jangan ubah placeholder jika ada teks
+         if (messageInput.value.trim() !== '' || attachedFiles.length > 0 || currentActivePage !== 'welcome') return; // Only animate in welcome when input/files are empty
 
          messageInput.style.opacity = '0';
          messageInput.style.transform = 'translateY(-10px)';
@@ -365,77 +402,83 @@ document.addEventListener('DOMContentLoaded', () => {
              messageInput.placeholder = placeholders_en[currentPlaceholderIndex];
              messageInput.style.opacity = '1';
              messageInput.style.transform = 'translateY(0)';
-         }, 500); // Durasi sama dengan CSS transition
+         }, 500);
      }
 
     function startPlaceholderAnimation() {
-        // Hentikan interval lama jika ada
         if (placeholderInterval) {
             clearInterval(placeholderInterval);
         }
-         // Mulai animasi placeholder hanya jika input kosong dan tidak ada file dan di halaman welcome
+         // Start only if in welcome, input empty, and no files
          if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
-            updatePlaceholder(); // Panggil sekali di awal untuk set placeholder
-            placeholderInterval = setInterval(updatePlaceholder, 3000);
+             updatePlaceholder(); // Initial call
+             placeholderInterval = setInterval(updatePlaceholder, 3000);
          }
     }
 
     function stopPlaceholderAnimation() {
         if (placeholderInterval) {
             clearInterval(placeholderInterval);
+            placeholderInterval = null; // Reset interval ID
         }
+         // Keep default placeholder when stopped
+         messageInput.placeholder = "Ask me anything...";
     }
 
 
     messageInput.addEventListener('focus', () => {
-        stopPlaceholderAnimation(); // Hentikan animasi saat fokus
-        quickCompleteContainer.classList.remove('active'); // Sembunyikan quick suggestions saat input fokus
+        stopPlaceholderAnimation();
+        quickCompleteContainer.classList.remove('active');
     });
 
     messageInput.addEventListener('blur', () => {
-         // Mulai kembali animasi jika input kosong dan tidak ada file setelah blur
-         startPlaceholderAnimation();
-
-         // Tampilkan quick suggestions jika input kosong, tidak ada file, dan di welcome page setelah blur
+         // Restart animation and show quick suggestions if conditions are met after blur
          if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
+             startPlaceholderAnimation();
              quickCompleteContainer.classList.add('active');
+         } else {
+             // Ensure placeholder is reset to default if not animating
+             messageInput.placeholder = "Ask me anything...";
          }
     });
 
     messageInput.addEventListener('input', () => {
-        // Sembunyikan quick suggestions saat ada input teks atau file dilampirkan
+        // Hide quick suggestions and stop animation if there's text or files
         if (messageInput.value.trim() !== '' || attachedFiles.length > 0) {
             quickCompleteContainer.classList.remove('active');
-            stopPlaceholderAnimation(); // Hentikan animasi placeholder jika ada input
-             messageInput.placeholder = "Ask me anything..."; // Reset placeholder ke default
+            stopPlaceholderAnimation();
         } else {
-            // Jika input kosong dan tidak ada file, dan di welcome page, tampilkan quick suggestions
+            // If input is empty and no files, and in welcome page, show quick suggestions and start animation
              if (currentActivePage === 'welcome') {
                 quickCompleteContainer.classList.add('active');
-                startPlaceholderAnimation(); // Mulai animasi placeholder jika input kosong
+                startPlaceholderAnimation();
+             } else {
+                 // If in chat page and input becomes empty, ensure quick suggestions/animation are off
+                 quickCompleteContainer.classList.remove('active');
+                 stopPlaceholderAnimation();
              }
         }
         autoResizeTextarea();
     });
 
-    // Mulai animasi placeholder saat pertama kali dimuat jika di welcome page
-    if (currentActivePage === 'welcome') {
-        startPlaceholderAnimation();
-         // Tampilkan quick suggestions di awal jika input kosong dan di welcome page
-         if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
+    // Initial call to set up placeholder and quick suggestions state
+     if (currentActivePage === 'welcome') {
+         startPlaceholderAnimation();
+          if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
              quickCompleteContainer.classList.add('active');
          }
-    }
+     }
 
 
     function autoResizeTextarea() {
         messageInput.style.height = 'auto';
         let scrollHeight = messageInput.scrollHeight;
-        const maxHeight = 120;
+        const maxHeight = 120; // Max height for textarea
         messageInput.style.height = Math.min(scrollHeight, maxHeight) + 'px';
-        updateInputAreaAppearance();
+        updateInputAreaAppearance(); // Recalculate main padding based on new input height
     }
     messageInput.addEventListener('input', autoResizeTextarea);
+    // Initial resize call
     autoResizeTextarea();
 
     function addChatMessage(content, sender = 'user') {
@@ -445,32 +488,35 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElement.style.transform = 'translateY(15px)';
 
         if (sender === 'user') {
+            // For user messages, just set text content to avoid rendering user-provided HTML/markdown
             messageElement.textContent = content;
         } else {
+            // AI message structure (header + content)
             const aiHeader = document.createElement('div');
             aiHeader.classList.add('ai-message-header');
 
             const aiLogoImg = document.createElement('img');
-            aiLogoImg.src = 'logo.png';
-            aiLogoImg.alt = 'NovaAI Logo';
+            aiLogoImg.src = 'logo.png'; // Ensure you have a logo.png
+            aiLogoImg.alt = 'Novaria Logo';
             aiLogoImg.classList.add('ai-logo');
             aiHeader.appendChild(aiLogoImg);
 
             const aiNameSpan = document.createElement('span');
             aiNameSpan.classList.add('ai-name');
-            aiNameSpan.textContent = 'Novaria';
+            aiNameSpan.textContent = 'Novaria'; // App name
             aiHeader.appendChild(aiNameSpan);
 
             const aiModelTagSpan = document.createElement('span');
             aiModelTagSpan.classList.add('ai-model-tag');
-            aiModelTagSpan.textContent = "nova-3.5-quantify"; // Bisa diambil dari response API jika model dinamis
+            aiModelTagSpan.textContent = "nova-3.5-quantify"; // Example model tag
             aiHeader.appendChild(aiModelTagSpan);
 
             messageElement.appendChild(aiHeader);
 
             const aiContentContainer = document.createElement('div');
             aiContentContainer.classList.add('ai-message-content');
-            aiContentContainer.innerHTML = content; // Content is pre-sanitized HTML
+            // Assuming 'content' for AI messages is already HTML (e.g., from Markdown rendering)
+            aiContentContainer.innerHTML = content;
             messageElement.appendChild(aiContentContainer);
         }
 
@@ -480,17 +526,23 @@ document.addEventListener('DOMContentLoaded', () => {
             chatHistoryElement.appendChild(messageElement);
         }
 
-        setTimeout(() => {
-            messageElement.style.opacity = '1';
-            messageElement.style.transform = 'translateY(0)';
-        }, 10);
+        // Animate message in
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                messageElement.style.opacity = '1';
+                messageElement.style.transform = 'translateY(0)';
+            }, 10);
+        });
 
+
+        // Scroll to bottom and check scrollable after message is added
         setTimeout(() => {
             if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
             checkScrollable();
-        }, 50);
+        }, 50); // Small delay
 
-        return messageElement;
+
+        return messageElement; // Return the created element
     }
 
     function addAiMessageActions(aiMessageElement) {
@@ -500,70 +552,142 @@ document.addEventListener('DOMContentLoaded', () => {
         const actionsContainer = document.createElement('div');
         actionsContainer.classList.add('ai-message-actions');
 
+         // Helper function to get readable text content (excluding code blocks)
         const getResponseText = (contentEl) => {
             let text = '';
             contentEl.childNodes.forEach(node => {
                 if (node.nodeType === Node.TEXT_NODE) {
                     text += node.textContent;
-                } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'SPAN') {
-                    text += node.textContent;
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                     // Only include text from span or p tags, skip code blocks
+                    if (node.tagName === 'SPAN' || node.tagName === 'P') {
+                        text += node.textContent + '\n'; // Add newline for paragraphs/spans
+                    }
                 }
             });
             return text.trim();
         };
+
+         // Helper function to get full content including formatted code blocks for copy/share
         const getFullContent = (contentEl) => {
             let fullContent = '';
              contentEl.childNodes.forEach(node => {
                 if (node.nodeType === Node.TEXT_NODE) {
                     fullContent += node.textContent;
                 } else if (node.nodeType === Node.ELEMENT_NODE) {
-                    if (node.tagName === 'SPAN') {
+                    if (node.tagName === 'SPAN' || node.tagName === 'P') {
                         fullContent += node.textContent;
                     } else if (node.classList.contains('code-block')) {
                         const langTag = node.querySelector('.language-tag');
-                        const lang = langTag ? langTag.textContent.toLowerCase() : 'text';
+                        const lang = langTag ? langTag.textContent.toLowerCase() : ''; // Use empty string if no language tag
                         const code = node.querySelector('pre').textContent;
                         fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
                     }
                 }
             });
+            // Remove leading/trailing newlines that might result from formatting
             return fullContent.trim();
         };
 
+
         const buttons = [
             { name: 'copy', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullContent(contentContainer); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getResponseText(contentContainer); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; /* Bahasa diset default karena fitur bahasa dihapus */ const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
+            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getResponseText(contentContainer); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; /* Default language */ const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; utterance.onerror = (event) => { console.error('Speech synthesis error:', event); buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
             { name: 'like', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>', title: 'Like', action: (buttonEl) => { buttonEl.classList.toggle('liked'); } },
-            { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => { const svg = buttonEl.querySelector('svg'); svg.classList.add('rotating'); buttonEl.disabled = true; buttonEl.style.cursor = 'wait'; const lastUserMessage = Array.from(chatHistoryElement.querySelectorAll('.user-message')).pop(); if (lastUserMessage) { msgEl.remove(); generateRealAIResponse(lastUserMessage.textContent, attachedFiles); } else { svg.classList.remove('rotating'); buttonEl.disabled = false; buttonEl.style.cursor = 'pointer'; } } },
-            { name: 'share', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>', title: 'Share', action: (buttonEl, _messageEl) => { const fullContent = getFullContent(contentContainer); if (navigator.share) { navigator.share({ title: 'NovaAI Response', text: fullContent, url: window.location.href, }).catch((error) => console.log('Error sharing', error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
+            { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => { const svg = buttonEl.querySelector('svg'); svg.classList.add('rotating'); buttonEl.disabled = true; buttonEl.style.cursor = 'wait';
+                 // Find the last user message preceding this AI message
+                 let previousSibling = msgEl.previousElementSibling;
+                 let lastUserMessage = null;
+                 while(previousSibling) {
+                     if (previousSibling.classList.contains('user-message')) {
+                         lastUserMessage = previousSibling;
+                         break;
+                     }
+                     previousSibling = previousSibling.previousElementSibling;
+                 }
+
+                 if (lastUserMessage) {
+                     // Remove the current AI message element
+                     msgEl.remove();
+                     // Remove the corresponding AI message from the chat history object
+                     const activeHistory = chatHistories.find(h => h.id === currentChatId);
+                     if (activeHistory) {
+                          // Find the index of the AI message that was just removed
+                          // This is a bit tricky; might need to rely on order or add unique message IDs
+                          // For simplicity, we'll assume the last AI message in the history object corresponds to the last AI message element removed.
+                          // A more robust solution might involve iterating history messages backwards.
+                         const lastAiMessageIndex = activeHistory.messages.map(m => m.sender).lastIndexOf('ai');
+                         if (lastAiMessageIndex !== -1) {
+                            activeHistory.messages.splice(lastAiMessageIndex, 1);
+                             saveChatHistories(); // Save history after removing AI message
+                         }
+                     }
+
+                     // Generate a new response based on the last user message
+                     generateRealAIResponse(lastUserMessage.textContent, attachedFiles); // Assuming files should be included again
+
+                 } else {
+                     console.warn("Could not find a preceding user message to regenerate from.");
+                     svg.classList.remove('rotating');
+                     buttonEl.disabled = false;
+                     buttonEl.style.cursor = 'pointer';
+                     // Optionally display an error message to the user
+                     addChatMessage("<span>Could not regenerate. The previous user message was not found.</span>", 'ai');
+                 }
+            } },
+            { name: 'share', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>', title: 'Share', action: (buttonEl, _messageEl) => { const fullContent = getFullContent(contentContainer); if (navigator.share) { navigator.share({ title: 'Novaria Response', text: fullContent, url: window.location.href, }).catch((error) => console.log('Error sharing', error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
         ];
-        buttons.forEach((btnInfo) => { const button = document.createElement('button'); button.classList.add('ai-action-btn'); button.title = btnInfo.title; button.innerHTML = btnInfo.icon; button.addEventListener('click', () => btnInfo.action(button, aiMessageElement)); actionsContainer.appendChild(button); });
+        buttons.forEach((btnInfo) => {
+            const button = document.createElement('button');
+            button.classList.add('ai-action-btn');
+            button.title = btnInfo.title;
+            button.innerHTML = btnInfo.icon;
+            button.addEventListener('click', (e) => {
+                // Stop propagation so ripple on parent chat-message doesn't fire
+                 e.stopPropagation();
+                 btnInfo.action(button, aiMessageElement);
+            });
+            actionsContainer.appendChild(button);
+        });
         contentContainer.appendChild(actionsContainer);
-        setTimeout(() => { if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight; }, 0);
+         // Ensure scroll to bottom after actions are added
+        setTimeout(() => { if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight; checkScrollable(); }, 50);
     }
 
 
     async function generateRealAIResponse(userMessage, files = []) {
+        // Show thinking indicator
         if (thinkingIndicator) {
             thinkingIndicator.classList.remove('hidden');
             thinkingIndicator.style.opacity = '1';
         }
+         // Ensure scroll to bottom while thinking
         setTimeout(() => {
             if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
             checkScrollable();
-        }, 0);
+        }, 50);
+
 
         try {
-            const modelToUseInAPI = "gemini"; // Anda bisa membuat ini dinamis jika perlu
+            const modelToUseInAPI = "gemini"; // Can be dynamic if needed
 
             const payload = {
                 userMessage: userMessage,
-                model: modelToUseInAPI // Kirim model yang dipilih ke API
+                model: modelToUseInAPI // Send model to API
             };
 
-            // Tambahkan detail file jika ada
+            // Add file details if any are attached
             if (files && files.length > 0) {
                 payload.fileDetails = files.map(f => ({ name: f.name, type: f.type, size: f.size }));
+                // Note: Sending actual file *content* would require reading the file (e.g., as data URL or ArrayBuffer)
+                // and sending it in the payload. The current setup only sends file *metadata*.
+                // You will need to implement file reading and sending if your API requires the file content.
+                // Example (conceptual, needs implementation):
+                // const fileData = await Promise.all(files.map(async f => {
+                //    const base64 = await readFileAsBase64(f); // Implement this function
+                //    return { name: f.name, type: f.type, base64: base64 };
+                // }));
+                // payload.files = fileData;
             }
 
             const response = await fetch('/api/generate', {
@@ -578,33 +702,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            const rawAiResponseText = data.text; // Asumsikan API mengembalikan teks dalam format ini
+            const rawAiResponseText = data.text; // Assuming API returns text
 
+            // Hide thinking indicator
             if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
+            // Delay adding message slightly to smooth transition
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
 
-                // Personalisasi (opsional, bisa dihapus jika tidak ada currentUser.name)
+                // Personalize greeting (optional)
                 let personalizedResponseText = rawAiResponseText;
                 if (currentUser && currentUser.name) {
-                    const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`; // Sapaan lebih personal
+                    const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`;
                     personalizedResponseText = greeting + rawAiResponseText;
                 }
 
-                // Parsing dan rendering Markdown (termasuk code blocks)
+                // Simple Markdown-like rendering for bold/italic/code blocks
+                // This is a basic client-side renderer. For full Markdown, use a library.
+                let htmlContent = personalizedResponseText;
+
+                // Basic Code Block Formatting (already handled in CSS section, but need to generate HTML structure)
+                // Let's reuse the logic from the previous version to parse and format code blocks
                 let finalHtmlContent = '';
                 const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
                 let lastIndex = 0;
 
                 personalizedResponseText.replace(codeBlockRegex, (match, language, code, offset) => {
-                    // Teks sebelum code block
+                    // Text before code block
                     const plainText = personalizedResponseText.substring(lastIndex, offset);
-                    // Sanitasi teks biasa (opsional, tergantung output API Anda)
+                    // Simple text sanitization (basic HTML entities)
                     const sanitizedText = plainText.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
-                    finalHtmlContent += `<span>${sanitizedText}</span>`;
+                     // Replace newlines with <br> for text outside code blocks
+                    finalHtmlContent += `<span>${sanitizedText.replace(/\n/g, '<br>')}</span>`;
 
-                    // Code block
-                    const lang = language || 'text'; // Default ke 'text' jika tidak ada bahasa
+
+                    // Code block HTML structure
+                    const lang = language || 'text';
                     const sanitizedCode = code.trim().replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
                     const codeHtml = `
                         <div class="code-block">
@@ -621,37 +754,42 @@ document.addEventListener('DOMContentLoaded', () => {
                     lastIndex = offset + match.length;
                 });
 
-                // Teks setelah code block terakhir (jika ada)
+                // Text after the last code block
                 const remainingText = personalizedResponseText.substring(lastIndex);
                 if (remainingText) {
                     const sanitizedRemainingText = remainingText.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
-                    finalHtmlContent += `<span>${sanitizedRemainingText}</span>`;
+                     // Replace newlines with <br> for remaining text
+                    finalHtmlContent += `<span>${sanitizedRemainingText.replace(/\n/g, '<br>')}</span>`;
                 }
+
+                // If no code blocks were found, just add the whole text with <br> for newlines
+                 if (lastIndex === 0 && !codeBlockRegex.test(personalizedResponseText)) {
+                     const sanitizedText = personalizedResponseText.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
+                     finalHtmlContent = `<span>${sanitizedText.replace(/\n/g, '<br>')}</span>`;
+                 }
 
 
                 const aiMessageElement = addChatMessage(finalHtmlContent, 'ai');
-                addAiMessageActions(aiMessageElement); // Tambahkan tombol aksi ke pesan AI
+                addAiMessageActions(aiMessageElement); // Add action buttons
 
-                // Simpan chat ke histori setelah mendapatkan respons AI
-                 saveCurrentChat(userMessage, finalHtmlContent); // Simpan pesan user asli dan respons AI dalam HTML
+                // Add AI response to current chat history object
+                 addMessageToCurrentChatHistory('ai', finalHtmlContent);
 
 
-                clearAttachedFiles(); // Bersihkan file setelah respons diterima
-                checkScrollable();
+                clearAttachedFiles(); // Clear files after response
+                checkScrollable(); // Check scrollable state after adding message
             }, 300);
 
         } catch (error) {
             console.error('Error fetching from /api/generate:', error);
+            // Hide thinking indicator even on error
             if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
                 const errorMessage = `<span>Maaf, terjadi kesalahan: ${error.message}. Silakan coba lagi.</span>`;
                 addChatMessage(errorMessage, 'ai');
-
-                 // Jika terjadi error, simpan pesan user tapi tidak simpan pesan error dari AI (opsional)
-                 // Atau simpan error message jika Anda ingin merekam error dalam histori
-                // saveCurrentChat(userMessage, errorMessage);
-
+                // Optionally add the error message to history as an AI message
+                 addMessageToCurrentChatHistory('ai', errorMessage);
             }, 300);
         }
     }
@@ -659,118 +797,129 @@ document.addEventListener('DOMContentLoaded', () => {
 
     sendButton.addEventListener('click', () => {
         const message = messageInput.value.trim();
-        // Hanya kirim jika ada pesan teks atau file dilampirkan
+        // Send if there's text or files
         if (message !== '' || attachedFiles.length > 0) {
             let finalPrompt = message;
-             // Jika hanya ada file, buat prompt default
+             // Construct prompt string including file info if any
              if (attachedFiles.length > 0 && message === '') {
                  const fileNames = attachedFiles.map(f => f.name).join(', ');
                  finalPrompt = `Harap menganalisis file-file ini: ${fileNames}`;
              } else if (attachedFiles.length > 0) {
-                 // Jika ada teks dan file, tambahkan catatan tentang file ke prompt
                  const fileNames = attachedFiles.map(f => f.name).join(', ');
                  finalPrompt = `${message} (Dilampirkan: ${fileNames})`;
              }
 
-
-            // Jika di halaman welcome, pindah ke chat dan mulai chat baru
+            // If on welcome page, switch to chat and start a new session
             if (currentActivePage === 'welcome') {
-                showPage('chat', finalPrompt); // Panggil showPage dengan pesan awal
+                // showPage will add the user message and call generateResponse
+                showPage('chat', finalPrompt);
             } else {
-                // Jika sudah di halaman chat, tambahkan pesan dan panggil generate response
+                // If already on chat page, just add message and generate response
                 addChatMessage(finalPrompt, 'user');
+                 addMessageToCurrentChatHistory('user', finalPrompt); // Add to history object
                 generateRealAIResponse(finalPrompt, attachedFiles);
             }
 
-            // Bersihkan input setelah dikirim
+            // Clear input and files after sending
             messageInput.value = '';
             autoResizeTextarea();
-            clearAttachedFiles(); // Bersihkan file setelah dikirim
+            clearAttachedFiles(); // Clears UI and array
 
-            // Sembunyikan quick suggestions setelah mengirim pesan
+            // Hide quick suggestions and stop animation
             quickCompleteContainer.classList.remove('active');
-            stopPlaceholderAnimation(); // Hentikan animasi placeholder
-
+            stopPlaceholderAnimation();
         }
     });
-    // Kirim pesan saat Enter (tanpa Shift+Enter)
+    // Send message on Enter (without Shift+Enter)
     messageInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendButton.click(); } });
 
-    // Hapus initialChatMessageFromStorage karena terjemahan dan quick suggestions dihapus
-    // const initialChatMessageFromStorage = localStorage.getItem('initialChatMessage');
-    // Panggil showPage setelah semua setup, memastikan halaman yang benar ditampilkan
-    // Tentukan halaman awal: jika ada histori atau pesan di local storage, tampilkan chat, jika tidak, welcome
-    if (isLoggedIn === 'true') {
-        // Cek apakah ada histori chat yang bisa dimuat sebagai chat saat ini (opsional)
-        // Misalnya, selalu muat chat terakhir yang diakses jika ada
-        // Untuk kesederhanaan, kita akan mulai dari welcome kecuali ada chat ID yang tersimpan sebagai 'lastActiveChatId'
-        const lastActiveChatId = localStorage.getItem('novaai_last_active_chat_id');
-        if (lastActiveChatId) {
-             loadChatHistory(parseInt(lastActiveChatId, 10)); // Muat chat terakhir jika ada
-        } else {
-             showPage('welcome'); // Jika tidak ada, tampilkan welcome
-        }
-    }
-
-
-    // Event listener untuk sidebar
+    // Event listener for sidebar
     menuIcon.addEventListener('click', () => {
          sidebar.classList.add('active');
          sidebarOverlay.classList.add('active');
-         renderChatHistoryList(); // Render ulang histori saat sidebar dibuka
+         renderChatHistoryList(); // Render history when sidebar opens
     });
     sidebarOverlay.addEventListener('click', () => {
         sidebar.classList.remove('active');
         sidebarOverlay.classList.remove('active');
     });
-    // Event listener untuk ikon Back (kembali ke welcome, clear chat)
+    // Event listener for Back icon (back to welcome, clear current chat)
     backIcon.addEventListener('click', () => {
-        // Opsional: Simpan chat saat ini sebelum kembali ke welcome
-        // saveCurrentChat();
-
-        startNewChat(); // Gunakan fungsi startNewChat untuk membersihkan dan kembali ke welcome
+        // Start a new chat session, which clears display and goes to welcome
+        startNewChat();
     });
 
 
-    // Tema hanya dikontrol dari header sekarang
+    // Theme toggle logic
     const savedTheme = localStorage.getItem('novaai_theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
     if (savedTheme === 'light-mode') {
-        document.body.classList.add('light-mode');
-        themeToggleLanding.checked = true;
+        applyTheme(true);
+    } else if (savedTheme === 'dark-mode') {
+         applyTheme(false);
     } else {
-        document.body.classList.remove('light-mode');
-        themeToggleLanding.checked = false;
+         // Default to system preference if no theme is saved
+         applyTheme(!prefersDark); // applyTheme(true) for light, applyTheme(false) for dark
     }
-    function applyTheme(isLightMode) { if (isLightMode) { document.body.classList.add('light-mode'); localStorage.setItem('novaai_theme', 'light-mode'); } else { document.body.classList.remove('light-mode'); localStorage.setItem('novaai_theme', 'dark-mode'); } themeToggleLanding.checked = isLightMode; }
 
-    themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
 
-    // Hapus semua fungsi modal
-    // function openModal(titleKey, contentKey) { ... }
-    // function closeModal() { ... }
-    // modalCloseBtn.addEventListener('click', closeModal);
-    // infoModalOverlay.addEventListener('click', ...);
-    // document.querySelectorAll('.sidebar-item[data-modal-target]').forEach(...);
+    function applyTheme(isLightMode) {
+        if (isLightMode) {
+            document.body.classList.add('light-mode');
+            localStorage.setItem('novaai_theme', 'light-mode');
+        } else {
+            document.body.classList.remove('light-mode');
+            localStorage.setItem('novaai_theme', 'dark-mode');
+        }
+        // Update the state of the theme toggle checkbox
+        if (themeToggleLanding) {
+             themeToggleLanding.checked = isLightMode;
+        }
+     }
 
+    if (themeToggleLanding) {
+         themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
+    }
+
+
+    // Ripple Effects Setup
     function setupRippleEffects() {
-        const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .new-chat-button'); // Tambahkan .new-chat-button
+        const clickableElements = document.querySelectorAll('.btn-circle, header svg, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .new-chat-button');
         clickableElements.forEach(element => {
+            // Remove any previously added handler to prevent duplicates
             const oldHandler = element._rippleHandler;
             if (oldHandler) {
                 element.removeEventListener('click', oldHandler);
             }
+
             const newHandler = function (e) {
-                // Jangan picu ripple jika klik ikon hapus di sidebar histori
+                // Don't trigger ripple if clicking delete history icon
                  if (e.target.closest('.delete-history-icon')) {
                      return;
+                 }
+                 // Don't trigger ripple on file input element itself
+                 if (e.target === fileInput) {
+                     return;
+                 }
+                 // Don't trigger ripple if inside the file input area but not the plus button
+                 if (this === inputWrapper && e.target !== plusButton && !plusButton.contains(e.target)) {
+                      return;
                  }
 
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA' || e.target.closest('select')) {
                     return;
                 }
+                 // Prevent ripple on the file chip container itself, only on remove button if needed
+                 if (this === fileChipContainer && !e.target.closest('.remove-chip-btn')) {
+                     return;
+                 }
+
+
                 const ripple = document.createElement('span');
                 ripple.classList.add('ripple');
-                this.appendChild(ripple);
+                this.appendChild(ripple); // Append to the clicked element
+
                 const rect = this.getBoundingClientRect();
                 const size = Math.max(rect.width, rect.height);
                 const x = e.clientX - rect.left - (size / 2);
@@ -783,49 +932,72 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             };
             element.addEventListener('click', newHandler);
+             // Store the handler so it can be removed later if needed (e.g., on element removal/recreation)
             element._rippleHandler = newHandler;
         });
     }
     setupRippleEffects();
-    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.history-item') || node.matches('.new-chat-button'))) { needsRippleSetup = true; } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.history-item') || node.querySelector('.new-chat-button'))) { needsRippleSetup = true; } } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
+    // Use MutationObserver to re-setup ripples when new clickable elements are added to DOM
+    const observer = new MutationObserver((mutations) => {
+         let needsRippleSetup = false;
+         mutations.forEach((mutation) => {
+             if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                 mutation.addedNodes.forEach(node => {
+                     if (node.nodeType === 1) { // Check if it's an element node
+                          // Check the added node itself or its descendants for clickable elements
+                         if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.history-item') || node.matches('.new-chat-button'))) {
+                              needsRippleSetup = true;
+                         } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.history-item') || node.querySelector('.new-chat-button'))) {
+                             needsRippleSetup = true;
+                         }
+                     }
+                 });
+             }
+         });
+         if (needsRippleSetup) {
+             // Use a small timeout to ensure elements are fully rendered before attaching listeners
+             setTimeout(setupRippleEffects, 50);
+         }
+    });
+    // Observe relevant containers where dynamic elements might be added
     if (chatHistoryElement) observer.observe(chatHistoryElement, { childList: true, subtree: true });
-    // quickCompleteContainer tidak lagi di-observe karena tidak diisi dinamis
-    // if (quickCompleteContainer) observer.observe(quickCompleteContainer, { childList: true, subtree: true });
     if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
-     // Observe sidebarChatHistoryElement untuk item histori baru
-     if (sidebarChatHistoryElement) observer.observe(sidebarChatHistoryElement, { childList: true, subtree: true });
+    if (sidebarChatHistoryElement) observer.observe(sidebarChatHistoryElement, { childList: true, subtree: true });
 
 
     function updateInputAreaAppearance() {
+        // Recalculate the padding-bottom for the main content
         const inputWrapperHeight = inputWrapper.offsetHeight;
-        const totalBottomSpace = inputWrapperHeight + 15; // 15px bottom margin
+        const bottomMargin = 15; // Matches CSS bottom margin
+        const extraPadding = 20; // Extra space below input wrapper
+        const totalBottomSpace = inputWrapperHeight + bottomMargin + extraPadding;
 
-        // Sesuaikan padding-bottom main content agar input area tidak menutupi chat history
-        mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`; // Tambahkan sedikit ruang extra
+        mainContent.style.paddingBottom = `${totalBottomSpace}px`;
 
-        // Sesuaikan tinggi chatHistoryElement agar scrollbar berfungsi dengan baik
-        if (chatHistoryElement) {
-            const headerHeight = document.querySelector('header').offsetHeight;
-            const mainPaddingTop = parseInt(window.getComputedStyle(mainContent).paddingTop, 10);
-             const mainPaddingBottom = parseInt(window.getComputedStyle(mainContent).paddingBottom, 10);
-            chatHistoryElement.style.height = `calc(100% - ${headerHeight}px - ${inputWrapperHeight}px - ${15 + 20}px)`; // Hitung tinggi yang tersedia
-             // Alternatif: atur flex-grow untuk chatHistoryElement dalam chatSection (jika chatSection display flex)
-             // chatHistoryElement.style.flexGrow = 1;
-             // chatHistoryElement.style.height = 'auto'; // Biarkan flexbox menentukan tinggi
-        }
+        // Recalculate chatHistory height (if using fixed height)
+        // Or ensure chatHistory is set to flex-grow: 1 in CSS and relies on flex layout
+        // If using fixed height calculation:
+         if (chatHistoryElement) {
+             const headerHeight = document.querySelector('header').offsetHeight;
+             const mainPaddingTop = parseInt(window.getComputedStyle(mainContent).paddingTop, 10);
+             // Height is total viewport height minus header, main padding top, and the total space taken by input area below main
+             chatHistoryElement.style.height = `calc(100vh - ${headerHeight + mainPaddingTop}px - ${totalBottomSpace}px)`;
+         }
 
-        // Scroll to bottom setelah update tata letak
+
+        // Ensure scroll to bottom after layout update
         setTimeout(() => {
             if (chatHistoryElement) chatHistoryElement.scrollTop = chatHistoryElement.scrollHeight;
             checkScrollable();
-        }, 50); // Small delay to allow layout to update
+        }, 50);
     }
-     // Panggil updateInputAreaAppearance saat window resize juga
+     // Call updateInputAreaAppearance initially and on window resize
      window.addEventListener('resize', updateInputAreaAppearance);
-     // Panggil setelah DOM loaded
+     // Call after DOM loaded
      updateInputAreaAppearance();
 
 
+    // File attachment logic
     plusButton.addEventListener('click', () => { fileInput.click(); });
 
     function displayFileChipItem(file) {
@@ -836,8 +1008,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fileIconContainer = document.createElement('span');
         fileIconContainer.classList.add('file-icon');
+        // SVGs for file types (add more if needed)
         const imageSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 22H4a2 2 0 0 1-2-2V6"/><path d="m22 13-1.296-1.296a2.41 2.41 0 0 0-3.408 0L11 18"/><circle cx="12" cy="8" r="2"/><rect width="16" height="16" x="6" y="2" rx="2"/></svg>`;
         const fileSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>`;
+
         fileIconContainer.innerHTML = file.type.startsWith('image/') ? imageSvg : fileSvg;
         chipItem.appendChild(fileIconContainer);
 
@@ -846,13 +1020,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const fileNamePreview = document.createElement('span');
         fileNamePreview.classList.add('file-name-preview');
-        const maxNameDisplayLength = 10;
+        const maxNameDisplayLength = window.innerWidth <= 768 ? 8 : 10; // Shorter name on mobile
         const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-        const fileExt = file.name.substring(file.name.lastIndexOf('.'));
+        const fileExt = file.name.lastIndexOf('.') > 0 ? file.name.substring(file.name.lastIndexOf('.')) : '';
         fileNamePreview.textContent = fileNameWithoutExt.length > maxNameDisplayLength ?
                                     fileNameWithoutExt.substring(0, maxNameDisplayLength) + "..." + fileExt :
                                     file.name;
-        fileNamePreview.title = file.name;
+        fileNamePreview.title = file.name; // Full name on hover
         fileDetails.appendChild(fileNamePreview);
 
         const fileSizePreview = document.createElement('span');
@@ -863,60 +1037,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const removeButton = document.createElement('button');
         removeButton.classList.add('remove-chip-btn');
-        removeButton.innerHTML = '×';
+        removeButton.innerHTML = '×'; // Simple 'x' character
         removeButton.title = `Remove ${file.name}`;
         removeButton.addEventListener('click', (event) => {
-            event.stopPropagation();
+            event.stopPropagation(); // Prevent ripple on parent chip
             removeAttachedFile(file.name, file.size);
         });
         chipItem.appendChild(removeButton);
 
         fileChipContainer.appendChild(chipItem);
-        setTimeout(() => chipItem.classList.add('visible'), 10);
+        // Animate chip in
+        requestAnimationFrame(() => {
+            setTimeout(() => chipItem.classList.add('visible'), 10);
+        });
+
 
         if (fileChipContainer.children.length > 0) {
-            fileChipContainer.style.display = 'flex';
-            fileChipContainer.scrollLeft = fileChipContainer.scrollWidth;
+            fileChipContainer.style.display = 'flex'; // Show container if it has chips
         }
-        autoResizeTextarea();
-        updateInputAreaAppearance();
+        // Scroll chip container to the right to show the newest chip
+        fileChipContainer.scrollLeft = fileChipContainer.scrollWidth;
+
+        autoResizeTextarea(); // Adjust textarea/input wrapper height
+        updateInputAreaAppearance(); // Update main padding
+
+        // Hide quick suggestions and stop placeholder animation when files are added
+         quickCompleteContainer.classList.remove('active');
+         stopPlaceholderAnimation();
+
     }
 
     function removeAttachedFile(fileName, fileSize) {
+        // Filter out the file based on name and size (simple check, might need more robust ID)
         attachedFiles = attachedFiles.filter(file => !(file.name === fileName && file.size === fileSize));
+
+        // Find and remove the chip element from the DOM
         const fileItemToRemove = fileChipContainer.querySelector(
             `.file-chip-item[data-file-name="${CSS.escape(fileName)}"][data-file-size="${fileSize}"]`
         );
         if (fileItemToRemove) {
-            fileItemToRemove.classList.remove('visible');
+            fileItemToRemove.classList.remove('visible'); // Start fade out animation
             setTimeout(() => {
-                fileItemToRemove.remove();
+                fileItemToRemove.remove(); // Remove from DOM after animation
+
+                // Hide the container if no chips are left
                 if (fileChipContainer.children.length === 0) {
                     fileChipContainer.style.display = 'none';
                 }
-                autoResizeTextarea();
-                updateInputAreaAppearance();
 
-                // Tampilkan quick suggestions jika tidak ada file dan tidak ada teks setelah menghapus file
+                autoResizeTextarea(); // Re-adjust textarea height
+                updateInputAreaAppearance(); // Re-calculate main padding
+
+                // Show quick suggestions and start placeholder animation if no files and no text, and in welcome page
                  if (attachedFiles.length === 0 && messageInput.value.trim() === '' && currentActivePage === 'welcome') {
                      quickCompleteContainer.classList.add('active');
-                     startPlaceholderAnimation(); // Mulai animasi placeholder
+                     startPlaceholderAnimation();
                  }
 
-            }, 300);
+            }, 300); // Match CSS transition duration
         }
     }
 
     function clearAttachedFiles() {
         attachedFiles = [];
-        fileChipContainer.innerHTML = '';
-        fileChipContainer.style.display = 'none';
-        autoResizeTextarea();
-        updateInputAreaAppearance();
-        // Tampilkan quick suggestions jika tidak ada file dan tidak ada teks setelah membersihkan file
+        fileChipContainer.innerHTML = ''; // Remove all chip elements
+        fileChipContainer.style.display = 'none'; // Hide the container
+        autoResizeTextarea(); // Re-adjust textarea height
+        updateInputAreaAppearance(); // Re-calculate main padding
+        // Show quick suggestions and start placeholder animation if no files and no text, and in welcome page
          if (messageInput.value.trim() === '' && currentActivePage === 'welcome') {
              quickCompleteContainer.classList.add('active');
-             startPlaceholderAnimation(); // Mulai animasi placeholder
+             startPlaceholderAnimation();
          }
     }
 
@@ -928,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (canAddCount <= 0) {
             alert(`You have reached the maximum of ${MAX_FILES_ALLOWED} files.`);
-            fileInput.value = '';
+            fileInput.value = ''; // Clear input value
             return;
         }
 
@@ -943,6 +1134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(`File "${file.name}" (${formatFileSize(file.size)}) exceeds the maximum size of ${formatFileSize(MAX_FILE_SIZE_BYTES_NEW, 0)}.`);
                 continue;
             }
+            // Simple duplicate check by name and size
             const isDuplicate = attachedFiles.some(f => f.name === file.name && f.size === file.size);
             if (isDuplicate) {
                 alert(`File "${file.name}" is already attached.`);
@@ -951,41 +1143,162 @@ document.addEventListener('DOMContentLoaded', () => {
             newValidFiles.push(file);
         }
 
+        // Add valid new files to the attachedFiles array and display them
         newValidFiles.forEach(file => {
             attachedFiles.push(file);
             displayFileChipItem(file);
         });
 
-        fileInput.value = '';
-        // Sembunyikan quick suggestions saat ada file baru ditambahkan
-         if (attachedFiles.length > 0 || messageInput.value.trim() !== '') {
-             quickCompleteContainer.classList.remove('active');
-             stopPlaceholderAnimation(); // Hentikan animasi placeholder
-             messageInput.placeholder = "Ask me anything..."; // Reset placeholder ke default
-         }
+        fileInput.value = ''; // Clear the input value after processing files
+
+        // Hide quick suggestions and stop placeholder animation when files are added
+         quickCompleteContainer.classList.remove('active');
+         stopPlaceholderAnimation();
+
     });
 
+    // Voice input logic
+    // Check for browser support
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = 'en-US'; // Bahasa diset default karena fitur bahasa dihapus
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        let finalTranscript = '';
-        recognition.onstart = () => { voiceInputButton.style.backgroundColor = 'red'; messageInput.placeholder = 'Listening...'; stopPlaceholderAnimation(); quickCompleteContainer.classList.remove('active'); }; // Hentikan animasi placeholder dan sembunyikan quick suggestions
-        recognition.onresult = (event) => { let interimTranscript = ''; for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) { finalTranscript += event.results[i][0].transcript; } else { interimTranscript += event.results[i][0].transcript; } } messageInput.value = finalTranscript + interimTranscript; autoResizeTextarea(); };
-        recognition.onend = () => { voiceInputButton.style.backgroundColor = ''; if (finalTranscript.trim() !== '') { messageInput.value = finalTranscript.trim(); } if (messageInput.value.trim() === '') { startPlaceholderAnimation(); quickCompleteContainer.classList.add('active'); } else { messageInput.placeholder = "Ask me anything..."; } finalTranscript = ''; }; // Mulai animasi placeholder dan tampilkan quick suggestions jika input kosong setelah selesai
-        recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; if (messageInput.value.trim() === '') { startPlaceholderAnimation(); quickCompleteContainer.classList.add('active'); } else { messageInput.placeholder = "Ask me anything..."; } finalTranscript = ''; alert('Speech recognition error: ' + event.error); }; // Mulai animasi placeholder dan tampilkan quick suggestions jika input kosong setelah error
-        voiceInputButton.addEventListener('click', () => { try { if (recognition && typeof recognition.stop === 'function' && recognition.recording) { recognition.stop(); } else { recognition.start(); } } catch (e) { if (recognition && typeof recognition.stop === 'function') recognition.stop(); } });
+        recognition.lang = 'en-US'; // Default language
+        recognition.continuous = false; // Process a single utterance
+        recognition.interimResults = true; // Get results while speaking
+
+        let finalTranscript = ''; // Stores the final, confirmed transcript
+
+        recognition.onstart = () => {
+            voiceInputButton.style.backgroundColor = 'red'; // Indicate recording
+            messageInput.placeholder = 'Listening...';
+            stopPlaceholderAnimation(); // Stop placeholder animation while listening
+            quickCompleteContainer.classList.remove('active'); // Hide quick suggestions while listening
+            finalTranscript = ''; // Reset transcript on start
+        };
+
+        recognition.onresult = (event) => {
+            let interimTranscript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+            // Update textarea with both final and interim transcript
+            messageInput.value = finalTranscript + interimTranscript;
+            autoResizeTextarea(); // Adjust textarea height as text is added
+        };
+
+        recognition.onend = () => {
+            voiceInputButton.style.backgroundColor = ''; // Reset button color
+            if (finalTranscript.trim() !== '') {
+                messageInput.value = finalTranscript.trim(); // Set final text if not empty
+            }
+            // Restore placeholder and quick suggestions state based on input and page
+            if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
+                 startPlaceholderAnimation();
+                 quickCompleteContainer.classList.add('active');
+             } else {
+                 messageInput.placeholder = "Ask me anything..."; // Default placeholder
+             }
+            finalTranscript = ''; // Clear for next session
+        };
+
+        recognition.onerror = (event) => {
+            voiceInputButton.style.backgroundColor = ''; // Reset button color
+            console.error('Speech recognition error: ' + event.error);
+            // Restore placeholder and quick suggestions state based on input and page
+            if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
+                startPlaceholderAnimation();
+                quickCompleteContainer.classList.add('active');
+            } else {
+                 messageInput.placeholder = "Ask me anything..."; // Default placeholder
+            }
+             finalTranscript = ''; // Clear on error
+            // Optional: Display a user-friendly error message
+            // alert('Could not start speech recognition. Please check your microphone permissions.');
+        };
+
+        voiceInputButton.addEventListener('click', () => {
+            try {
+                 // Check if recognition is already active (though continuous=false makes this less likely)
+                 // A simple state check might be needed if allowing stopping mid-speech
+                recognition.start();
+            } catch (e) {
+                console.error("Error starting speech recognition:", e);
+                // If start fails, try stopping just in case it's in a weird state
+                try {
+                   if (recognition && typeof recognition.stop === 'function') recognition.stop();
+                } catch(stopErr) {
+                   console.error("Error stopping recognition after failed start:", stopErr);
+                }
+                 // Restore state if failed to start
+                 voiceInputButton.style.backgroundColor = '';
+                 if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
+                     startPlaceholderAnimation();
+                     quickCompleteContainer.classList.add('active');
+                 } else {
+                      messageInput.placeholder = "Ask me anything...";
+                 }
+                 finalTranscript = '';
+                 alert('Could not start speech recognition. Make sure your browser supports it and you have granted microphone permissions.');
+            }
+        });
     } else {
+        // Hide the voice button if not supported
         voiceInputButton.style.display = 'none';
+        console.warn('Speech Recognition not supported in this browser.');
     }
 
-    // Panggil showPage setelah semua setup, memastikan halaman yang benar ditampilkan
-    // showPage(currentActivePage); // Sudah dipanggil di blok pengecekan login jika berhasil
+
+    // Initial page load: Check if there's a last active chat history to load
+    if (isLoggedIn === 'true') {
+        const lastActiveChatId = localStorage.getItem('novaai_last_active_chat_id');
+        if (lastActiveChatId) {
+             loadChatHistory(parseInt(lastActiveChatId, 10)); // Load the last active chat
+        } else {
+             showPage('welcome'); // If no last active chat, show welcome page
+        }
+    }
+
+
+    // --- Helper Functions ---
+
+    // Global function for code copy button (needs to be in global scope or attached to window)
+    window.copyCode = function(buttonElement) {
+        const pre = buttonElement.closest('.code-block').querySelector('pre');
+        navigator.clipboard.writeText(pre.textContent).then(() => {
+            const span = buttonElement.querySelector('span');
+            const originalText = span.textContent;
+            span.textContent = 'Copied!';
+            setTimeout(() => { span.textContent = originalText; }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy code: ', err);
+            const span = buttonElement.querySelector('span');
+            span.textContent = 'Error!';
+            setTimeout(() => { span.textContent = 'Copy'; }, 2000);
+        });
+    };
+
+    // Helper to format file size
+    function formatFileSize(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+     // Helper to read file as Base64 (Conceptual - needed if sending file *content*)
+     // async function readFileAsBase64(file) {
+     //     return new Promise((resolve, reject) => {
+     //         const reader = new FileReader();
+     //         reader.onloadend = () => resolve(reader.result.split(',')[1]); // Get base64 string
+     //         reader.onerror = reject;
+     //         reader.readAsDataURL(file);
+     //     });
+     // }
 
 });
-
-// Fungsi global untuk copy code tetap ada
-function copyCode(buttonElement) { const pre = buttonElement.closest('.code-block').querySelector('pre'); navigator.clipboard.writeText(pre.textContent).then(() => { const span = buttonElement.querySelector('span'); const originalText = span.textContent; span.textContent = 'Copied!'; setTimeout(() => { span.textContent = originalText; }, 2000); }).catch(err => { console.error('Failed to copy code: ', err); const span = buttonElement.querySelector('span'); span.textContent = 'Error!'; setTimeout(() => { span.textContent = 'Copy'; }, 2000); }); }
-function formatFileSize(bytes, decimals = 2) { if (bytes === 0) return '0 Bytes'; const k = 1024; const dm = decimals < 0 ? 0 : decimals; const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']; const i = Math.floor(Math.log(bytes) / Math.log(k)); return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]; }

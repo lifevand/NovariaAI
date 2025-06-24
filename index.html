@@ -5,29 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="Yu5SrqKysJNrowL7W3-1r6kAGOf6GyertHg2MR-QMvg" />
   <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com">
-  <title>Novaria</title> <!-- Judul diubah menjadi Novaria -->
+  <title>Novaria</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="app-hidden"> <!-- Tambahkan class app-hidden -->
+<body class="app-hidden">
 
   <header>
     <div class="header-left-group">
-      <!-- Ikon Menu (Hamburger) -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-align-left-icon lucide-align-left"><path d="M15 12H3"/><path d="M17 18H3"/><path d="M21 6H3"/></svg>
+      <!-- Ikon Menu (Hamburger) - Updated SVG -->
+      <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M5 17h8m-8-5h14M5 7h8"/></svg>
       <!-- Ikon Back (untuk mode Chat) -->
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+      <svg id="backIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left hidden"><path d="m15 18-6-6 6-6"/></svg>
        <!-- Logo dan Nama Aplikasi -->
       <div class="app-brand">
           <img src="logo.png" alt="Novaria Logo" class="app-logo"> <div class="app-name">Novaria</div>
       </div>
     </div>
     <div class="header-right-group">
-        <!-- Ikon Home (untuk kembali ke login) -->
-         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house-icon lucide-house"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
-         <!-- Ikon Pesan Baru (New Chat) -->
-         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-plus-icon lucide-badge-plus"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><line x1="12" x2="12" y1="8" y2="16"/><line x1="8" x2="16" y1="12" y2="12"/></svg>
+        <!-- Ikon Home (untuk kembali ke login) - Updated SVG -->
+         <svg id="homeIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 21 21" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><g fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m1.5 10.5l9-9l9 9"/><path d="M3.5 8.5v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></g></svg>
+         <!-- Ikon Pesan Baru (New Chat) - Updated SVG -->
+         <svg id="newChatHeaderIcon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 16 16" fill="currentColor"><path fill="currentColor" d="M7.5 4a.5.5 0 0 1 .5.5V7h2.5a.5.5 0 0 1 0 1H8v2.5a.5.5 0 0 1-1 0V8H4.5a.5.5 0 0 1 0-1H7V4.5a.5.5 0 0 1 .5-.5"/><path fill="currentColor" fill-rule="evenodd" d="M0 6.4c0-2.24 0-3.36.436-4.22A4.03 4.03 0 0 1 2.186.43c.856-.436 1.98-.436 4.22-.436h2.2c2.24 0 3.36 0 4.22.436c.753.383 1.36.995 1.75 1.75c.436.856.436 1.98.436 4.22v2.2c0 2.24 0 3.36-.436 4.22a4.03 4.03 0 0 1-1.75 1.75c-.856.436-1.98.436-4.22.436h-2.2c-2.24 0-3.36 0-4.22-.436a4.03 4.03 0 0 1-1.75-1.75C0 11.964 0 10.84 0 8.6zM6.4 1h2.2c1.14 0 1.93 0 2.55.051c.605.05.953.142 1.22.276a3.02 3.02 0 0 1 1.31 1.31c.134.263.226.611.276 1.22c.05.617.051 1.41.051 2.55v2.2c0 1.14 0 1.93-.051 2.55c-.05.605-.142.953-.276 1.22a3 3 0 0 1-1.31 1.31c-.263.134-.611.226-1.22.276c-.617.05-1.41.051-2.55.051H6.4c-1.14 0-1.93 0-2.55-.05c-.605-.05-.953-.143-1.22-.277a3 3 0 0 1-1.31-1.31c-.134-.263-.226-.61-.276-1.22c-.05-.617-.051-1.41-.051-2.55v-2.2c0-1.14 0-1.93.051-2.55c.05-.605.142-.953.276-1.22a3.02 3.02 0 0 1 1.31-1.31c.263-.134.611-.226 1.22-.276C4.467 1.001 5.26 1 6.4 1" clip-rule="evenodd"/></svg>
         <!-- Toggle Tema (tetap di header) -->
         <div id="landingThemeToggleContainer" class="theme-toggle-landing">
             <label class="switch">
@@ -47,8 +47,7 @@
 
   <main>
     <section id="welcomeSection" class="page-section active">
-        <h1>Welcome</h1> <!-- Teks statis -->
-        <!-- Teks sambutan dipindahkan ke sini -->
+        <h1>Welcome</h1>
         <p>Hii, Fariz I Can Help You?</p>
     </section>
 
@@ -64,37 +63,32 @@
   </main>
 
   <div class="quick-complete-container" id="quickCompleteContainer">
-    <!-- Quick complete buttons akan dikosongkan oleh JS atau bisa dihapus jika tidak ada sumber data -->
+    <!-- Quick complete buttons will be added here by JS -->
   </div>
 
   <div class="input-wrapper">
     <!-- File Input (tetap ada) -->
     <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
 
-    <!-- Tombol Plus (tetap ada) -->
+    <!-- Tombol Plus - Updated SVG -->
     <button class="btn-circle btn-plus" id="plusButton">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19" />
-        <line x1="5" y1="12" x2="19" y2="12" />
-      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path fill="currentColor" d="M19 11h-6V5a1 1 0 0 0-2 0v6H5a1 1 0 0 0 0 2h6v6a1 1 0 0 0 2 0v-6h6a1 1 0 0 0 0-2Z"/></svg>
     </button>
 
     <!-- Kontainer Chip File (tetap ada) -->
-    <div id="fileChipContainer" class="file-chip-container">
+    <div id="fileChipContainer" class="file-chip-container" style="display: none;">
         <!-- Item pratinjau file (chip) akan ditambahkan di sini oleh JavaScript -->
     </div>
 
-    <!-- Tombol Voice Input (tetap ada) -->
+    <!-- Tombol Voice Input - Updated SVG -->
     <button class="btn-circle btn-voice" id="voiceInputButton">
-        
+         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16M8 9v6m12-5v4M4 10v4m12-7v10"/></svg>
     </button>
     <!-- Textarea Input (tetap ada) -->
     <textarea id="messageInput" placeholder="Ask me anything..." rows="1"></textarea>
-    <!-- Tombol Send (tetap ada) -->
+    <!-- Tombol Send - Updated SVG -->
     <button class="btn-circle btn-send" id="sendButton">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-            <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="m23.979 27.065l7.687-13.314L43.5 34.249H28.168L16.334 13.751L4.5 34.249h12.686"/></svg>
     </button>
   </div>
 
@@ -113,29 +107,15 @@
      <!-- Kontainer untuk daftar histori chat -->
     <div class="sidebar-chat-history" id="sidebarChatHistory">
         <!-- Item histori chat akan ditambahkan di sini oleh JavaScript -->
-        <!-- Contoh struktur item: -->
-        <!-- <div class="history-item" data-chat-id="123">
-             <span class="history-item-title">History 1</span>
-              <span class="history-item-options">
-                 <svg>...</svg> (ikon 3 titik jika perlu)
-              </span>
-         </div> -->
     </div>
 
-     <!-- Tombol New Chat di Sidebar -->
+     <!-- Tombol New Chat di Sidebar - Updated SVG -->
      <button class="new-chat-button" id="newChatButton">
-         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-             <line x1="12" y1="5" x2="12" y2="19"/>
-             <line x1="5" y1="12" x2="19" y2="12"/>
-         </svg>
+         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 16 16" fill="currentColor"><path fill="currentColor" d="M7.5 4a.5.5 0 0 1 .5.5V7h2.5a.5.5 0 0 1 0 1H8v2.5a.5.5 0 0 1-1 0V8H4.5a.5.5 0 0 1 0-1H7V4.5a.5.5 0 0 1 .5-.5"/><path fill="currentColor" fill-rule="evenodd" d="M0 6.4c0-2.24 0-3.36.436-4.22A4.03 4.03 0 0 1 2.186.43c.856-.436 1.98-.436 4.22-.436h2.2c2.24 0 3.36 0 4.22.436c.753.383 1.36.995 1.75 1.75c.436.856.436 1.98.436 4.22v2.2c0 2.24 0 3.36-.436 4.22a4.03 4.03 0 0 1-1.75 1.75c-.856.436-1.98.436-4.22.436h-2.2c-2.24 0-3.36 0-4.22-.436a4.03 4.03 0 0 1-1.75-1.75C0 11.964 0 10.84 0 8.6zM6.4 1h2.2c1.14 0 1.93 0 2.55.051c.605.05.953.142 1.22.276a3.02 3.02 0 0 1 1.31 1.31c.134.263.226.611.276 1.22c.05.617.051 1.41.051 2.55v2.2c0 1.14 0 1.93-.051 2.55c-.05.605-.142.953-.276 1.22a3 3 0 0 1-1.31 1.31c-.263.134-.611.226-1.22.276c-.617.05-1.41-.051-2.55-.051H6.4c-1.14 0-1.93 0-2.55-.05c-.605-.05-.953-.143-1.22-.277a3 3 0 0 1-1.31-1.31c-.134-.263-.226-.61-.276-1.22c-.05-.617-.051-1.41-.051-2.2c0-1.14 0-1.93.051-2.55c.05-.605.142-.953.276-1.22a3.02 3.02 0 0 1 1.31-1.31c.263-.134.611-.226 1.22-.276C4.467 1.001 5.26 1 6.4 1" clip-rule="evenodd"/></svg>
          New Chat
      </button>
 
   </aside>
-
-  <!-- Modal tidak akan digunakan lagi karena item pemicunya dihapus -->
-  <!-- <div class="modal-overlay" id="infoModalOverlay"> ... </div> -->
-
 
   <script src="script.js"></script>
 </body>

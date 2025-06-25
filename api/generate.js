@@ -1,6 +1,6 @@
 // File: /api/generate.js
-// Menggunakan model Gemini dengan systemInstruction untuk respons yang lebih dinamis
-// dan memproses histori chat dari frontend untuk konteks, menggunakan model yang sudah ditentukan.
+// Menggunakan model Gemini (gemini-2.0-flash) dan memproses histori chat dari frontend untuk konteks.
+// systemInstruction TIDAK disertakan dalam body request API untuk menghindari potensi konflik dengan model/input format.
 
 import fetch from 'node-fetch'; // Import fetch jika Anda menggunakan Node.js atau lingkungan Vercel/Netlify Edge Functions
 
@@ -18,8 +18,6 @@ export default async function handler(req, res) {
 
     // Validasi dasar: Pastikan 'messages' adalah array dan tidak kosong
     if (!Array.isArray(messages) || messages.length === 0) {
-        // Kalau array messages kosong atau tidak valid, kembalikan error.
-        // Minimal harus ada pesan user terakhir di array ini.
         return res.status(400).json({ message: 'Invalid or empty "messages" array in request body. Requires at least the current user message.' });
     }
     // Cek juga pesan user terakhir harus ada
@@ -69,7 +67,7 @@ export default async function handler(req, res) {
         };
     });
 
-    // Pastikan systemInstructionParts didefinisikan
+    // Definisi systemInstructionParts (tetap ada, tapi tidak digunakan di request body)
     const systemInstructionParts = [
         { text: "You are Novaria, a helpful, empathetic, and slightly proactive AI assistant." },
         { text: "When responding, if it feels natural and appropriate for the conversation, try to ask a follow-up question to better understand the user's needs or to encourage them to elaborate." },
@@ -81,29 +79,24 @@ export default async function handler(req, res) {
     const requestBody = {
         // Kirim array contents yang sudah diformat (termasuk history dan pesan baru)
         contents: geminiContents,
-        // systemInstruction di luar array contents (untuk model yang mendukung, seperti gemini-1.5)
-        // PERHATIAN: gemini-2.0-flash mungkin tidak mendukung systemInstruction atau
-        // mungkin memiliki cara berbeda untuk menggunakannya bersama history.
-        // Jika Anda mengalami error "Unsupported" atau "Invalid Argument",
-        // coba hapus bagian systemInstruction atau ganti model ke gemini-1.5-flash-latest.
-        // Berdasarkan instruksi, kita tetap menyertakan systemInstruction.
-        systemInstruction: {
-            parts: systemInstructionParts
-        },
+        // HAPUS systemInstruction dari body request untuk menghindari konflik
+        // systemInstruction: {
+        //     parts: systemInstructionParts
+        // },
         generationConfig: {
           temperature: 0.75,
         },
         // safetySettings: [ ... ] // Opsional: Sesuaikan pengaturan keamanan
     };
 
-     // Jika model gemini-2.0-flash TIDAK mendukung systemInstruction di request body
-     // bersama dengan array contents, Anda mungkin perlu menempatkan systemInstruction
-     // sebagai pesan pertama dalam array contents dengan role 'system' (jika didukung modelnya)
-     // atau menghapusnya sama sekali jika model yang digunakan tidak mendukungnya untuk chat.
-     // Contoh alternatif body (JIKA systemInstruction di body tidak bekerja):
+     // Jika model gemini-2.0-flash ternyata mendukung systemInstruction,
+     // Anda bisa mencoba menambahkannya kembali DI SINI dalam format lain,
+     // misalnya sebagai pesan pertama dengan role 'system', JIKA model tersebut
+     // mendukung role 'system' dalam array 'contents'. Cek dokumentasi model.
      /*
+     // Contoh alternatif body JIKA model mendukung role 'system':
      const alternateContents = [
-         { role: 'system', parts: systemInstructionParts }, // Cek dokumentasi model jika ini format yang benar
+         { role: 'system', parts: systemInstructionParts },
          ...geminiContents // Sisipkan history + pesan baru setelah system message
      ];
      const requestBodyAlternate = {
@@ -111,6 +104,7 @@ export default async function handler(req, res) {
          generationConfig: { temperature: 0.75 },
          // safetySettings: [...]
      };
+     // Lalu gunakan requestBodyAlternate di fetch call.
      */
 
 
@@ -141,7 +135,7 @@ export default async function handler(req, res) {
                 errorMessage = `The specified AI model ('${apiModelName}') was not found. Please check the model name.`;
             } else if (apiResponse.status === 400 && (errorData.error?.message.toLowerCase().includes("unsupported") || errorData.error?.message.toLowerCase().includes("invalid argument"))) {
                  // Ini sering terjadi jika format body (contents, systemInstruction) tidak cocok dengan model
-                 errorMessage = `The AI model ('${apiModelName}') may not support the input format (history or systemInstruction). Error: ${errorData.error.message}`;
+                 errorMessage = `The AI model ('${apiModelName}') may not support the input format (history). Error: ${errorData.error.message}`;
             } else if (apiResponse.status === 400 && errorData.error?.message.toLowerCase().includes("context")) {
                  // Handle potential context window errors if history is too long
                  errorMessage = `The conversation history is too long for the model. Please start a new chat or reduce history length. Error: ${errorData.error.message}`;
@@ -191,7 +185,7 @@ export default async function handler(req, res) {
     }
 }
 
-// System Instruction Parts Definition (tetap di sini sesuai request)
+// System Instruction Parts Definition (tetap di sini, tapi tidak digunakan dalam requestBody)
 const systemInstructionParts = [
     { text: "You are Novaria, a helpful, empathetic, and slightly proactive AI assistant." },
     { text: "When responding, if it feels natural and appropriate for the conversation, try to ask a follow-up question to better understand the user's needs or to encourage them to elaborate." },

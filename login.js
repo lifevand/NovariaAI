@@ -81,8 +81,8 @@ function updateHeaderAuthButton() {
         userButton.title = currentUser.name || currentUser.email;
 
         userButton.addEventListener('click', () => {
-            // Optional: You can add a small dropdown here for logout/profile link
-            // For now, it simply shows an alert or does nothing
+            // Optional: Anda bisa menambahkan dropdown kecil di sini untuk logout/profil
+            // Untuk saat ini, akan menampilkan alert sederhana
             alert(`Logged in as ${currentUser.name || currentUser.email}`);
         });
 
@@ -90,7 +90,7 @@ function updateHeaderAuthButton() {
     } else {
         // Display "Log In" button
         const loginButton = document.createElement('button');
-        loginButton.id = 'headerLoginButton'; // ID for specific targeting
+        loginButton.id = 'headerLoginButton'; // ID untuk penargetan spesifik
         loginButton.className = 'auth-button';
         loginButton.textContent = 'Log In';
         loginButton.addEventListener('click', openLoginModal);
@@ -102,22 +102,22 @@ function updateHeaderAuthButton() {
 const loginModalOverlay = document.getElementById('loginModalOverlay');
 const loginModalContent = document.getElementById('loginModalContent');
 const modalCloseBtn = document.getElementById('modalCloseBtn');
-const manualLoginBtn = document.getElementById('manualLoginBtn'); // For future manual login
+const manualLoginBtn = document.getElementById('manualLoginBtn'); // Untuk login manual di masa mendatang
 
 function openLoginModal() {
     loginModalOverlay.classList.add('active');
     loginModalContent.classList.add('active');
-    // Render Google button inside the modal when it opens
+    // Render Google button di dalam modal saat dibuka
     const googleButtonContainer = document.getElementById('googleButtonContainer');
     if (googleButtonContainer && !googleButtonContainer.hasChildNodes()) {
         google.accounts.id.renderButton(googleButtonContainer, {
-            theme: "filled_black", // Or "outline", based on your design
+            theme: "filled_black", // Atau "outline", sesuai desain Anda
             size: "large",
             type: "standard",
             shape: "rectangular",
             text: "continue_with",
             logo_alignment: "left",
-            width: 250 // Set a fixed width or use 'auto' and let CSS handle
+            width: 250 // Atur lebar tetap atau gunakan 'auto' dan biarkan CSS yang menangani
         });
     }
 }
@@ -127,7 +127,7 @@ function closeLoginModal() {
     loginModalContent.classList.remove('active');
 }
 
-// Event listeners for modal
+// Event listeners untuk modal
 if (modalCloseBtn) {
     modalCloseBtn.addEventListener('click', closeLoginModal);
 }
@@ -139,37 +139,37 @@ if (loginModalOverlay) {
     });
 }
 
-// Placeholder for manual login (no actual auth)
+// Placeholder untuk login manual (tanpa otentikasi aktual)
 if (manualLoginBtn) {
     manualLoginBtn.addEventListener('click', () => {
         const email = document.getElementById('manualEmail').value;
         const password = document.getElementById('manualPassword').value;
         if (email && password) {
             alert('Manual login attempted (backend not implemented).');
-            // Simulate successful login for demonstration
+            // Simulasikan login berhasil untuk demonstrasi
             const demoUser = {
                 id: 'manual_user',
                 name: email.split('@')[0],
                 givenName: email.split('@')[0],
-                picture: 'https://via.placeholder.com/150/007bff/ffffff?text=' + email.charAt(0).toUpperCase(), // Placeholder image
+                picture: `https://via.placeholder.com/150/007bff/ffffff?text=${email.charAt(0).toUpperCase()}`, // Gambar placeholder
                 email: email
             };
             localStorage.setItem('novaUser', JSON.stringify(demoUser));
             localStorage.setItem('isLoggedIn', 'true');
             closeLoginModal();
             updateHeaderAuthButton();
-            // Redirect as if real login
+            // Redirect seperti login nyata
             const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'index.html';
             localStorage.removeItem('redirectAfterLogin');
             window.location.href = redirectUrl;
         } else {
-            alert('Please enter email and password for manual login.');
+            alert('Mohon masukkan email dan password untuk login manual.');
         }
     });
 }
 
 
-// === DATA AND RENDERING FOR MARKETING SECTIONS (UNCHANGED) ===
+// === DATA DAN RENDERING UNTUK SEKSI PEMASARAN (TIDAK BERUBAH) ===
 const featureCardsData = [
     {
         icon: "psychology",
@@ -221,7 +221,7 @@ function renderFeatureCards() {
             const featureTitle = this.dataset.featureTitle;
             const actionType = this.dataset.actionType;
 
-            // Save the intention to redirect after login
+            // Simpan tujuan redirect setelah login
             localStorage.setItem('loginTriggeredByCard', featureTitle);
 
             if (localStorage.getItem('isLoggedIn') === 'true') {
@@ -233,7 +233,7 @@ function renderFeatureCards() {
                     window.location.href = 'index.html';
                 }
             } else {
-                // If not logged in, set redirect target and open modal
+                // Jika belum login, atur target redirect dan buka modal
                 if (actionType === "go_to_image_page") {
                     localStorage.setItem('redirectAfterLogin', 'image.html');
                 } else if (actionType === "go_to_codex_page") {
@@ -242,7 +242,7 @@ function renderFeatureCards() {
                     localStorage.setItem('redirectAfterLogin', 'index.html');
                 }
 
-                openLoginModal(); // Open the new login modal
+                openLoginModal(); // Buka modal login yang baru
             }
         });
     });
@@ -289,7 +289,7 @@ function renderExploreAiCards() {
     });
 }
 
-// === Theme Toggle Logic (UNCHANGED) ===
+// === Logika Toggle Tema (TIDAK BERUBAH) ===
 function applyLoginTheme(isLightMode) {
     if (isLightMode) {
         document.body.classList.add('light-mode');
@@ -301,25 +301,12 @@ function applyLoginTheme(isLightMode) {
 }
 
 function setupLoginThemeToggle() {
-    // Theme toggle has been removed from login.html header as per user request (image references)
-    // If you need it back, you'll need to re-add the HTML and this JS logic will then apply.
-    // For now, removing the reference to themeToggleLogin as it no longer exists in login.html.
-    // const themeToggleLogin = document.getElementById('themeToggleLogin');
-    // if (!themeToggleLogin) return;
-    // const savedTheme = localStorage.getItem('novaria_theme');
-    // if (savedTheme === 'light') {
-    //     themeToggleLogin.checked = true;
-    //     applyLoginTheme(true);
-    // } else {
-    //     themeToggleLogin.checked = false;
-    //     applyLoginTheme(false);
-    // }
-    // themeToggleLogin.addEventListener('change', () => {
-    //     applyLoginTheme(themeToggleLogin.checked);
-    // });
+    // Tombol toggle tema telah dihapus dari header login.html sesuai permintaan (gambar referensi)
+    // Jika Anda ingin mengembalikannya, Anda perlu menambahkan kembali HTML-nya, dan logika JS ini akan berlaku.
+    // Untuk saat ini, menghapus referensi ke themeToggleLogin karena tidak lagi ada di login.html.
 }
 
-// === Initialize on Load ===
+// === Inisialisasi Saat Halaman Dimuat ===
 window.onload = function () {
     const currentYearSpanLogin = document.getElementById('currentYearLogin');
     if (currentYearSpanLogin) { currentYearSpanLogin.textContent = new Date().getFullYear(); }
@@ -327,17 +314,26 @@ window.onload = function () {
     if (document.getElementById('featuresGrid')) { renderFeatureCards(); }
     if (document.getElementById('exploreAiGrid')) { renderExploreAiCards(); }
 
-    setupLoginThemeToggle(); // This will no longer do anything if themeToggleLogin is removed from HTML
+    setupLoginThemeToggle();
 
-    // Initialize Google Sign-In
+    // Inisialisasi Google Sign-In
     const clientIdMeta = document.querySelector('meta[name="google-signin-client_id"]');
-    if (!clientIdMeta || !clientIdMeta.content || clientIdMeta.content === "870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com" || clientIdMeta.content.length < 20) {
-        console.error("Google Client ID tidak ditemukan, belum diganti, atau tidak valid. Gunakan Client ID Anda.");
+    // Pengecekan Client ID yang lebih robust
+    // Tidak lagi memeriksa string placeholder spesifik, hanya format umum dan keberadaan.
+    if (!clientIdMeta || !clientIdMeta.content || clientIdMeta.content.length < 20 || !clientIdMeta.content.includes('.apps.googleusercontent.com')) {
+        console.error("Google Client ID tidak ditemukan, tidak valid, atau belum diganti. Harap pastikan meta tag 'google-signin-client_id' diatur dengan benar di login.html.");
         const errorDiv = document.getElementById('googleSignInError');
-        if (errorDiv) { errorDiv.textContent = "Konfigurasi login tidak valid. Harap periksa Client ID."; errorDiv.style.display = 'block';}
+        if (errorDiv) {
+            errorDiv.textContent = "Konfigurasi login tidak valid. Harap periksa Client ID di Google Cloud Console dan pastikan 'Authorized JavaScript origins' sudah benar.";
+            errorDiv.style.display = 'block';
+        }
         const headerAuthPlaceholder = document.getElementById('headerAuthPlaceholder');
-        if(headerAuthPlaceholder) headerAuthPlaceholder.innerHTML = "<p style='font-size:0.8rem; color: var(--secondary-text-color);'>Login dinonaktifkan.</p>";
-        return;
+        if(headerAuthPlaceholder) {
+            // Tampilkan tombol login yang tidak berfungsi atau pesan lain jika Client ID benar-benar tidak valid
+            headerAuthPlaceholder.innerHTML = "<button class='auth-button' disabled style='cursor:not-allowed;'>Login Error</button>";
+            headerAuthPlaceholder.querySelector('button').title = "Client ID tidak valid atau tidak terkonfigurasi";
+        }
+        return; // Hentikan eksekusi jika Client ID bermasalah
     }
     const clientId = clientIdMeta.content;
 
@@ -351,12 +347,12 @@ window.onload = function () {
             callback: handleCredentialResponse
         });
 
-        // Initial render of the header auth button based on login status
+        // Render awal tombol otentikasi header berdasarkan status login
         updateHeaderAuthButton();
 
     } catch (error) {
         console.error("Google Identity Services init error:", error);
         const errorDiv = document.getElementById('googleSignInError');
-        if (errorDiv) { errorDiv.textContent = "Gagal memuat layanan login Google."; errorDiv.style.display = 'block'; }
+        if (errorDiv) { errorDiv.textContent = `Gagal memuat layanan login Google: ${error.message}. Pastikan Client ID dan Authorized Origins benar.`; errorDiv.style.display = 'block'; }
     }
 };

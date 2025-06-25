@@ -1,3 +1,5 @@
+/* GANTI SELURUH ISI STYLE.CSS ANDA DENGAN KODE INI */
+
 /* CSS Variables for Themes */
 :root {
   /* Dark Mode Defaults */
@@ -7,9 +9,9 @@
   --button-bg: #333333;
   --button-hover-bg: #555555;
   --placeholder-color: rgba(255, 255, 255, 0.6);
-  --sidebar-bg: #1a1a1a; /* Warna latar sidebar */
+  --sidebar-bg: #1a1a1a;
   --sidebar-text: #ffffff;
-  --sidebar-item-hover: #3a3a3a; /* Latar item sidebar saat hover */
+  --sidebar-item-hover: #3a3a3a;
   --ripple-color: rgba(255, 255, 255, 0.4);
   --border-color: rgba(255, 255, 255, 0.1);
   --modal-bg: #2a2a2a;
@@ -49,9 +51,9 @@ body.light-mode {
   --button-bg: #cccccc;
   --button-hover-bg: #aaaaaa;
   --placeholder-color: rgba(0, 0, 0, 0.5);
-  --sidebar-bg: #ffffff; /* Warna latar sidebar */
+  --sidebar-bg: #ffffff;
   --sidebar-text: #333333;
-  --sidebar-item-hover: #f0f0f0; /* Latar item sidebar saat hover */
+  --sidebar-item-hover: #f0f0f0;
   --ripple-color: rgba(0, 0, 0, 0.2);
   --border-color: rgba(0, 0, 0, 0.1);
   --modal-bg: #ffffff;
@@ -94,20 +96,22 @@ body {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out;
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out; /* Tambahkan transisi opacity */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Sembunyikan body secara default, tampilkan setelah login diverifikasi */
 body.app-hidden {
     opacity: 0;
-    pointer-events: none;
+    pointer-events: none; /* Cegah interaksi saat tersembunyi */
 }
 
 body.app-loaded {
     opacity: 1;
     pointer-events: auto;
 }
+
 
 *:focus {
   outline: none;
@@ -130,7 +134,6 @@ header {
   right: 0;
   z-index: 100;
   box-sizing: border-box;
-  height: 60px;
 }
 
 .header-left-group { display: flex; gap: 12px; align-items: center; }
@@ -141,51 +144,16 @@ header {
     object-fit: contain;
     display: block;
 }
-.app-name {
-    font-weight: 700;
-    font-size: 1.3em;
-}
-.header-right-group {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-}
-/* Icons in Header */
-header svg {
-    width: 24px;
-    height: 24px;
-    stroke: var(--text-color);
-    fill: none; /* Ensure icons use stroke by default */
-    stroke-width: 2;
-    cursor: pointer;
-    transition: stroke 0.3s ease;
-}
-header .lucide-badge-plus-icon {
-    fill: currentColor; /* New chat icon is filled */
-    stroke: none;
-}
-header .lucide-align-left-icon {
-     /* Menu icon - uses stroke */
-}
-header .lucide-chevron-left-icon {
-     /* Back icon - uses stroke */
-}
-header .lucide-house {
-     /* Home icon - uses stroke */
-     fill: none; /* Ensure no default fill */
-}
-
+.header-right-group { display: flex; gap: 16px; align-items: center; }
+.icon-btn { width: 24px; height: 24px; stroke: var(--text-color); fill: none; stroke-width: 2; cursor: pointer; transition: stroke 0.3s ease; }
 
 /* Main Content Area */
 main {
-    flex-grow: 1;
-    display: flex;
-    position: relative;
-    overflow: hidden;
-    /* Padding adjusted by JS based on header and input height */
-    padding-top: 60px; /* Default based on header height */
-    padding-bottom: 90px; /* Default based on min input height */
-    box-sizing: border-box;
+  flex-grow: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  /* padding-bottom akan diatur oleh JavaScript */
 }
 
 /* Page Sections (Welcome and Chat) */
@@ -207,7 +175,6 @@ main {
   opacity: 1;
   transform: translateY(0);
   position: relative;
-  /* Height adjusted by JS */
 }
 
 .page-section.hidden {
@@ -219,31 +186,29 @@ main {
     align-items: center;
     text-align: center;
     gap: 12px;
-    width: 100%;
-    padding: 0 20px; /* Add horizontal padding */
 }
 #welcomeSection h1 { font-size: 2.5em; margin: 0; font-weight: 700; }
 #welcomeSection p { font-size: 1.3em; margin: 0; font-weight: 400; color: var(--text-color); }
 
 #chatSection {
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
-    width: 100%;
 }
 
 #chatHistory {
     width: 100%;
-    max-width: 700px; /* Max width for desktop */
+    max-width: 700px;
     height: 100%;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 20px; /* Consistent padding */
+    padding-top: 90px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
     box-sizing: border-box;
     position: relative;
     display: flex;
     flex-direction: column;
-    /* Centered on large screens */
-    margin: 0 auto;
 }
 
 #chatHistory.has-scroll-fade::after {
@@ -257,21 +222,10 @@ main {
   pointer-events: none;
   transition: opacity 0.3s ease;
   opacity: 1;
-  /* Ensure gradient covers the history area */
-   width: 100%;
 }
-/* Adjust gradient width for centered chat history on desktop */
-#chatHistory.has-scroll-fade::after {
-    width: calc(100% - 40px); /* Subtract padding */
-    left: 20px; /* Align with padding */
-    right: 20px; /* Align with padding */
-}
-
-
 #chatHistory:not(.has-scroll-fade)::after {
   opacity: 0;
 }
-
 
 .chat-message {
     max-width: 95%;
@@ -306,7 +260,6 @@ main {
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
-  flex-wrap: wrap; /* Allow wrap on smaller screens */
 }
 
 .ai-message-header .ai-logo {
@@ -331,17 +284,16 @@ main {
   font-size: 0.75em;
   font-weight: 500;
   white-space: nowrap;
-  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .ai-message-content {
-    /* Styling if needed */
+    /* Styling jika perlu */
 }
 .ai-message-content span {
-    white-space: pre-wrap;
+    white-space: pre-wrap; /* Agar \n di teks biasa juga berfungsi */
 }
 
-.ai-message-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;} /* Allow actions to wrap */
+.ai-message-actions { display: flex; gap: 8px; margin-top: 8px; }
 .ai-action-btn { background-color: var(--action-button-bg); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; color: var(--action-button-icon-color); }
 .ai-action-btn:hover { background-color: var(--action-button-hover-bg); }
 .ai-action-btn svg { width: 18px; height: 18px; stroke: var(--action-button-icon-color); fill: none; stroke-width: 2; }
@@ -352,30 +304,12 @@ main {
 #thinkingIndicator .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes pulse-dot { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
 
-.quick-complete-container {
-    position: fixed; /* Use fixed position */
-    bottom: 90px; /* Default bottom space */
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 40px);
-    max-width: 700px; /* Max width for desktop */
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    z-index: 90;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    padding: 0 10px; /* Add horizontal padding */
-    box-sizing: border-box;
-}
+.quick-complete-container { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 700px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; z-index: 90; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
 .quick-complete-container.active { opacity: 1; visibility: visible; }
 .quick-complete-btn { background-color: var(--quick-complete-bg); color: var(--quick-complete-text); border: 1px solid var(--border-color); border-radius: 20px; padding: 8px 15px; font-size: 0.95em; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; white-space: nowrap; position: relative; overflow: hidden; }
 .quick-complete-btn:hover { background-color: var(--quick-complete-hover-bg); border-color: var(--quick-complete-hover-bg); }
 
 
-/* Input Area */
 .input-wrapper {
   background-color: var(--glass-bg);
   backdrop-filter: blur(12px);
@@ -388,29 +322,29 @@ main {
   bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 40px); /* Default width */
-  max-width: 900px; /* Max width for desktop */
+  width: calc(100% - 40px);
+  max-width: 900px;
   display: flex;
-  align-items: flex-end;
+  align-items: flex-end; /* Align items ke bawah */
   gap: 8px;
   min-height: 56px;
-  max-height: 160px;
+  max-height: 160px; /* Batas tinggi keseluruhan input wrapper */
   box-sizing: border-box;
-  transition: height 0.2s ease;
+  transition: height 0.2s ease; /* Transisi untuk perubahan tinggi */
   z-index: 95;
 }
 
 .file-chip-container {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  overflow-x: auto;
+  display: flex; /* Item chip akan berbaris horizontal */
+  align-items: center; /* Tengah secara vertikal */
+  gap: 6px; /* Jarak antar chip */
+  overflow-x: auto; /* Scroll horizontal jika chip melebihi ruang */
   overflow-y: hidden;
-  max-width: 40%; /* Max width on desktop */
-  height: 40px;
-  flex-shrink: 1;
-  min-width: 0;
-  margin-bottom: 2px;
+  max-width: 40%; /* Batasi lebar agar textarea masih punya ruang. SESUAIKAN! */
+  height: 40px; /* Samakan dengan tinggi tombol agar rapi */
+  flex-shrink: 1; /* Biarkan menyusut jika textarea membesar */
+  min-width: 0; /* Penting untuk flexbox */
+  margin-bottom: 2px; /* Samakan dengan margin tombol */
 
   scrollbar-width: thin;
   scrollbar-color: var(--button-hover-bg) transparent;
@@ -435,16 +369,16 @@ main {
   align-items: center;
   background-color: var(--file-chip-bg);
   color: var(--file-chip-text);
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-size: 0.85em;
+  padding: 5px 10px; /* Padding chip */
+  border-radius: 20px; /* Chip lebih bulat */
+  font-size: 0.85em; /* Font sedikit lebih kecil */
   gap: 6px;
   cursor: default;
-  flex-shrink: 0;
+  flex-shrink: 0; /* Chip tidak mengecil */
   transition: background-color 0.2s ease, opacity 0.3s ease, transform 0.3s ease;
   white-space: nowrap;
-  max-width: 150px;
-  height: 30px;
+  max-width: 150px; /* Lebar maksimum satu chip, sesuaikan */
+  height: 30px; /* Tinggi chip, sesuaikan agar pas */
   box-sizing: border-box;
   opacity: 0;
   transform: scale(0.9);
@@ -459,21 +393,16 @@ main {
   width: 16px;
   height: 16px;
   stroke: var(--file-chip-text);
-  fill: none; /* Ensure file icons use stroke */
   flex-shrink: 0;
 }
-/* Image icon might need fill */
-body:not(.light-mode) .file-chip-item .file-icon svg path[d^='M18 22H4'] { fill: var(--file-chip-text); stroke: none;}
-body.light-mode .file-chip-item .file-icon svg path[d^='M18 22H4'] { fill: var(--file-chip-text); stroke: none;}
-
 
 .file-chip-item .file-details {
-  display: flex;
-  align-items: baseline;
+  display: flex; /* Nama dan ukuran sejajar */
+  align-items: baseline; /* Agar teks baseline sejajar */
   gap: 4px;
   overflow: hidden;
   text-align: left;
-  line-height: 1;
+  line-height: 1; /* Agar tidak ada spasi vertikal aneh */
 }
 
 .file-chip-item .file-name-preview {
@@ -486,7 +415,7 @@ body.light-mode .file-chip-item .file-icon svg path[d^='M18 22H4'] { fill: var(-
 .file-chip-item .file-size-preview {
   font-size: 0.9em;
   opacity: 0.8;
-  white-space: nowrap;
+  white-space: nowrap; /* Ukuran tidak boleh wrap */
 }
 
 .file-chip-item .remove-chip-btn {
@@ -494,17 +423,17 @@ body.light-mode .file-chip-item .file-icon svg path[d^='M18 22H4'] { fill: var(-
   border: none;
   color: var(--file-chip-text);
   opacity: 0.7;
-  font-size: 1.4em;
-  line-height: 0.5;
+  font-size: 1.4em; /* Ukuran 'x' */
+  line-height: 0.5; /* Turunkan 'x' agar pas di tengah chip */
   cursor: pointer;
   padding: 0;
-  margin-left: 4px;
+  margin-left: 4px; /* Jarak 'x' dari teks */
   transition: opacity 0.2s ease, transform 0.1s ease, color 0.2s ease;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
+  width: 16px; /* Area klik tombol x */
   height: 16px;
 }
 
@@ -537,9 +466,6 @@ body.light-mode .file-chip-item .file-icon svg path[d^='M18 22H4'] { fill: var(-
 .btn-circle { background-color: var(--button-bg); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; margin-bottom: 2px; }
 .btn-circle:hover { background-color: var(--button-hover-bg); }
 .btn-circle svg { stroke: var(--text-color); width: 20px; height: 20px; transition: stroke 0.3s ease; }
-.btn-circle.btn-plus svg { fill: currentColor; stroke: none; } /* Plus icon is filled */
-.btn-circle.btn-send svg { fill: none; stroke: currentColor; } /* Send icon is stroke */
-.btn-circle.btn-voice svg { fill: none; stroke: currentColor; } /* Voice icon is stroke */
 
 
 .ripple { position: absolute; border-radius: 50%; opacity: 0; background-color: var(--ripple-color); animation: ripple-animation 0.6s linear; transform: scale(0); pointer-events: none; }
@@ -587,159 +513,37 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 
 .hidden { display: none !important; }
 .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.sidebar { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-left: 1px solid var(--glass-border-color); box-shadow: none; z-index: 1000; transition: right 0.3s ease; padding: 25px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; color: var(--sidebar-text); }
+.sidebar.active { right: 0; }
+.sidebar-overlay.active { opacity: 1; visibility: visible; }
+.sidebar h2 { margin-top: 0; font-size: 1.6em; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; color: var(--sidebar-text); }
+.sidebar-item { padding: 12px 15px; cursor: pointer; border-radius: 8px; transition: background-color 0.2s ease, color 0.2s ease; display: flex; align-items: center; gap: 12px; font-size: 1.05em; font-weight: 500; position: relative; overflow: hidden; } /* Added position relative and overflow hidden for ripple */
+.sidebar-item:hover { background-color: var(--sidebar-item-hover); }
+.sidebar-item a { text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; width: 100%; }
+.sidebar-item svg { width: 22px; height: 22px; stroke: var(--sidebar-text); fill: none; stroke-width: 2; transition: stroke 0.3s ease; }
+.sidebar-item [fill="currentColor"] { /* For sidebar icons that use fill */
+    fill: var(--sidebar-text);
+    stroke: none; /* remove stroke if fill is used */
+}
+.sidebar-item.language-select { display: flex; justify-content: space-between; align-items: center; }
+.sidebar-item select { background-color: var(--button-bg); color: var(--text-color); border: none; padding: 8px 12px; border-radius: 6px; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 1em; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: right 8px center; background-size: 18px; transition: background-color 0.3s ease, color 0.3s ease; }
+body.light-mode .sidebar-item select { background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); }
+.sidebar-item select option { background-color: var(--button-bg); color: var(--text-color); }
 
-/* Sidebar */
-.sidebar {
-    position: fixed;
-    top: 0;
-    right: -320px; /* Desktop default */
-    width: 300px; /* Desktop default */
-    height: 100%;
-    background-color: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-left: 1px solid var(--glass-border-color);
-    box-shadow: none;
-    z-index: 1000;
-    transition: right 0.3s ease;
-    padding: 25px 20px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    color: var(--sidebar-text);
-    overflow-y: auto;
-}
-.sidebar.active {
-    right: 0;
-}
-.sidebar-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.sidebar h2 {
-    margin-top: 0;
-    font-size: 1.6em;
-    font-weight: 700;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 12px;
-    margin-bottom: 10px;
-    color: var(--sidebar-text);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Kontainer untuk item histori chat */
-.sidebar-chat-history {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding-right: 5px;
-}
-
-/* Item Histori Chat */
-.history-item {
-    padding: 12px 15px;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1em;
-    font-weight: 500;
-    position: relative;
-    overflow: hidden;
-    background-color: var(--sidebar-item-hover);
-    border: 1px solid transparent;
-}
-.history-item:hover {
-    background-color: var(--button-hover-bg);
-}
-.history-item.active {
-    background-color: var(--button-bg);
-    border-color: var(--text-color);
-}
-
-.history-item-title {
-    flex-grow: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-right: 10px;
-}
-
-.history-item-options {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-/* Ikon 3 titik pada item histori (if used) */
-.history-item-options .options-icon {
-    width: 20px;
-    height: 20px;
-    stroke: var(--sidebar-text);
-    fill: none;
-    cursor: pointer;
-    transition: stroke 0.2s ease;
-}
-.history-item:hover .history-item-options .options-icon {
-     stroke: var(--text-color);
-}
-
-/* Ikon Hapus Histori (total) */
-.delete-history-icon {
-     width: 24px;
-    height: 24px;
-    stroke: var(--sidebar-text);
-    fill: none;
-    cursor: pointer;
-    transition: stroke 0.2s ease, color 0.2s ease;
-}
-.delete-history-icon:hover {
-    stroke: red;
-}
-
-/* Tombol New Chat di Sidebar */
-.new-chat-button {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 15px;
-    cursor: pointer;
-    border-radius: 8px;
-    background-color: var(--button-bg);
-    color: var(--text-color);
-    font-size: 1.05em;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-    position: relative;
-    overflow: hidden;
-    margin-top: 15px;
-    border: none;
-    width: 100%;
-    justify-content: center;
-}
-.new-chat-button:hover {
-    background-color: var(--button-hover-bg);
-}
-.new-chat-button svg {
-    width: 22px;
-    height: 22px;
-    /* New chat icon is filled */
-    fill: currentColor;
-    stroke: none;
-}
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1001; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal-content { background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border-color); box-shadow: none; color: var(--modal-text); padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; transform: translateY(20px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
+.modal-overlay.active .modal-content { transform: translateY(0); opacity: 1; }
+.modal-content h3 { margin-top: 0; font-size: 1.8em; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; color: var(--modal-text); }
+.modal-content p { font-size: 1em; line-height: 1.6; text-align: left; margin-bottom: 1em; color: var(--modal-text); }
+.modal-close-btn { position: absolute; top: 15px; right: 15px; background: var(--modal-close-button); color: var(--modal-text); border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 1.5em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
+.modal-close-btn:hover { background: var(--modal-close-button-hover); transform: scale(1.05); }
 
 .code-block { background-color: var(--code-block-bg); color: var(--code-block-text); padding: 15px; border-radius: 8px; margin-top: 15px; margin-bottom: 10px; position: relative; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em; line-height: 1.5; border: 1px solid var(--code-block-border); text-align: left; white-space: pre-wrap; word-break: break-all; }
 .code-block pre { margin: 0; padding: 0; white-space: pre-wrap; word-break: break-all; }
 .code-block .code-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--code-block-border); }
 .code-block .language-tag { background-color: var(--code-language-tag-bg); color: var(--code-language-tag-text); padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 500; text-transform: uppercase; }
-.code-block .copy-code-btn { background-color: var(--copy-button-bg); color: var(--copy-button-text, #ffffff); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 5px; position: relative; overflow: hidden; }
+.code-block .copy-code-btn { background-color: var(--copy-button-bg); color: var(--copy-button-text, #ffffff); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 5px; position: relative; overflow: hidden; } /* Added position relative and overflow hidden for ripple */
 .code-block .copy-code-btn:hover { background-color: var(--copy-button-hover-bg); transform: translateY(-1px); }
 .code-block .copy-code-btn svg { width: 16px; height: 16px; stroke: var(--copy-button-text, #ffffff); fill: none; stroke-width: 2; }
 body.light-mode .code-block .copy-code-btn svg { stroke: var(--text-color); }
@@ -750,136 +554,3 @@ body.light-mode .code-block .copy-code-btn svg { stroke: var(--text-color); }
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 .pulsing svg { animation: pulse 1.5s ease-in-out infinite; }
 .ai-action-btn.liked svg { stroke: #3b82f6; fill: rgba(59, 130, 246, 0.3); }
-
-/* --- RESPONSIVE STYLES --- */
-@media (max-width: 768px) {
-    header {
-        padding: 12px 15px; /* Slightly less padding */
-        height: 56px; /* Slightly reduced height */
-    }
-
-     /* Adjust header icon size if needed for mobile */
-     header svg {
-         width: 22px;
-         height: 22px;
-     }
-    .app-logo {
-        width: 34px;
-        height: 34px;
-    }
-    .app-name {
-        font-size: 1.2em;
-    }
-
-    main {
-        padding-top: 56px; /* Match header height */
-        /* padding-bottom adjusted by JS */
-    }
-
-    #welcomeSection h1 { font-size: 2em; }
-    #welcomeSection p { font-size: 1.1em; }
-
-    #chatHistory {
-        padding: 15px; /* Slightly less padding */
-         /* Remove max-width on mobile to take full width */
-        max-width: 100%;
-    }
-     /* Adjust gradient width for full width chat history on mobile */
-    #chatHistory.has-scroll-fade::after {
-        width: calc(100% - 30px); /* Subtract new padding */
-        left: 15px;
-        right: 15px;
-    }
-
-
-    .input-wrapper {
-        padding: 6px 8px; /* Slightly less padding */
-        bottom: 10px; /* Closer to the bottom */
-        width: calc(100% - 30px); /* Adjust width */
-        max-width: calc(100% - 30px); /* Ensure max-width respects the new width */
-        min-height: 50px; /* Slightly smaller min height */
-    }
-
-    .input-wrapper textarea {
-         font-size: 1em; /* Slightly smaller font size */
-         padding: 6px 0; /* Adjust vertical padding */
-    }
-
-    .file-chip-container {
-         /* Remove max-width on mobile to allow more flex */
-         max-width: 60%; /* Allow chips to take up more space before scrolling */
-         height: 36px; /* Slightly smaller height */
-         margin-bottom: 0; /* Adjust margin */
-    }
-
-    .file-chip-item {
-        padding: 4px 8px; /* Adjust chip padding */
-        font-size: 0.8em; /* Smaller font */
-        gap: 4px;
-        height: 26px; /* Adjust chip height */
-    }
-    .file-chip-item .file-icon svg {
-        width: 14px; /* Smaller icon in chip */
-        height: 14px;
-    }
-     .file-chip-item .file-details {
-         gap: 3px;
-     }
-    .file-chip-item .file-size-preview {
-        font-size: 0.85em; /* Smaller font */
-    }
-    .file-chip-item .remove-chip-btn {
-        font-size: 1.2em; /* Smaller remove button */
-        width: 14px;
-        height: 14px;
-         margin-left: 3px;
-    }
-
-    .btn-circle {
-        width: 36px; /* Slightly smaller buttons */
-        height: 36px;
-        margin-bottom: 0; /* Adjust margin */
-    }
-    .btn-circle svg {
-        width: 18px; /* Slightly smaller button icons */
-        height: 18px;
-    }
-
-
-    .quick-complete-container {
-        bottom: calc(10px + 50px + 10px); /* Adjust bottom based on new input height + padding */
-        width: calc(100% - 30px); /* Match input width */
-        max-width: 100%; /* Take full width */
-        gap: 8px; /* Slightly smaller gap */
-        padding: 0; /* Remove horizontal padding */
-    }
-     .quick-complete-btn {
-         padding: 6px 12px; /* Adjust quick button padding */
-         font-size: 0.9em; /* Slightly smaller font */
-     }
-
-
-    .sidebar {
-        width: 85vw; /* Responsive width */
-        right: -86vw; /* Match negative offset to width + border/shadow */
-        padding: 20px 15px; /* Adjust padding */
-    }
-     .sidebar h2 {
-         font-size: 1.4em; /* Adjust title size */
-     }
-     .sidebar-chat-history {
-         gap: 6px; /* Adjust history item gap */
-     }
-     .history-item {
-         padding: 10px 12px; /* Adjust history item padding */
-         font-size: 0.95em; /* Adjust font size */
-     }
-     .new-chat-button {
-         padding: 10px 12px; /* Adjust new chat button padding */
-         font-size: 0.95em; /* Adjust font size */
-     }
-     .new-chat-button svg {
-        width: 20px; /* Adjust icon size */
-        height: 20px;
-     }
-}

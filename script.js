@@ -1,4 +1,5 @@
 // === FULL MODIFIED SCRIPT.JS ===
+// Updated to include conversation history in API calls
 
 document.addEventListener('DOMContentLoaded', () => {
     // === AWAL: PENGECEKAN LOGIN ===
@@ -68,6 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let chatHistories = loadChatHistories();
     let currentChatId = null;
+
+    // Konfigurasi jumlah pesan history yang dikirim ke API
+    const MAX_MESSAGES_FOR_CONTEXT = 20; // Ambil 20 pesan terakhir (10 pasang user/AI)
 
     function loadChatHistories() {
         const storedHistories = localStorage.getItem('novaai_chat_histories');
@@ -607,24 +611,27 @@ document.addEventListener('DOMContentLoaded', () => {
                  }
 
                  if (lastUserMessage) {
-                     // Remove the current AI message element
+                     // Remove the current AI message element from display
                      msgEl.remove();
                      // Remove the corresponding AI message from the chat history object
                      const activeHistory = chatHistories.find(h => h.id === currentChatId);
                      if (activeHistory) {
                           // Find the index of the AI message that was just removed
-                          // This is a bit tricky; might need to rely on order or add unique message IDs
-                          // For simplicity, we'll assume the last AI message in the history object corresponds to the last AI message element removed.
-                          // A more robust solution might involve iterating history messages backwards.
-                         const lastAiMessageIndex = activeHistory.messages.map(m => m.sender).lastIndexOf('ai');
-                         if (lastAiMessageIndex !== -1) {
-                            activeHistory.messages.splice(lastAiMessageIndex, 1);
-                             saveChatHistories(); // Save history after removing AI message
-                         }
+                          // This is a bit tricky; we'll remove the last message in the history for simplicity,
+                          // assuming the regeneration is always for the very last AI message.
+                          // A more robust solution might add unique IDs to messages.
+                          const lastMessageInHistory = activeHistory.messages[activeHistory.messages.length - 1];
+                          if (lastMessageInHistory && lastMessageInHistory.sender === 'ai') {
+                              activeHistory.messages.pop(); // Remove the last AI message
+                              saveChatHistories(); // Save history after removing AI message
+                          } else {
+                               console.warn("Last message in history was not an AI message, cannot remove for regeneration.");
+                          }
                      }
 
-                     // Generate a new response based on the last user message
-                     generateRealAIResponse(lastUserMessage.textContent, attachedFiles); // Assuming files should be included again
+                     // Generate a new response based on the last user message *and* preceding history
+                     // The generateRealAIResponse function will now fetch the history itself.
+                     generateRealAIResponse(lastUserMessage.textContent, attachedFiles); // Pass the original user message and attached files
 
                  } else {
                      console.warn("Could not find a preceding user message to regenerate from.");
@@ -671,24 +678,50 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const modelToUseInAPI = "gemini"; // Can be dynamic if needed
 
+            // --- START: GATHER HISTORY FOR CONTEXT ---
+            const activeHistory = chatHistories.find(h => h.id === currentChatId);
+            let messagesForApi = [];
+
+            if (activeHistory && activeHistory.messages.length > 0) {
+                // Select the last N messages from history
+                // Slice starts from max(0, length - N) to get the last N elements
+                const recentHistory = activeHistory.messages.slice(Math.max(0, activeHistory.messages.length - MAX_MESSAGES_FOR_CONTEXT));
+
+                // Map history messages to the format expected by typical chat completion APIs (role: user/assistant)
+                messagesForApi = recentHistory.map(msg => ({
+                    role: msg.sender === 'user' ? 'user' : 'assistant', // Map 'ai' sender to 'assistant' role
+                    // Note: If your API supports file inputs within messages,
+                    // you might need to structure content differently here based on msg type.
+                    // For text-only history context, just use the content.
+                    content: msg.content // Assuming stored content is suitable for sending back as context
+                                          // If content includes HTML from markdown rendering, you might need
+                                          // to strip HTML tags or send the raw text version if available.
+                                          // Simple strip: msg.content.replace(/<[^>]*>?/gm, '').replace(/\n+/g, '\n').trim();
+                }));
+            }
+
+            // Add the *current* user message as the *last* message in the context array
+            messagesForApi.push({ role: 'user', content: userMessage });
+            // --- END: GATHER HISTORY FOR CONTEXT ---
+
+
             const payload = {
-                userMessage: userMessage,
+                // Send the array of messages (history + current user message)
+                messages: messagesForApi,
                 model: modelToUseInAPI // Send model to API
             };
 
-            // Add file details if any are attached
+            // Add file details if any are attached *to the current message*
+            // IMPORTANT: If your API supports multimodal history, file details might need
+            // to be integrated into the `messagesForApi` array for past messages as well.
             if (files && files.length > 0) {
                 payload.fileDetails = files.map(f => ({ name: f.name, type: f.type, size: f.size }));
-                // Note: Sending actual file *content* would require reading the file (e.g., as data URL or ArrayBuffer)
-                // and sending it in the payload. The current setup only sends file *metadata*.
-                // You will need to implement file reading and sending if your API requires the file content.
-                // Example (conceptual, needs implementation):
-                // const fileData = await Promise.all(files.map(async f => {
-                //    const base64 = await readFileAsBase64(f); // Implement this function
-                //    return { name: f.name, type: f.type, base64: base64 };
-                // }));
-                // payload.files = fileData;
+                // As noted before, sending actual file *content* requires reading files client-side
+                // and including the data (e.g., base64) in the payload, and your backend
+                // must be set up to handle this multi-part/multimodal input.
             }
+
+            console.log("Sending payload to API:", payload); // Log the payload being sent
 
             const response = await fetch('/api/generate', {
                 method: 'POST',
@@ -719,10 +752,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Simple Markdown-like rendering for bold/italic/code blocks
                 // This is a basic client-side renderer. For full Markdown, use a library.
-                let htmlContent = personalizedResponseText;
-
-                // Basic Code Block Formatting (already handled in CSS section, but need to generate HTML structure)
-                // Let's reuse the logic from the previous version to parse and format code blocks
                 let finalHtmlContent = '';
                 const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
                 let lastIndex = 0;

@@ -17,18 +17,47 @@
     --slider-icon-dark-moon: #93c5fd; /* Warna ikon bulan di dark mode */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-    /* Light Mode Variabel */
-    --lm-primary-text-color: #1f2937;
-    --lm-secondary-text-color: #4b5563;
-    --lm-background-color: #f9fafb;
-    --lm-header-bg-color: rgba(255, 255, 255, 0.85); /* Sedikit transparan */
-    --lm-card-background-color: #ffffff;
-    --lm-card-border-color: #e5e7eb;
-    --lm-link-hover-color: #2563eb;
-    --lm-slider-bg-light: #d1d5db; /* Latar slider di light mode */
-    --lm-slider-icon-light-moon: #4b5563; /* Warna ikon bulan di light mode */
-    --lm-google-btn-bg: #1f2937 !important; /* Latar tombol Google di light mode */
-    --lm-google-btn-text: #f9fafb !important; /* Teks tombol Google di light mode */
+    /* Login Modal Specific */
+    --modal-bg: #161b22;
+    --modal-border: #30363d;
+    --modal-text-color: #e6edf3;
+    --input-bg-color: #0d1117;
+    --input-border-color: #30363d;
+    --input-text-color: #e6edf3;
+    --or-separator-color: #4b5563;
+    --manual-login-btn-bg: #2188ff; /* Default primary blue */
+    --manual-login-btn-hover-bg: #007bff;
+    --modal-close-btn-bg: #4b5563;
+    --modal-close-btn-hover-bg: #58a6ff;
+    --google-btn-bg-light: #f0f6fc; /* Overrides for Google Button */
+    --google-btn-text-light: #0d1117;
+}
+
+body.light-mode {
+    --primary-text-color: #1f2937;
+    --secondary-text-color: #4b5563;
+    --background-color: #f9fafb;
+    --header-bg-color: rgba(255, 255, 255, 0.85);
+    --card-background-color: #ffffff;
+    --card-border-color: #e5e7eb;
+    --link-hover-color: #2563eb;
+    --slider-bg-dark: #d1d5db; /* Latar slider di light mode */
+    --slider-icon-dark-moon: #4b5563; /* Warna ikon bulan di light mode */
+
+    /* Login Modal Specific for Light Mode */
+    --modal-bg: #ffffff;
+    --modal-border: #e5e7eb;
+    --modal-text-color: #1f2937;
+    --input-bg-color: #f3f4f6;
+    --input-border-color: #d1d5db;
+    --input-text-color: #1f2937;
+    --or-separator-color: #9ca3af;
+    --manual-login-btn-bg: #2563eb;
+    --manual-login-btn-hover-bg: #1d4ed8;
+    --modal-close-btn-bg: #e5e7eb;
+    --modal-close-btn-hover-bg: #d1d5db;
+    --google-btn-bg-light: #1f2937;
+    --google-btn-text-light: #ffffff;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -46,63 +75,73 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body.light-mode {
-    --primary-text-color: var(--lm-primary-text-color);
-    --secondary-text-color: var(--lm-secondary-text-color);
-    --background-color: var(--lm-background-color);
-    --header-bg-color: var(--lm-header-bg-color);
-    --card-background-color: var(--lm-card-background-color);
-    --card-border-color: var(--lm-card-border-color);
-    --link-hover-color: var(--lm-link-hover-color);
-    --slider-bg-dark: var(--lm-slider-bg-light); 
-    --slider-icon-dark-moon: var(--lm-slider-icon-light-moon);
+/* Header Styles */
+.login-header {
+    background-color: var(--header-bg-color);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--card-border-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0 20px;
 }
-
-.login-header { background-color: var(--header-bg-color); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--card-border-color); position: sticky; top: 0; z-index: 1000; padding: 0 20px; }
-.header-content-wrapper { display: flex; justify-content: space-between; align-items: center; max-width: 1280px; margin: 0 auto; height: 64px; }
+.header-content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1280px;
+    margin: 0 auto;
+    height: 64px;
+}
 .header-left { display: flex; align-items: center; }
 .header-right { display: flex; align-items: center; gap: 20px; }
-.logo-container { display: flex; align-items: center; gap: 10px; }
-.header-logo { width: 32px; height: 32px; object-fit: contain; }
-.header-app-name { font-size: 1.25rem; font-weight: 700; color: var(--primary-text-color); }
+.logo-container { display: flex; align-items: center; gap: 6px; } /* Reduced gap */
+.header-logo { width: 28px; height: 28px; object-fit: contain; } /* Smaller logo */
+.header-app-name { font-size: 1.15rem; font-weight: 700; color: var(--primary-text-color); } /* Smaller text */
 
-#googleSignInButtonContainer button, #googleSignInButtonContainer > div > div {
-    background: var(--primary-text-color) !important; 
-    color: var(--background-color) !important; 
-    border-radius: 6px !important; font-weight: 500 !important; padding: 8px 16px !important; 
-    box-shadow: none !important; border: none !important; font-size: 0.875rem !important; 
-    transition: background-color 0.2s ease !important; }
-#googleSignInButtonContainer button:hover, #googleSignInButtonContainer > div > div:hover { background: #cdd5df !important; }
-body.light-mode #googleSignInButtonContainer button, body.light-mode #googleSignInButtonContainer > div > div {
-    background: var(--lm-google-btn-bg) !important; 
-    color: var(--lm-google-btn-text) !important; 
+/* Auth Button Styles (Log In / User Initial) */
+.auth-button {
+    background-color: var(--card-background-color);
+    color: var(--primary-text-color);
+    border: 1px solid var(--card-border-color);
+    border-radius: 20px; /* Rounded button */
+    padding: 8px 16px;
+    font-size: 0.875rem; /* Smaller font */
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    min-width: 80px; /* Ensure minimum width */
+    height: 36px; /* Adjusted height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* For ripple effect, if added */
+    overflow: hidden; /* For ripple effect, if added */
 }
-body.light-mode #googleSignInButtonContainer button:hover, body.light-mode #googleSignInButtonContainer > div > div:hover {
-    background-color: #374151 !important; 
+.auth-button:hover {
+    background-color: var(--card-border-color);
 }
 
-.user-greeting-header { display: flex; align-items: center; gap: 10px; }
-.user-avatar-header { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--card-border-color); }
-body.light-mode .user-avatar-header { border-color: var(--lm-card-border-color); }
-.user-greeting-header span { font-size: 0.875rem; color: var(--secondary-text-color); }
-.go-to-app-btn { background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end)); color: var(--button-text-color); padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 500; font-size: 0.875rem; transition: opacity 0.2s ease; }
-.go-to-app-btn:hover { opacity: 0.85; }
+.auth-button.user-initial-button {
+    width: 36px; /* Make it square for initial */
+    height: 36px;
+    border-radius: 50%; /* Fully round for initial */
+    padding: 0;
+    font-weight: 600;
+    background: linear-gradient(90deg, var(--accent-gradient-start), var(--accent-gradient-end));
+    color: var(--button-text-color);
+    border: none; /* No border for initial button */
+    font-size: 0.95rem; /* Adjust font size for initial */
+    text-transform: uppercase;
+}
+.auth-button.user-initial-button:hover {
+    opacity: 0.9;
+    transform: scale(1.05); /* Slight scale on hover */
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.2); /* Subtle glow */
+}
 
-.theme-toggle-login-container { display: flex; align-items: center; }
-.switch { position: relative; display: inline-block; width: 48px; height: 28px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--slider-bg-dark); border: 1px solid var(--card-border-color); transition: .4s; border-radius: 28px; display: flex; align-items: center; justify-content: flex-start; padding: 3px; box-sizing: border-box; }
-body.light-mode .slider { border-color: var(--lm-card-border-color); }
-.slider-icon { width: 20px; height: 20px; transition: transform 0.4s ease, color 0.4s ease; stroke-width: 2; }
-.slider-icon .sun-rays { opacity: 0; transform-origin: center; transform: scale(0.6) rotate(-45deg); transition: opacity 0.3s ease, transform 0.3s ease; stroke: currentColor; fill: none; }
-.slider-icon .moon-shape { opacity: 1; transform-origin: center; transform: scale(1) rotate(0deg); transition: opacity 0.3s ease, transform 0.3s ease; fill: currentColor; stroke: none; }
-input:checked + .slider { background-color: #f59e0b; justify-content: flex-end; }
-input:checked + .slider .slider-icon { color: white; }
-input:checked + .slider .slider-icon .sun-rays { opacity: 1; transform: scale(1) rotate(0deg); }
-input:checked + .slider .slider-icon .moon-shape { opacity: 0; transform: scale(0.6) rotate(45deg); }
-body:not(.light-mode) input:not(:checked) + .slider .slider-icon { color: var(--slider-icon-dark-moon); }
-body.light-mode input:not(:checked) + .slider .slider-icon { color: var(--slider-icon-dark-moon); }
-
+/* Main Content Area */
 .landing-main { flex-grow: 1; padding: 48px 0; width: 100%; }
 .hero-section { text-align: center; margin-bottom: 56px; padding: 0 24px; }
 .hero-section h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; margin-bottom: 16px; line-height: 1.2; color: var(--primary-text-color); }
@@ -151,19 +190,204 @@ body.light-mode input:not(:checked) + .slider .slider-icon { color: var(--slider
 .error-message { color: #f87171; font-size: 0.875rem; margin: 20px auto; padding: 10px 16px; background-color: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 6px; text-align: center; max-width: 500px; }
 
 .landing-footer { background-color: var(--background-color); border-top: 1px solid var(--card-border-color); color: var(--secondary-text-color); padding: 32px 24px; text-align: center; font-size: 0.8125rem; }
-.footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 16px; } /* Increased gap */
-.social-links { display: flex; justify-content: center; align-items: center; gap: 24px; margin-bottom: 0; } /* No margin-bottom if copyright is next */
+.footer-content { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.social-links { display: flex; justify-content: center; align-items: center; gap: 24px; margin-bottom: 0; }
 .social-links a { color: var(--secondary-text-color); text-decoration: none; font-size: 1.6rem; transition: color 0.2s ease, transform 0.2s ease; }
 .social-links a:hover { color: var(--link-hover-color); transform: scale(1.1) translateY(-1px); }
 .social-icon-svg { width: 26px; height: 26px; fill: currentColor; }
 .copyright-text { margin:0; font-size: 0.875rem; }
-.footer-links { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 8px; } /* Add margin-top */
+.footer-links { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
 .footer-links a { color: var(--secondary-text-color); text-decoration: none; transition: color 0.2s ease; font-size: 0.8125rem; }
 .footer-links a:hover { color: var(--link-hover-color); text-decoration: underline; }
 
+/* --- Login Modal Styles --- */
+.login-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1002; /* Lebih tinggi dari header */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.login-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.login-modal-content {
+    background-color: var(--modal-bg);
+    border: 1px solid var(--modal-border);
+    border-radius: 12px;
+    padding: 30px;
+    width: 90%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    color: var(--modal-text-color);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.login-modal-overlay.active .login-modal-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--modal-close-btn-bg);
+    color: var(--modal-text-color);
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.modal-close-btn:hover {
+    background: var(--modal-close-btn-hover-bg);
+}
+
+.modal-logo-container { margin-bottom: 20px; }
+.modal-logo { width: 50px; height: 50px; object-fit: contain; }
+.login-modal-content h3 { font-size: 1.15rem; font-weight: 600; margin-bottom: 25px; line-height: 1.4; }
+
+.manual-login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.manual-login-form input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--input-border-color);
+    border-radius: 8px;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+}
+.manual-login-form input::placeholder { color: var(--secondary-text-color); opacity: 0.7; }
+.manual-login-form input:focus { border-color: var(--accent-gradient-start); box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.3); }
+
+.login-form-btn {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: var(--manual-login-btn-bg);
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.login-form-btn:hover { background-color: var(--manual-login-btn-hover-bg); transform: translateY(-1px); }
+
+.or-separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--or-separator-color);
+    font-size: 0.875rem;
+    margin: 25px 0;
+    width: 100%;
+}
+.or-separator::before, .or-separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--modal-border);
+}
+.or-separator:not(:empty)::before { margin-right: .5em; }
+.or-separator:not(:empty)::after { margin-left: .5em; }
+
+/* Custom Google Button Container for styling */
+#googleButtonContainer {
+    width: 100%; /* Make sure it takes full width of the modal content */
+    display: flex;
+    justify-content: center; /* Center the Google button */
+    /* Pastikan tidak ada margin-bottom tambahan yang membuat spasi aneh */
+}
+
+/* Custom styles for Google Sign-In button within the modal */
+/* These styles override Google's default rendering */
+.g_id_signin div[data-type="standard"] {
+    /* Google's button is rendered inside a div with these data attributes */
+    /* You might need !important to override their inline styles */
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    background-color: var(--primary-text-color) !important;
+    color: var(--background-color) !important;
+    box-shadow: none !important;
+    border: none !important;
+    font-family: var(--font-sans) !important;
+    padding: 0 !important; /* Remove Google's default padding if it interferes */
+    height: 48px !important; /* Set a consistent height */
+    width: 100% !important; /* Make it fill the container */
+    max-width: 250px; /* Optional: limit max width if you want it smaller than full modal width */
+    display: flex !important; /* To center content */
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Specific overrides for Google's internal elements */
+.g_id_signin div[data-type="standard"] > div:first-child {
+    /* This is Google's internal content div, often contains the actual button elements */
+    width: 100% !important; /* Ensure content takes full width */
+    height: 100% !important;
+    border-radius: inherit !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important; /* Hide any overflow from their internal elements */
+    position: relative !important;
+    transition: background-color 0.2s ease;
+}
+
+/* Adjusting Google's text and icon for dark mode */
+body:not(.light-mode) .g_id_signin div[data-type="standard"] > div:first-child {
+    background-color: var(--primary-text-color) !important;
+    color: var(--background-color) !important;
+}
+
+/* Adjusting Google's text and icon for light mode */
+body.light-mode .g_id_signin div[data-type="standard"] > div:first-child {
+    background-color: var(--google-btn-bg-light) !important;
+    color: var(--google-btn-text-light) !important;
+}
+
+/* For hover state - this might be tricky due to Google's internal structure */
+.g_id_signin div[data-type="standard"] > div:first-child:hover {
+    opacity: 0.9; /* Simple opacity change on hover */
+}
+
+
+/* Media Queries */
 @media (max-width: 768px) {
     .login-header { padding: 0 16px; } .header-content-wrapper { height: 56px; } .header-app-name { font-size: 1.125rem; }
-    .header-right { gap: 12px; } .theme-toggle-login-container { margin-right: 0; }
+    .header-right { gap: 12px; }
     .landing-main { padding: 32px 0; } .hero-section { padding: 0 16px; margin-bottom: 40px; }
     .features-grid-container { padding: 0 16px; margin-bottom: 48px; }
     .section-title-alt, .section-title { padding: 0 16px; margin-bottom: 24px; }

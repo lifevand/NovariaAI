@@ -1,5 +1,6 @@
 // login.js
 
+// === Google Sign-In Callbacks ===
 function jwt_decode(token) {
     try {
         const base64Url = token.split('.')[1];
@@ -19,6 +20,7 @@ function jwt_decode(token) {
 function handleCredentialResponse(response) {
     const decodedToken = jwt_decode(response.credential);
     if (!decodedToken) return;
+
     const userProfile = {
         id: decodedToken.sub,
         name: decodedToken.name,
@@ -30,39 +32,165 @@ function handleCredentialResponse(response) {
     localStorage.setItem('novaUser', JSON.stringify(userProfile));
     localStorage.setItem('isLoggedIn', 'true');
 
+    // Tutup modal setelah login
+    closeLoginModal();
+    // Perbarui tombol header
+    updateHeaderAuthButton();
+
     const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'index.html';
     localStorage.removeItem('redirectAfterLogin');
-
-    if (localStorage.getItem('loginTriggeredByCard')) {
-        localStorage.removeItem('loginTriggeredByCard');
-    }
+    localStorage.removeItem('loginTriggeredByCard'); // Clear this flag
 
     window.location.href = redirectUrl;
 }
 
-// DATA UNTUK FITUR UNGGULAN NOVARIA (DIMODIFIKASI UNTUK CODEX)
+// === Header Auth Button Management ===
+function updateHeaderAuthButton() {
+    const headerAuthPlaceholder = document.getElementById('headerAuthPlaceholder');
+    if (!headerAuthPlaceholder) return;
+
+    headerAuthPlaceholder.innerHTML = ''; // Clear previous button/initial
+
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const storedUser = localStorage.getItem('novaUser');
+    let currentUser = null;
+
+    if (isLoggedIn && storedUser) {
+        try {
+            currentUser = JSON.parse(storedUser);
+            if (!currentUser || !currentUser.name) {
+                // Invalid user data, force logout
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('novaUser');
+                currentUser = null;
+            }
+        } catch (e) {
+            console.error("Error parsing user data in header:", e);
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('novaUser');
+            currentUser = null;
+        }
+    }
+
+    if (currentUser) {
+        // Display user initial button
+        const initial = (currentUser.givenName || currentUser.name || 'U').charAt(0).toUpperCase();
+        const userButton = document.createElement('button');
+        userButton.className = 'auth-button user-initial-button';
+        userButton.textContent = initial;
+        userButton.title = currentUser.name || currentUser.email;
+
+        userButton.addEventListener('click', () => {
+            // Optional: You can add a small dropdown here for logout/profile link
+            // For now, it simply shows an alert or does nothing
+            alert(`Logged in as ${currentUser.name || currentUser.email}`);
+        });
+
+        headerAuthPlaceholder.appendChild(userButton);
+    } else {
+        // Display "Log In" button
+        const loginButton = document.createElement('button');
+        loginButton.id = 'headerLoginButton'; // ID for specific targeting
+        loginButton.className = 'auth-button';
+        loginButton.textContent = 'Log In';
+        loginButton.addEventListener('click', openLoginModal);
+        headerAuthPlaceholder.appendChild(loginButton);
+    }
+}
+
+// === Login Modal Logic ===
+const loginModalOverlay = document.getElementById('loginModalOverlay');
+const loginModalContent = document.getElementById('loginModalContent');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+const manualLoginBtn = document.getElementById('manualLoginBtn'); // For future manual login
+
+function openLoginModal() {
+    loginModalOverlay.classList.add('active');
+    loginModalContent.classList.add('active');
+    // Render Google button inside the modal when it opens
+    const googleButtonContainer = document.getElementById('googleButtonContainer');
+    if (googleButtonContainer && !googleButtonContainer.hasChildNodes()) {
+        google.accounts.id.renderButton(googleButtonContainer, {
+            theme: "filled_black", // Or "outline", based on your design
+            size: "large",
+            type: "standard",
+            shape: "rectangular",
+            text: "continue_with",
+            logo_alignment: "left",
+            width: 250 // Set a fixed width or use 'auto' and let CSS handle
+        });
+    }
+}
+
+function closeLoginModal() {
+    loginModalOverlay.classList.remove('active');
+    loginModalContent.classList.remove('active');
+}
+
+// Event listeners for modal
+if (modalCloseBtn) {
+    modalCloseBtn.addEventListener('click', closeLoginModal);
+}
+if (loginModalOverlay) {
+    loginModalOverlay.addEventListener('click', (event) => {
+        if (event.target === loginModalOverlay) {
+            closeLoginModal();
+        }
+    });
+}
+
+// Placeholder for manual login (no actual auth)
+if (manualLoginBtn) {
+    manualLoginBtn.addEventListener('click', () => {
+        const email = document.getElementById('manualEmail').value;
+        const password = document.getElementById('manualPassword').value;
+        if (email && password) {
+            alert('Manual login attempted (backend not implemented).');
+            // Simulate successful login for demonstration
+            const demoUser = {
+                id: 'manual_user',
+                name: email.split('@')[0],
+                givenName: email.split('@')[0],
+                picture: 'https://via.placeholder.com/150/007bff/ffffff?text=' + email.charAt(0).toUpperCase(), // Placeholder image
+                email: email
+            };
+            localStorage.setItem('novaUser', JSON.stringify(demoUser));
+            localStorage.setItem('isLoggedIn', 'true');
+            closeLoginModal();
+            updateHeaderAuthButton();
+            // Redirect as if real login
+            const redirectUrl = localStorage.getItem('redirectAfterLogin') || 'index.html';
+            localStorage.removeItem('redirectAfterLogin');
+            window.location.href = redirectUrl;
+        } else {
+            alert('Please enter email and password for manual login.');
+        }
+    });
+}
+
+
+// === DATA AND RENDERING FOR MARKETING SECTIONS (UNCHANGED) ===
 const featureCardsData = [
-    // Kartu-kartu yang ingin Anda hapus sudah dihilangkan sesuai permintaan sebelumnya
     {
-        icon: "psychology", // AI Profesional Ramah
+        icon: "psychology",
         title: "AI Profesional Ramah",
         description: "Novaria dirancang untuk menjadi partner AI yang profesional namun tetap ramah dan mudah diajak berinteraksi.",
-        image: "images/ai-profesional.png", // Pastikan gambar ini ada
-        actionType: "default_redirect" // Mengarah ke index.html (chat utama)
+        image: "images/ai-profesional.png",
+        actionType: "default_redirect"
     },
     {
-        icon: "palette", // Generate Image
+        icon: "palette",
         title: "Generate Image",
         description: "Buat gambar unik dan kreatif dari deskripsi teks Anda dengan kekuatan AI.",
-        image: "images/generate-image-feature.png", // Pastikan gambar ini ada
-        actionType: "go_to_image_page" // Mengarah ke image.html
+        image: "images/generate-image-feature.png",
+        actionType: "go_to_image_page"
     },
     {
-        icon: "code_blocks", // atau "terminal", "data_object"
-        title: "Codex Generator", // DIUBAH NAMANYA
+        icon: "code_blocks",
+        title: "Codex Generator",
         description: "Rancang, tulis, dan debug kode dalam berbagai bahasa pemrograman dengan bantuan AI coder canggih.",
-        image: "images/codex-generator-feature.png", // GANTI NAMA GAMBAR JIKA PERLU, pastikan ada
-        actionType: "go_to_codex_page" // DIUBAH ACTION TYPE
+        image: "images/codex-generator-feature.png",
+        actionType: "go_to_codex_page"
     }
 ];
 
@@ -93,46 +221,33 @@ function renderFeatureCards() {
             const featureTitle = this.dataset.featureTitle;
             const actionType = this.dataset.actionType;
 
+            // Save the intention to redirect after login
             localStorage.setItem('loginTriggeredByCard', featureTitle);
 
             if (localStorage.getItem('isLoggedIn') === 'true') {
                 if (actionType === "go_to_image_page") {
                     window.location.href = 'image.html';
-                } else if (actionType === "go_to_codex_page") { // DIUBAH
-                    window.location.href = 'codex.html';    // DIUBAH
+                } else if (actionType === "go_to_codex_page") {
+                    window.location.href = 'codex.html';
                 } else { // default_redirect
                     window.location.href = 'index.html';
                 }
             } else {
+                // If not logged in, set redirect target and open modal
                 if (actionType === "go_to_image_page") {
                     localStorage.setItem('redirectAfterLogin', 'image.html');
-                } else if (actionType === "go_to_codex_page") { // DIUBAH
-                    localStorage.setItem('redirectAfterLogin', 'codex.html'); // DIUBAH
+                } else if (actionType === "go_to_codex_page") {
+                    localStorage.setItem('redirectAfterLogin', 'codex.html');
                 } else { // default_redirect
                     localStorage.setItem('redirectAfterLogin', 'index.html');
                 }
 
-                if (window.google && google.accounts && google.accounts.id) {
-                    google.accounts.id.prompt(notification => {
-                        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                            console.log('Google One Tap tidak ditampilkan.');
-                            const headerLoginButton = document.querySelector('#googleSignInButtonContainer button, #googleSignInButtonContainer > div > div');
-                            if (headerLoginButton) {
-                                headerLoginButton.focus();
-                                headerLoginButton.style.outline = '2px solid var(--accent-gradient-start)';
-                                setTimeout(() => { headerLoginButton.style.outline = 'none'; }, 2500);
-                            }
-                        }
-                    });
-                } else {
-                    console.error("Layanan Google Identity tidak tersedia untuk memicu prompt login.");
-                }
+                openLoginModal(); // Open the new login modal
             }
         });
     });
 }
 
-// DATA UNTUK KARTU JELAJAHI AI LAIN
 const exploreAiData = [
     { name: "Monica", logo: "images/explore/monica.png", description: "Asisten AI serbaguna untuk browsing, menulis, dan berkreasi dengan dukungan GPT-4.", url: "https://monica.im/", gradient: ['#f0abfc', '#a855f7'] },
     { name: "Qwen 2.5", logo: "images/explore/qwen.png", description: "Mesin penjawab bertenaga AI yang menyediakan sumber dan kutipan akurat.", url: "https://www.perplexity.ai/", gradient: ['#38bdf8', '#0ea5e9'] },
@@ -174,6 +289,7 @@ function renderExploreAiCards() {
     });
 }
 
+// === Theme Toggle Logic (UNCHANGED) ===
 function applyLoginTheme(isLightMode) {
     if (isLightMode) {
         document.body.classList.add('light-mode');
@@ -185,21 +301,25 @@ function applyLoginTheme(isLightMode) {
 }
 
 function setupLoginThemeToggle() {
-    const themeToggleLogin = document.getElementById('themeToggleLogin');
-    if (!themeToggleLogin) return;
-    const savedTheme = localStorage.getItem('novaria_theme'); // Pastikan key tema konsisten
-    if (savedTheme === 'light') {
-        themeToggleLogin.checked = true;
-        applyLoginTheme(true);
-    } else {
-        themeToggleLogin.checked = false;
-        applyLoginTheme(false);
-    }
-    themeToggleLogin.addEventListener('change', () => {
-        applyLoginTheme(themeToggleLogin.checked);
-    });
+    // Theme toggle has been removed from login.html header as per user request (image references)
+    // If you need it back, you'll need to re-add the HTML and this JS logic will then apply.
+    // For now, removing the reference to themeToggleLogin as it no longer exists in login.html.
+    // const themeToggleLogin = document.getElementById('themeToggleLogin');
+    // if (!themeToggleLogin) return;
+    // const savedTheme = localStorage.getItem('novaria_theme');
+    // if (savedTheme === 'light') {
+    //     themeToggleLogin.checked = true;
+    //     applyLoginTheme(true);
+    // } else {
+    //     themeToggleLogin.checked = false;
+    //     applyLoginTheme(false);
+    // }
+    // themeToggleLogin.addEventListener('change', () => {
+    //     applyLoginTheme(themeToggleLogin.checked);
+    // });
 }
 
+// === Initialize on Load ===
 window.onload = function () {
     const currentYearSpanLogin = document.getElementById('currentYearLogin');
     if (currentYearSpanLogin) { currentYearSpanLogin.textContent = new Date().getFullYear(); }
@@ -207,15 +327,16 @@ window.onload = function () {
     if (document.getElementById('featuresGrid')) { renderFeatureCards(); }
     if (document.getElementById('exploreAiGrid')) { renderExploreAiCards(); }
 
-    setupLoginThemeToggle();
+    setupLoginThemeToggle(); // This will no longer do anything if themeToggleLogin is removed from HTML
 
+    // Initialize Google Sign-In
     const clientIdMeta = document.querySelector('meta[name="google-signin-client_id"]');
-    if (!clientIdMeta || !clientIdMeta.content || clientIdMeta.content === "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com" || clientIdMeta.content.length < 20) {
-        console.error("Google Client ID tidak ditemukan, belum diganti, atau tidak valid.");
+    if (!clientIdMeta || !clientIdMeta.content || clientIdMeta.content === "870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com" || clientIdMeta.content.length < 20) {
+        console.error("Google Client ID tidak ditemukan, belum diganti, atau tidak valid. Gunakan Client ID Anda.");
         const errorDiv = document.getElementById('googleSignInError');
         if (errorDiv) { errorDiv.textContent = "Konfigurasi login tidak valid. Harap periksa Client ID."; errorDiv.style.display = 'block';}
-        const signInBtnContainer = document.getElementById('googleSignInButtonContainer');
-        if(signInBtnContainer) signInBtnContainer.innerHTML = "<p style='font-size:0.8rem; color: var(--secondary-text-color);'>Layanan login tidak tersedia sementara.</p>";
+        const headerAuthPlaceholder = document.getElementById('headerAuthPlaceholder');
+        if(headerAuthPlaceholder) headerAuthPlaceholder.innerHTML = "<p style='font-size:0.8rem; color: var(--secondary-text-color);'>Login dinonaktifkan.</p>";
         return;
     }
     const clientId = clientIdMeta.content;
@@ -230,23 +351,9 @@ window.onload = function () {
             callback: handleCredentialResponse
         });
 
-        const signInButtonContainer = document.getElementById('googleSignInButtonContainer');
-        if (signInButtonContainer) {
-             if (localStorage.getItem('isLoggedIn') !== 'true') {
-                google.accounts.id.renderButton(signInButtonContainer, {
-                    theme: "filled_black",
-                    size: "medium",
-                    type: "standard",
-                    shape: "pill",
-                    text: "signin",
-                    logo_alignment: "left"
-                });
-            } else {
-                const user = JSON.parse(localStorage.getItem('novaUser'));
-                const userName = user.givenName || user.name.split(' ')[0];
-                signInButtonContainer.innerHTML = `<div class="user-greeting-header"><img src="${user.picture}" alt="${userName}" class="user-avatar-header"/><span>Hi, ${userName}!</span><a href="index.html" class="go-to-app-btn">Buka Aplikasi</a></div>`;
-            }
-        }
+        // Initial render of the header auth button based on login status
+        updateHeaderAuthButton();
+
     } catch (error) {
         console.error("Google Identity Services init error:", error);
         const errorDiv = document.getElementById('googleSignInError');

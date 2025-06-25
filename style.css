@@ -14,7 +14,7 @@
   --sidebar-item-hover: #3a3a3a;
   --ripple-color: rgba(255, 255, 255, 0.4);
   --border-color: rgba(255, 255, 255, 0.1);
-  --modal-bg: #2a2a2a;
+  --modal-bg: #2a2a2a; /* Dihapus, tapi tetap jaga variabelnya jika suatu saat dibutuhkan */
   --modal-text: #ffffff;
   --modal-close-button: #555555;
   --modal-close-button-hover: #777777;
@@ -56,7 +56,7 @@ body.light-mode {
   --sidebar-item-hover: #f0f0f0;
   --ripple-color: rgba(0, 0, 0, 0.2);
   --border-color: rgba(0, 0, 0, 0.1);
-  --modal-bg: #ffffff;
+  --modal-bg: #ffffff; /* Dihapus, tapi tetap jaga variabelnya jika suatu saat dibutuhkan */
   --modal-text: #333333;
   --modal-close-button: #bbbbbb;
   --modal-close-button-hover: #999999;
@@ -516,8 +516,39 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 .sidebar { position: fixed; top: 0; right: -320px; width: 300px; height: 100%; background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-left: 1px solid var(--glass-border-color); box-shadow: none; z-index: 1000; transition: right 0.3s ease; padding: 25px 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; color: var(--sidebar-text); }
 .sidebar.active { right: 0; }
 .sidebar-overlay.active { opacity: 1; visibility: visible; }
-.sidebar h2 { margin-top: 0; font-size: 1.6em; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 20px; color: var(--sidebar-text); }
-.sidebar-item { padding: 12px 15px; cursor: pointer; border-radius: 8px; transition: background-color 0.2s ease, color 0.2s ease; display: flex; align-items: center; gap: 12px; font-size: 1.05em; font-weight: 500; position: relative; overflow: hidden; } /* Added position relative and overflow hidden for ripple */
+
+/* Sidebar Sections */
+.sidebar-section {
+    margin-bottom: 20px;
+}
+.sidebar-section:last-of-type {
+    margin-bottom: 0;
+}
+.sidebar-section h2 {
+    margin-top: 0;
+    font-size: 1.1em;
+    font-weight: 700;
+    padding-bottom: 8px;
+    margin-bottom: 10px;
+    color: var(--sidebar-text);
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+.sidebar-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.05em;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap; /* Prevent text wrapping */
+}
 .sidebar-item:hover { background-color: var(--sidebar-item-hover); }
 .sidebar-item a { text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; width: 100%; }
 .sidebar-item svg { width: 22px; height: 22px; stroke: var(--sidebar-text); fill: none; stroke-width: 2; transition: stroke 0.3s ease; }
@@ -525,19 +556,59 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
     fill: var(--sidebar-text);
     stroke: none; /* remove stroke if fill is used */
 }
-.sidebar-item.language-select { display: flex; justify-content: space-between; align-items: center; }
-.sidebar-item select { background-color: var(--button-bg); color: var(--text-color); border: none; padding: 8px 12px; border-radius: 6px; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 1em; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: right 8px center; background-size: 18px; transition: background-color 0.3s ease, color 0.3s ease; }
-body.light-mode .sidebar-item select { background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); }
-.sidebar-item select option { background-color: var(--button-bg); color: var(--text-color); }
 
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1001; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
-.modal-overlay.active { opacity: 1; visibility: visible; }
-.modal-content { background-color: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--glass-border-color); box-shadow: none; color: var(--modal-text); padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; position: relative; transform: translateY(20px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease; }
-.modal-overlay.active .modal-content { transform: translateY(0); opacity: 1; }
-.modal-content h3 { margin-top: 0; font-size: 1.8em; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 20px; color: var(--modal-text); }
-.modal-content p { font-size: 1em; line-height: 1.6; text-align: left; margin-bottom: 1em; color: var(--modal-text); }
-.modal-close-btn { position: absolute; top: 15px; right: 15px; background: var(--modal-close-button); color: var(--modal-text); border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-size: 1.5em; cursor: pointer; transition: background-color 0.2s ease, transform 0.1s ease; }
-.modal-close-btn:hover { background: var(--modal-close-button-hover); transform: scale(1.05); }
+/* User Profile in Sidebar */
+.sidebar-user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background-color: var(--sidebar-item-hover); /* Background yang sedikit berbeda */
+    margin-bottom: 15px;
+    cursor: default;
+    transition: background-color 0.2s ease;
+    flex-direction: row; /* Pastikan selalu baris */
+}
+.sidebar-user-profile .profile-pic {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid var(--border-color);
+}
+.sidebar-user-profile .profile-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden; /* Penting untuk ellipsis */
+}
+.sidebar-user-profile .profile-name {
+    font-weight: 700;
+    font-size: 1.1em;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.sidebar-user-profile .profile-email {
+    font-size: 0.85em;
+    color: var(--ai-message-color); /* Sedikit lebih redup */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Modal (variabelnya ada tapi stylingnya sudah tidak digunakan karena modal dihapus) */
+/* .modal-overlay { ... } */
+/* .modal-overlay.active { ... } */
+/* .modal-content { ... } */
+/* .modal-overlay.active .modal-content { ... } */
+/* .modal-content h3 { ... } */
+/* .modal-content p { ... } */
+/* .modal-close-btn { ... } */
+/* .modal-close-btn:hover { ... } */
 
 .code-block { background-color: var(--code-block-bg); color: var(--code-block-text); padding: 15px; border-radius: 8px; margin-top: 15px; margin-bottom: 10px; position: relative; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em; line-height: 1.5; border: 1px solid var(--code-block-border); text-align: left; white-space: pre-wrap; word-break: break-all; }
 .code-block pre { margin: 0; padding: 0; white-space: pre-wrap; word-break: break-all; }
@@ -554,3 +625,10 @@ body.light-mode .code-block .copy-code-btn svg { stroke: var(--text-color); }
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 .pulsing svg { animation: pulse 1.5s ease-in-out infinite; }
 .ai-action-btn.liked svg { stroke: #3b82f6; fill: rgba(59, 130, 246, 0.3); }
+
+/* Sticky bottom for control data section in sidebar */
+.sidebar-bottom-section {
+    margin-top: auto; /* Push this section to the bottom */
+    padding-top: 15px; /* Add some space above it */
+    border-top: 1px solid var(--border-color); /* Separator */
+}

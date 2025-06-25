@@ -14,6 +14,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             document.body.classList.remove('app-hidden');
             document.body.classList.add('app-loaded');
+
+            // === AWAL: DISPLAY PROFIL PENGGUNA DI SIDEBAR ===
+            const profilePicture = document.getElementById('profilePicture');
+            const profileName = document.getElementById('profileName');
+            const profileEmail = document.getElementById('profileEmail');
+            const sidebarUserProfile = document.getElementById('sidebarUserProfile');
+            const sidebarLoginSignup = document.getElementById('sidebarLoginSignup');
+
+            if (currentUser) {
+                if (profilePicture) profilePicture.src = currentUser.picture || 'placeholder-user.png';
+                if (profileName) profileName.textContent = currentUser.name || 'User';
+                if (profileEmail) profileEmail.textContent = currentUser.email || 'user@example.com';
+                if (sidebarUserProfile) sidebarUserProfile.style.display = 'flex';
+                if (sidebarLoginSignup) sidebarLoginSignup.style.display = 'none'; // Sembunyikan Login/Signup jika sudah login
+            } else {
+                if (sidebarUserProfile) sidebarUserProfile.style.display = 'none';
+                if (sidebarLoginSignup) sidebarLoginSignup.style.display = 'flex';
+            }
+            // === AKHIR: DISPLAY PROFIL PENGGUNA DI SIDEBAR ===
+
         } catch (e) {
             console.error("Error parsing user data or invalid data:", e);
             localStorage.removeItem('isLoggedIn');
@@ -34,10 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const backIcon = document.getElementById('backIcon');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
-    // themeToggle (sidebar) dihapus, themeToggleLanding (header) tetap
     const themeToggleLanding = document.getElementById('themeToggleLanding');
-    // languageSelect dihapus
-    // docTitle dihapus karena terjemahan judul dihapus
     const quickCompleteContainer = document.getElementById('quickCompleteContainer');
     const chatHistory = document.getElementById('chatHistory');
     const thinkingIndicator = document.getElementById('thinkingIndicator');
@@ -48,12 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.querySelector('main');
 
     let currentActivePage = 'welcome';
-
-    // Modal dan elemen terkait dihapus
-    // const infoModalOverlay = document.getElementById('infoModalOverlay');
-    // const modalCloseBtn = document.getElementById('modalCloseBtn');
-    // const modalTitle = document.getElementById('modalTitle');
-    // const modalBody = document.getElementById('modalBody');
 
     const plusButton = document.getElementById('plusButton');
     const fileInput = document.getElementById('fileInput');
@@ -68,8 +79,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const voiceInputButton = document.getElementById('voiceInputButton');
     let recognition;
 
-    // Tombol Logout di sidebar dan fungsinya dihapus
-    // const logoutButton = document.getElementById('logoutButton');
+    // === AWAL: ELEMEN SIDEBAR BARU & FUNGSINYA ===
+    const logoutButton = document.getElementById('logoutButton');
+    const clearChatHistoryButton = document.getElementById('clearChatHistoryButton');
+
+    // Event Listener untuk Logout
+    if (logoutButton) {
+        logoutButton.addEventListener('click', (event) => {
+            event.preventDefault(); // Mencegah navigasi default jika itu tautan
+            if (confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('novaUser');
+                window.location.href = 'login.html';
+            }
+        });
+    }
+
+    // Event Listener untuk Hapus Percakapan
+    if (clearChatHistoryButton) {
+        clearChatHistoryButton.addEventListener('click', () => {
+            if (confirm('Are you sure you want to delete all chat history? This action cannot be undone.')) {
+                if (chatHistory) {
+                    chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
+                    // Re-append thinking indicator if it was removed
+                    const reAddedThinkingIndicator = document.getElementById('thinkingIndicator');
+                    if(reAddedThinkingIndicator) thinkingIndicator.style.opacity = '0'; // Ensure it's hidden initially
+                }
+                messageInput.value = '';
+                autoResizeTextarea();
+                clearAttachedFiles(); // Clear attached files as well
+                updateInputAreaAppearance();
+                showPage('welcome'); // Kembali ke halaman welcome
+                sidebar.classList.remove('active'); // Tutup sidebar
+                sidebarOverlay.classList.remove('active'); // Tutup overlay
+            }
+        });
+    }
+
+    // Navigasi Sidebar (pastikan ini di dalam DOMContentLoaded)
+    // Untuk elemen yang memiliki <a> di dalamnya, biarkan browser menanganinya
+    // Untuk elemen yang tidak, Anda bisa menambahkan event listener jika perlu
+    document.querySelectorAll('.sidebar-item a').forEach(item => {
+        item.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+    });
+    // === AKHIR: ELEMEN SIDEBAR BARU & FUNGSINYA ===
 
 
     function checkScrollable() {
@@ -416,8 +472,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     messageInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendButton.click(); } });
 
-    // Hapus initialChatMessageFromStorage karena terjemahan dan quick suggestions dihapus
-    // const initialChatMessageFromStorage = localStorage.getItem('initialChatMessage');
     if (isLoggedIn === 'true') {
         showPage('welcome');
     }
@@ -454,21 +508,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // themeToggle (sidebar) dihapus, hanya themeToggleLanding (header)
     themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
 
-    // Objek translations dan fungsi terkait dihapus
-    // const translations = { ... };
-    // function updateTextContent(lang) { ... }
-    // function updateQuickSuggestions(lang) { ... }
-    // languageSelect.value = currentLanguage;
-    // updateTextContent(currentLanguage);
-    // languageSelect.addEventListener('change', ...);
-
-    // Hapus semua fungsi modal
-    // function openModal(titleKey, contentKey) { ... }
-    // function closeModal() { ... }
-    // modalCloseBtn.addEventListener('click', closeModal);
-    // infoModalOverlay.addEventListener('click', ...);
-    // document.querySelectorAll('.sidebar-item[data-modal-target]').forEach(...);
-
     function setupRippleEffects() {
         const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn');
         clickableElements.forEach(element => {
@@ -477,6 +516,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 element.removeEventListener('click', oldHandler);
             }
             const newHandler = function (e) {
+                // Jangan terapkan ripple jika klik dilakukan pada child link (<a>)
+                if (e.target.tagName === 'A' || e.target.closest('a')) {
+                    return;
+                }
                 if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA' || e.target.closest('select')) {
                     return;
                 }
@@ -499,11 +542,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     setupRippleEffects();
-    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn'))) { needsRippleSetup = true; } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn'))) { needsRippleSetup = true; } } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
+    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item'))) { needsRippleSetup = true; } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item'))) { needsRippleSetup = true; } } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
     if (chatHistory) observer.observe(chatHistory, { childList: true, subtree: true });
-    // quickCompleteContainer tidak lagi di-observe karena tidak diisi dinamis
-    // if (quickCompleteContainer) observer.observe(quickCompleteContainer, { childList: true, subtree: true });
     if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
+    if (sidebar) observer.observe(sidebar, { childList: true, subtree: true }); // Mengamati sidebar untuk item baru
 
     function updateInputAreaAppearance() {
         const inputWrapperHeight = inputWrapper.offsetHeight;

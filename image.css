@@ -11,6 +11,8 @@
     --accent-gradient-end: #f97316;
     --button-text-color: #ffffff;
     --font-sans: 'Inter', sans-serif;
+    --alt-gradient-start: #38bdf8; /* Biru terang untuk Google Search */
+    --alt-gradient-end: #0ea5e9;   /* Biru gelap untuk Google Search */
 
     /* Light Mode */
     --lm-primary-text-color: #1f2937;
@@ -20,6 +22,8 @@
     --lm-card-border-color: #e5e7eb;
     --lm-slider-bg-light: #d1d5db; 
     --lm-slider-icon-light-moon: #4b5563; 
+    --lm-alt-gradient-start: #2563eb;
+    --lm-alt-gradient-end: #3b82f6;
 }
 
 body {
@@ -39,15 +43,20 @@ body.light-mode {
     --background-color: var(--lm-background-color);
     --card-background-color: var(--lm-card-background-color);
     --card-border-color: var(--lm-card-border-color);
+    --alt-gradient-start: var(--lm-alt-gradient-start);
+    --alt-gradient-end: var(--lm-alt-gradient-end);
 }
 
 .image-header {
-    background-color: var(--card-background-color); /* Header lebih solid */
+    background-color: var(--background-color); /* Latar header sama dengan body */
     border-bottom: 1px solid var(--card-border-color);
     padding: 0 20px;
     position: sticky;
     top: 0;
     z-index: 100;
+}
+body.light-mode .image-header {
+    background-color: var(--lm-background-color);
 }
 
 .header-content-wrapper {
@@ -59,38 +68,48 @@ body.light-mode {
     height: 60px;
 }
 
-.back-to-chat-link {
+.back-icon-button {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: var(--secondary-text-color);
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--primary-text-color);
     text-decoration: none;
-    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
 }
-.back-to-chat-link:hover {
+.back-icon-button:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+body.light-mode .back-icon-button:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+.back-icon-button .material-symbols-outlined {
+    font-size: 1.5rem;
+}
+
+.header-title-image-page {
+    font-size: 1.25rem;
+    font-weight: 600;
     color: var(--primary-text-color);
 }
-.back-to-chat-link .material-symbols-outlined {
-    font-size: 1.2rem;
-}
 
-.app-brand-image-page {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-.header-logo-image-page {
-    width: 28px;
-    height: 28px;
-}
-
-/* Theme Toggle Styling (salin dari login.css jika perlu) */
-.theme-toggle-image-container .switch { /* ... styling switch ... */ }
-.theme-toggle-image-container .slider { /* ... styling slider ... */ }
-.theme-toggle-image-container .slider-icon { /* ... styling slider-icon ... */ }
-/* Anda bisa copy-paste styling lengkap untuk switch & slider dari login.css */
+/* Theme Toggle Styling */
+.theme-toggle-image-container { display: flex; align-items: center; }
+.switch { position: relative; display: inline-block; width: 48px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4b5563; border: 1px solid var(--card-border-color); transition: .4s; border-radius: 28px; display: flex; align-items: center; justify-content: flex-start; padding: 3px; box-sizing: border-box; }
+body.light-mode .slider { background-color: #d1d5db; border-color: var(--lm-card-border-color); }
+.slider-icon { width: 20px; height: 20px; transition: transform 0.4s ease, color 0.4s ease; stroke-width: 2; }
+.slider-icon .sun-rays { opacity: 0; transform-origin: center; transform: scale(0.6) rotate(-45deg); transition: opacity 0.3s ease, transform 0.3s ease; stroke: currentColor; fill: none; }
+.slider-icon .moon-shape { opacity: 1; transform-origin: center; transform: scale(1) rotate(0deg); transition: opacity 0.3s ease, transform 0.3s ease; fill: currentColor; stroke: none; }
+input:checked + .slider { background-color: #f59e0b; justify-content: flex-end; }
+input:checked + .slider .slider-icon { color: white; }
+input:checked + .slider .slider-icon .sun-rays { opacity: 1; transform: scale(1) rotate(0deg); }
+input:checked + .slider .slider-icon .moon-shape { opacity: 0; transform: scale(0.6) rotate(45deg); }
+body:not(.light-mode) input:not(:checked) + .slider .slider-icon { color: #93c5fd; }
+body.light-mode input:not(:checked) + .slider .slider-icon { color: #4b5563; }
 
 
 .image-generator-main {
@@ -115,6 +134,15 @@ body.light-mode {
     font-size: 1.8rem;
     margin-bottom: 10px;
     text-align: center;
+    line-height: 1.2; /* Menjaga jarak antar baris */
+}
+.gradient-text-alt-image { /* Gaya untuk "Google Search" */
+    background: linear-gradient(90deg, var(--alt-gradient-start), var(--alt-gradient-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 1.3rem; /* Ukuran lebih kecil dari h1 */
+    font-weight: 700;
 }
 .prompt-container p {
     font-size: 0.95rem;
@@ -171,18 +199,31 @@ body.light-mode #imagePromptInput {
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column; /* Untuk loading indicator */
+    flex-direction: column; /* Untuk loading indicator dan tombol download */
     position: relative; /* Untuk loading absolute */
+    gap: 15px; /* Jarak antara gambar dan tombol download */
 }
 
 .image-placeholder {
     text-align: center;
     color: var(--secondary-text-color);
 }
-.image-placeholder .material-symbols-outlined {
-    font-size: 4rem;
+.image-placeholder-icon-svg { /* Styling SVG ikon placeholder baru */
+    width: 80px; /* Ukuran ikon */
+    height: 80px;
     margin-bottom: 10px;
+    /* Memberi gradient pada stroke ikon */
+    stroke: url(#imageGradient); /* Menggunakan ID gradient dari SVG */
+    fill: none;
 }
+/* Definisi gradient untuk SVG ikon placeholder */
+.image-result-container svg {
+    /* Ini akan ditambahkan secara dinamis di JS atau Anda bisa menaruhnya di HTML jika perlu */
+}
+.image-placeholder p {
+    font-size: 1.1rem; /* Ukuran teks placeholder sedikit lebih besar */
+}
+
 
 #generatedImage {
     max-width: 100%;
@@ -214,6 +255,31 @@ body.light-mode .loading-indicator-image .spinner {
     to { transform: rotate(360deg); }
 }
 
+/* Download Button */
+.download-button {
+    background: linear-gradient(90deg, #28a745, #218838); /* Contoh gradient hijau */
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+    margin-top: 10px; /* Jarak dari gambar */
+}
+.download-button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+.download-button .material-symbols-outlined {
+    font-size: 1.2rem;
+}
+
+
 .image-footer {
     text-align: center;
     padding: 20px;
@@ -223,17 +289,20 @@ body.light-mode .loading-indicator-image .spinner {
     background-color: var(--card-background-color);
 }
 
-/* Styling untuk Theme Toggle di image.css (copy-paste dari login.css jika sama) */
-.theme-toggle-image-container .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
-.theme-toggle-image-container .switch input { opacity: 0; width: 0; height: 0; }
-.theme-toggle-image-container .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #4b5563; border: 1px solid var(--card-border-color); transition: .4s; border-radius: 28px; display: flex; align-items: center; justify-content: flex-start; padding: 3px; box-sizing: border-box; }
-body.light-mode .theme-toggle-image-container .slider { background-color: #d1d5db; border-color: var(--lm-card-border-color); }
-.theme-toggle-image-container .slider-icon { width: 20px; height: 20px; transition: transform 0.4s ease, color 0.4s ease; stroke-width: 2; }
-.theme-toggle-image-container .slider-icon .sun-rays { opacity: 0; transform-origin: center; transform: scale(0.6) rotate(-45deg); transition: opacity 0.3s ease, transform 0.3s ease; stroke: currentColor; fill: none; }
-.theme-toggle-image-container .slider-icon .moon-shape { opacity: 1; transform-origin: center; transform: scale(1) rotate(0deg); transition: opacity 0.3s ease, transform 0.3s ease; fill: currentColor; stroke: none; }
-.theme-toggle-image-container input:checked + .slider { background-color: #f59e0b; justify-content: flex-end; }
-.theme-toggle-image-container input:checked + .slider .slider-icon { color: white; }
-.theme-toggle-image-container input:checked + .slider .slider-icon .sun-rays { opacity: 1; transform: scale(1) rotate(0deg); }
-.theme-toggle-image-container input:checked + .slider .slider-icon .moon-shape { opacity: 0; transform: scale(0.6) rotate(45deg); }
-body:not(.light-mode) .theme-toggle-image-container input:not(:checked) + .slider .slider-icon { color: #93c5fd; }
-body.light-mode .theme-toggle-image-container input:not(:checked) + .slider .slider-icon { color: #4b5563; }
+/* Media Queries (sesuaikan jika ada perubahan layout besar) */
+@media (max-width: 768px) {
+    .header-content-wrapper { height: 50px; }
+    .header-title-image-page { font-size: 1.15rem; }
+    .back-icon-button { width: 32px; height: 32px; }
+    .back-icon-button .material-symbols-outlined { font-size: 1.3rem; }
+    .prompt-container h1 { font-size: 1.6rem; }
+    .gradient-text-alt-image { font-size: 1.1rem; }
+    .image-generator-main { padding: 20px 15px; gap: 20px; margin: 15px auto; }
+}
+@media (max-width: 480px) {
+    .prompt-container h1 { font-size: 1.4rem; }
+    .gradient-text-alt-image { font-size: 1rem; }
+    .prompt-container p { font-size: 0.85rem; }
+    .image-placeholder-icon-svg { width: 60px; height: 60px; }
+    .image-placeholder p { font-size: 1rem; }
+}

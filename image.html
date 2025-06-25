@@ -6,23 +6,19 @@
     <!-- PENTING: Client ID Google juga diperlukan di sini jika Anda ingin melakukan pengecekan login
          atau menampilkan info user dari localStorage, meskipun login utama terjadi di login.html -->
     <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com"> <!-- GANTI DENGAN CLIENT ID ANDA -->
-    <title>Novaria - Pencarian Gambar</title> <!-- MODIFIED -->
+    <title>Novaria - Generate Image</title> <!-- Judul halaman -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <link rel="stylesheet" href="image.css"> <!-- CSS Khusus untuk halaman ini -->
 </head>
 <body>
     <header class="image-header">
         <div class="header-content-wrapper">
-            <a href="index.html" class="back-to-chat-link">
+            <a href="index.html" class="back-icon-button" title="Kembali ke Chat">
                 <span class="material-symbols-outlined">arrow_back_ios</span>
-                <span>Kembali ke Chat</span>
             </a>
-            <div class="app-brand-image-page">
-                <img src="logo.png" alt="Novaria Logo" class="header-logo-image-page">
-                <span>Novaria Pencarian Gambar</span> <!-- MODIFIED -->
-            </div>
+            <span class="header-title-image-page">Generate Image</span> <!-- Judul baru di header -->
             <div class="theme-toggle-image-container">
                 <label class="switch">
                     <input type="checkbox" id="themeToggleImagePage">
@@ -35,24 +31,35 @@
         </div>
     </header>
 
-    <main class="image-generator-main"> <!-- class "image-generator-main" bisa tetap, karena styling mungkin masih relevan -->
+    <main class="image-generator-main">
         <div class="prompt-container">
-            <h1>Cari Gambar dengan AI</h1> <!-- MODIFIED -->
-            <p>Masukkan deskripsi detail tentang gambar yang ingin Anda cari.</p> <!-- MODIFIED -->
-            <textarea id="imagePromptInput" placeholder="Contoh: Pemandangan gunung bersalju saat matahari terbit, kucing lucu bermain bola..."></textarea> <!-- MODIFIED -->
-            <button id="generateImageButton">Cari Gambar</button> <!-- MODIFIED (JS juga akan mengatur ini) -->
+            <h1>Buat gambar dengan AI <br><span class="gradient-text-alt-image">Google Search</span></h1> <!-- Judul baru -->
+            <p>Masukan deskripsi detail tentang gambar yang ingin Anda generate.</p> <!-- Subtitle baru -->
+            <textarea id="imagePromptInput" placeholder="contoh prompt: Pemandangan gunung bersalju saat matahari terbit..."></textarea>
+            <button id="generateImageButton">Generate Gambar</button> <!-- Teks tombol baru -->
         </div>
 
         <div class="image-result-container" id="imageResultContainer">
             <div class="image-placeholder" id="imagePlaceholder">
-                <span class="material-symbols-outlined">image_search</span> <!-- MODIFIED icon (opsional, image juga ok) -->
-                <p>Hasil pencarian gambar Anda akan muncul di sini</p> <!-- MODIFIED -->
+                <!-- SVG Ikon Placeholder Baru dengan gradient -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="image-placeholder-icon-svg">
+                    <path d="M15 8l-3.5 3.5a1.5 1.5 0 0 1-2 0L6 9" />
+                    <path d="M7 17h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z" />
+                    <path d="M4 16v-2a2 2 0 0 1 2-2h12" />
+                    <path d="M3 20v-2a2 2 0 0 1 2-2h12" />
+                    <circle cx="10" cy="9" r="1.5" />
+                </svg>
+                <p>Gambar akan muncul disini.</p> <!-- Teks placeholder baru -->
             </div>
-            <img id="generatedImage" src="#" alt="Hasil Pencarian Gambar" style="display: none;"> <!-- MODIFIED alt (JS akan update lebih spesifik) -->
+            <img id="generatedImage" src="#" alt="Hasil Generate Gambar" style="display: none;">
             <div class="loading-indicator-image" id="loadingIndicatorImage" style="display: none;">
                 <div class="spinner"></div>
-                <p>Sedang mencari gambar...</p> <!-- MODIFIED (JS juga akan mengatur ini) -->
+                <p>Sedang membuat gambar...</p> <!-- Teks loading baru -->
             </div>
+            <!-- Tombol Download Gambar -->
+            <button id="downloadImageButton" class="download-button" style="display: none;">
+                <span class="material-symbols-outlined">download</span> Download Gambar
+            </button>
         </div>
     </main>
 
@@ -62,4 +69,4 @@
 
     <script src="image.js"></script> <!-- JS Khusus untuk halaman ini -->
 </body>
-    </html>
+</html>

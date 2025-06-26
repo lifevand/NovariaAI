@@ -293,21 +293,6 @@ main {
     white-space: pre-wrap; /* Agar \n di teks biasa juga berfungsi */
 }
 
-/* Tambahkan ini di style.css Anda, misalnya di bawah .ai-message-content */
-.ai-generated-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px; /* Sudut membulat */
-    margin-bottom: 5px; /* Sedikit jarak dari teks di bawahnya */
-    object-fit: contain; /* Memastikan gambar pas tanpa terpotong */
-    border: 1px solid var(--border-color); /* Garis tipis untuk membedakan */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sedikit bayangan */
-}
-/* Untuk light mode, mungkin border-color-nya berbeda */
-body.light-mode .ai-generated-image {
-    border: 1px solid var(--lm-card-border-color);
-}
-
 .ai-message-actions { display: flex; gap: 8px; margin-top: 8px; }
 .ai-action-btn { background-color: var(--action-button-bg); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; color: var(--action-button-icon-color); }
 .ai-action-btn:hover { background-color: var(--action-button-hover-bg); }

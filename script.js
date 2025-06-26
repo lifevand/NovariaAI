@@ -1,5 +1,3 @@
---- START OF FILE script.js ---
-
 // === GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI ===
 
 document.addEventListener('DOMContentLoaded', () => {

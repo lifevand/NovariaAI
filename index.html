@@ -1,3 +1,5 @@
+--- START OF FILE index.html ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="Yu5SrqKysJNrowL7W3-1r6kAGOf6GyertHg2MR-QMvg" />
   <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com">
-  <title>NovaAI - Assistant Cerdas Anda</title> <!-- Judul statis -->
+  <title>NovaAI</title> <!-- Judul statis -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css">
@@ -79,13 +81,14 @@
           </svg>
         </button>
 
+        <!-- Model Selector: Ubah dari select ke button dan pindah posisi -->
         <div class="model-selector-container">
-            <select id="modelSelector">
-                <!-- Opsi model akan ditambahkan oleh JavaScript -->
-            </select>
+            <button id="customModelSelectorTrigger" class="custom-selector-trigger">
+                <span id="selectedModelName"></span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+            </button>
         </div>
 
-        <!-- Ubah posisi textarea agar voice dan send bersebelahan di kanan -->
         <textarea id="messageInput" placeholder="Let's explore together..." rows="1"></textarea>
 
         <button class="btn-circle btn-voice" id="voiceInputButton">
@@ -161,6 +164,17 @@
       </div>
     </div>
   </aside>
+
+  <!-- Custom Model Select Modal -->
+  <div id="modelSelectModal" class="model-select-modal">
+      <div class="model-select-modal-content">
+          <h3>Choose AI Model</h3>
+          <div id="modelOptions" class="model-options-list">
+              <!-- Options will be populated by JS -->
+          </div>
+          <button id="closeModelModal" class="close-modal-btn">&times;</button>
+      </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

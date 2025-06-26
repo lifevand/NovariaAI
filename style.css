@@ -1,3 +1,5 @@
+--- START OF FILE style.css ---
+
 /* GANTI SELURUH ISI STYLE.CSS ANDA DENGAN KODE INI */
 
 /* CSS Variables for Themes */
@@ -14,10 +16,10 @@
   --sidebar-item-hover: #3a3a3a;
   --ripple-color: rgba(255, 255, 255, 0.4);
   --border-color: rgba(255, 255, 255, 0.1);
-  --modal-bg: #2a2a2a; /* Dihapus, tapi tetap jaga variabelnya jika suatu saat dibutuhkan */
+  --modal-bg: #2a2a2a; /* Warna background modal */
   --modal-text: #ffffff;
-  --modal-close-button: #555555;
-  --modal-close-button-hover: #777777;
+  --modal-close-button: #999999;
+  --modal-close-button-hover: #ffffff;
   --quick-complete-bg: #222222;
   --quick-complete-text: #ffffff;
   --quick-complete-hover-bg: #3a3a3a;
@@ -63,7 +65,7 @@ body.light-mode {
   --sidebar-item-hover: #f0f0f0;
   --ripple-color: rgba(0, 0, 0, 0.2);
   --border-color: rgba(0, 0, 0, 0.1);
-  --modal-bg: #ffffff; /* Dihapus, tapi tetap jaga variabelnya jika suatu saat dibutuhkan */
+  --modal-bg: #ffffff; /* Warna background modal */
   --modal-text: #333333;
   --modal-close-button: #bbbbbb;
   --modal-close-button-hover: #999999;
@@ -453,14 +455,14 @@ body.light-mode .ai-generated-image {
 .btn-circle svg { stroke: var(--text-color); width: 20px; height: 20px; transition: stroke 0.3s ease; }
 
 
-/* Model Selector Styling */
+/* Model Selector Styling (Updated for custom button) */
 .model-selector-container {
     display: flex;
     align-items: center;
     flex-shrink: 0; /* Jangan biarkan mengecil */
     margin-bottom: 0; /* Pastikan rata dengan elemen lain */
 }
-.model-selector-container select {
+.custom-selector-trigger {
     background-color: var(--model-selector-bg);
     color: var(--model-selector-text);
     border: 1px solid var(--model-selector-border);
@@ -471,34 +473,174 @@ body.light-mode .ai-generated-image {
     cursor: pointer;
     outline: none;
     appearance: none; /* Hapus default arrow */
-    background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Custom arrow */
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 18px;
     transition: background-color 0.2s ease, border-color 0.2s ease;
-    padding-right: 30px; /* Ruang untuk ikon */
+    padding-right: 12px; /* Awalnya 30px untuk ikon internal, sekarang ikon ada di dalam */
     max-width: 150px; /* Batasi lebar dropdown */
     text-overflow: ellipsis; /* Tambahkan ellipsis jika teks terlalu panjang */
     white-space: nowrap;
     overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    position: relative; /* Untuk ripple effect */
 }
-body.light-mode .model-selector-container select {
+body.light-mode .custom-selector-trigger {
     background-color: var(--model-selector-bg);
     border: 1px solid var(--model-selector-border);
     color: var(--model-selector-text);
-    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 }
-.model-selector-container select:hover {
+.custom-selector-trigger:hover {
     background-color: var(--model-selector-hover-bg);
     border-color: var(--model-selector-hover-bg);
 }
-.model-selector-container select option {
-    background-color: var(--model-selector-bg);
-    color: var(--model-selector-text);
+.custom-selector-trigger span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.custom-selector-trigger svg {
+    flex-shrink: 0;
+    width: 18px; /* Ukuran ikon panah */
+    height: 18px;
+    fill: var(--model-selector-text); /* Warna panah */
+    transition: transform 0.2s ease;
+}
+.model-select-modal.active .custom-selector-trigger svg {
+    transform: rotate(180deg); /* Animasi panah saat modal aktif */
 }
 
 
-/* === END: New Input Wrapper and File Chip Positioning === */
+/* === START: Custom Model Select Modal Styling === */
+.model-select-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Overlay semi-transparan */
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.model-select-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.model-select-modal-content {
+    background-color: var(--modal-bg);
+    color: var(--modal-text);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    transform: scale(0.8); /* Animasi awal */
+    opacity: 0; /* Animasi awal */
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease; /* Bounce effect */
+    position: relative;
+    max-width: 350px;
+    width: 90%;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.model-select-modal.active .model-select-modal-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.model-select-modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.model-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px; /* Batasi tinggi daftar opsi jika banyak */
+    overflow-y: auto; /* Scroll jika opsi terlalu banyak */
+    padding-right: 5px; /* Untuk menghindari scrollbar menutupi teks */
+}
+
+.model-option-item {
+    padding: 12px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    font-size: 1em;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative; /* For ripple effect */
+    overflow: hidden;
+}
+
+.model-option-item:hover {
+    background-color: var(--button-hover-bg);
+    transform: translateY(-1px);
+}
+
+.model-option-item.selected {
+    background-color: #3b82f6; /* Warna biru untuk yang terpilih */
+    color: white;
+    font-weight: 600;
+    transform: scale(1.02);
+}
+.model-option-item.selected svg {
+    stroke: white; /* Warna centang putih */
+}
+
+.model-option-item span {
+    text-align: left;
+    flex-grow: 1;
+}
+
+.model-option-item svg.checkmark {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.5;
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform: scale(0.8);
+}
+
+.model-option-item.selected svg.checkmark {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.8em;
+    color: var(--modal-close-button);
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.1s ease;
+    line-height: 1;
+    padding: 0;
+}
+
+.close-modal-btn:hover {
+    color: var(--modal-close-button-hover);
+    transform: scale(1.1);
+}
+/* === END: Custom Model Select Modal Styling === */
+
 
 .ripple { position: absolute; border-radius: 50%; opacity: 0; background-color: var(--ripple-color); animation: ripple-animation 0.6s linear; transform: scale(0); pointer-events: none; }
 @keyframes ripple-animation { from { transform: scale(0); opacity: 0.6; } to { transform: scale(2.5); opacity: 0; } }

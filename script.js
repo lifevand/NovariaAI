@@ -1,3 +1,5 @@
+--- START OF FILE script.js ---
+
 // === GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI ===
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -82,41 +84,87 @@ document.addEventListener('DOMContentLoaded', () => {
     const MAX_HISTORY_LENGTH = 10; // Batasi jumlah pasangan pesan (User+AI) yang disimpan
     // =========================================================
 
-    // === AWAL: SELEKTOR MODEL AI ===
-    const modelSelector = document.getElementById('modelSelector');
-    // Definisikan model yang tersedia
-    const availableModels = {
-        'gemini-2.5-flash': 'gemini-2.5-flash', // Pastikan nama ini sesuai dengan API
-        'gemini-1.5-pro-latest': 'gemini-1.5-pro-latest',
-        'gemini-1.5-flash-latest': 'gemini-1.5-flash-latest'
-    };
+    // === AWAL: CUSTOM SELEKTOR MODEL AI (MODAL) ===
+    const customModelSelectorTrigger = document.getElementById('customModelSelectorTrigger');
+    const selectedModelName = document.getElementById('selectedModelName');
+    const modelSelectModal = document.getElementById('modelSelectModal');
+    const modelOptionsContainer = document.getElementById('modelOptions');
+    const closeModelModalButton = document.getElementById('closeModelModal');
 
-    // Populate the selector
-    for (const key in availableModels) {
-        const option = document.createElement('option');
-        option.value = availableModels[key];
-        option.textContent = key; // Display actual name like 'gemini-2.5-flash'
-        modelSelector.appendChild(option);
+    // Definisikan model yang tersedia dengan label yang lebih rapi
+    const availableModels = [
+        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+        { value: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro' },
+        { value: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash' }
+    ];
+
+    let currentSelectedModelValue = '';
+
+    // Fungsi untuk menampilkan modal pemilihan model
+    function openModelSelectModal() {
+        modelSelectModal.classList.add('active');
+        populateModelOptions();
     }
 
-    // Set default model dari localStorage atau default ke flash
-    const savedModel = localStorage.getItem('selectedAiModel');
-    if (savedModel && availableModels[savedModel]) {
-        modelSelector.value = savedModel;
-    } else {
-        modelSelector.value = availableModels['gemini-2.5-flash'] || availableModels['gemini-1.5-flash-latest'];
-        localStorage.setItem('selectedAiModel', modelSelector.value);
+    // Fungsi untuk menyembunyikan modal pemilihan model
+    function closeModelSelectModal() {
+        modelSelectModal.classList.remove('active');
     }
 
-    // Simpan pilihan model saat berubah
-    modelSelector.addEventListener('change', () => {
-        localStorage.setItem('selectedAiModel', modelSelector.value);
-        // Optional: Reset chat history jika model berubah
-        // if (confirm('Model AI diubah. Apakah Anda ingin memulai percakapan baru?')) {
-        //     backIcon.click(); // Simulasikan klik tombol kembali untuk reset chat
-        // }
-    });
-    // =============================
+    // Fungsi untuk mengisi opsi model ke dalam modal
+    function populateModelOptions() {
+        modelOptionsContainer.innerHTML = ''; // Bersihkan opsi sebelumnya
+        availableModels.forEach(model => {
+            const optionItem = document.createElement('div');
+            optionItem.classList.add('model-option-item');
+            optionItem.dataset.modelValue = model.value;
+            optionItem.innerHTML = `
+                <span>${model.label}</span>
+                <svg class="checkmark" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            `;
+
+            if (model.value === currentSelectedModelValue) {
+                optionItem.classList.add('selected');
+            }
+
+            optionItem.addEventListener('click', () => {
+                currentSelectedModelValue = model.value;
+                localStorage.setItem('selectedAiModel', currentSelectedModelValue);
+                selectedModelName.textContent = model.label; // Update teks pada trigger
+                closeModelSelectModal();
+
+                // Optional: Beri tahu pengguna jika model berubah dan tawarkan reset chat
+                // Misalnya, Anda bisa menambahkan notifikasi atau konfirmasi di sini
+            });
+            modelOptionsContainer.appendChild(optionItem);
+        });
+    }
+
+    // Set default model saat DOMContentLoaded
+    const savedModelValue = localStorage.getItem('selectedAiModel');
+    const defaultModel = availableModels.find(m => m.value === savedModelValue) || availableModels[0];
+    currentSelectedModelValue = defaultModel.value;
+    selectedModelName.textContent = defaultModel.label;
+
+    // Event listeners untuk modal
+    if (customModelSelectorTrigger) {
+        customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
+    }
+    if (closeModelModalButton) {
+        closeModelModalButton.addEventListener('click', closeModelSelectModal);
+    }
+    // Tutup modal jika mengklik di luar area konten (overlay)
+    if (modelSelectModal) {
+        modelSelectModal.addEventListener('click', (event) => {
+            if (event.target === modelSelectModal) {
+                closeModelSelectModal();
+            }
+        });
+    }
+    // === AKHIR: CUSTOM SELEKTOR MODEL AI (MODAL) ===
+
 
     const voiceInputButton = document.getElementById('voiceInputButton');
     let recognition;
@@ -222,31 +270,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInputAreaAppearance();
     }
 
-    // --- Placeholder statis, tidak lagi dianimasikan ---
-    // const placeholders_en = ["Ask me anything...","What's on your mind?","Tell me a story...","How can I help you today?","Start a conversation...","I'm ready to chat!","Let's explore together...","What do you want to learn?"];
-    // let currentPlaceholderIndex = 0;
-    // function animatePlaceholder() {
-    //     if (messageInput.value.trim() !== '') return;
-    //     messageInput.style.opacity = '0';
-    //     messageInput.style.transform = 'translateY(-10px)';
-    //     setTimeout(() => {
-    //         currentPlaceholderIndex = (currentPlaceholderIndex + 1) % placeholders_en.length;
-    //         messageInput.placeholder = placeholders_en[currentPlaceholderIndex];
-    //         messageInput.style.opacity = '1';
-    //         messageInput.style.transform = 'translateY(0)';
-    //     }, 500);
-    // }
-    // let placeholderInterval = setInterval(animatePlaceholder, 3000);
-    // animatePlaceholder();
     messageInput.addEventListener('focus', () => {
-        // clearInterval(placeholderInterval); // Hapus jika animatePlaceholder dihapus
         quickCompleteContainer.classList.remove('active');
     });
-    // messageInput.addEventListener('blur', () => { // Hapus jika animatePlaceholder dihapus
-    //     if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
-    //         placeholderInterval = setInterval(animatePlaceholder, 3000);
-    //     }
-    // });
     messageInput.addEventListener('input', () => {
         autoResizeTextarea();
     });
@@ -494,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 userMessage: userMessage,
                 conversationHistory: conversationHistory,
                 attachedFiles: filesAsBase64,
-                selectedModel: modelSelector.value // Kirim model yang dipilih ke backend
+                selectedModel: currentSelectedModelValue // Kirim model yang dipilih ke backend
             };
 
             const response = await fetch('/api/generate', {
@@ -606,7 +632,8 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
 
     function setupRippleEffects() {
-        const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .model-selector-container select'); // Tambahkan select
+        // Tambahkan '.custom-selector-trigger' dan '.model-option-item'
+        const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item');
         clickableElements.forEach(element => {
             const oldHandler = element._rippleHandler;
             if (oldHandler) {
@@ -616,7 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (e.target.tagName === 'A' || e.target.closest('a')) {
                     return;
                 }
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA' || e.target.closest('select')) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') { // Hapus SELECT dari sini
                     return;
                 }
                 const ripple = document.createElement('span');
@@ -638,10 +665,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     setupRippleEffects();
-    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item'))) { needsRippleSetup = true; } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item'))) { needsRippleSetup = true; } } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
+    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item') || node.matches('.model-option-item'))) { needsRippleSetup = true; } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item') || node.querySelector('.model-option-item'))) { needsRippleSetup = true; } } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
     if (chatHistory) observer.observe(chatHistory, { childList: true, subtree: true });
     if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
     if (sidebar) observer.observe(sidebar, { childList: true, subtree: true });
+    if (modelOptionsContainer) observer.observe(modelOptionsContainer, { childList: true, subtree: true }); // Amati perubahan pada modal options
 
     // Update padding-bottom for main content based on the new bottom-chat-area height
     function updateInputAreaAppearance() {

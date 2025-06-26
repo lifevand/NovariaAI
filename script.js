@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 messageInput.value = '';
                 autoResizeTextarea();
-                clearAttachedFiles();
+                clearAttachedFiles(); // Clear attached files as well
                 updateInputAreaAppearance();
                 // === Reset conversation history saat hapus percakapan ===
                 conversationHistory = [];
@@ -222,9 +222,9 @@ document.addEventListener('DOMContentLoaded', () => {
     autoResizeTextarea();
 
     // === Pembersihan Teks AI dari Markdown (menghilangkan bintang dan format lain) ===
+    // Fungsi ini akan tetap ada, meskipun AI diminta plain text, sebagai fallback dan untuk code blocks.
     function cleanAiTextFromMarkdown(text) {
         // Hapus semua karakter Markdown umum untuk formatting (bold, italic, strikethrough, dll)
-        // Ini akan membuat teksnya menjadi plain text
         let cleanedText = text.replace(/(\*\*|__)(.*?)\1/g, '$2'); // Bold: **text** atau __text__ -> text
         cleanedText = cleanedText.replace(/(\*|_)(.*?)\1/g, '$2');   // Italic: *text* atau _text_ -> text
         cleanedText = cleanedText.replace(/~~(.*?)~~/g, '$1');      // Strikethrough: ~~text~~ -> text
@@ -234,14 +234,13 @@ document.addEventListener('DOMContentLoaded', () => {
         cleanedText = cleanedText.replace(/^\d+\.\s*(.*)$/gm, '$1'); // Numbered lists: 1. Item -> Item
         cleanedText = cleanedText.replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Links: [text](url) -> text
         
-        // Hapus juga sisa-sisa karakter yang mungkin ada di sekitar spasi ekstra
-        cleanedText = cleanedText.replace(/\s+/g, ' ').trim(); // Bersihkan spasi ganda
+        cleanedText = cleanedText.replace(/\s+/g, ' ').trim();
         return cleanedText;
     }
     // ======================================================================
 
-
-    function addChatMessage(content, sender = 'user') {
+    // === Fungsi addChatMessage yang diperbarui untuk Multi-modal Output ===
+    function addChatMessage(content, sender = 'user', imageUrl = null) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', sender === 'user' ? 'user-message' : 'ai-message');
         messageElement.style.opacity = '0';
@@ -249,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (sender === 'user') {
             messageElement.textContent = content;
-            // Tambahkan ke riwayat sebelum dibersihkan (user message tidak perlu dibersihkan)
             conversationHistory.push({ role: 'user', content: content });
         } else {
             const aiHeader = document.createElement('div');
@@ -276,21 +274,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const aiContentContainer = document.createElement('div');
             aiContentContainer.classList.add('ai-message-content');
             
-            // === AWAL: PENANGANAN MARKDOWN UNTUK DISPLAY ===
+            // Tambahkan gambar jika ada
+            if (imageUrl) {
+                const imgElement = document.createElement('img');
+                imgElement.src = imageUrl;
+                imgElement.alt = "Generated image"; // Ganti dengan alt yang lebih deskriptif jika bisa
+                imgElement.classList.add('ai-generated-image'); // Tambahkan kelas untuk styling
+                aiContentContainer.appendChild(imgElement);
+                // Tambahkan jarak bawah jika ada teks juga
+                if (content.trim()) {
+                    const spacer = document.createElement('div');
+                    spacer.style.height = '10px'; // Jarak antara gambar dan teks
+                    aiContentContainer.appendChild(spacer);
+                }
+            }
+
+            // Tambahkan teks
             let finalRenderedContent = '';
             const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
             let lastIndex = 0;
 
-            // Loop untuk mencari code blocks dan teks biasa di antara mereka
             content.replace(codeBlockRegex, (match, language, code, offset) => {
-                // Proses teks biasa sebelum code block
                 const plainTextPart = content.substring(lastIndex, offset);
                 // Bersihkan teks biasa dari markdown (menghilangkan bintang dll)
                 finalRenderedContent += `<span>${cleanAiTextFromMarkdown(plainTextPart)}</span>`;
 
-                // Proses code block
                 const lang = language || 'text';
-                // HTML dalam pre tag harus di-escape agar ditampilkan sebagai kode, bukan di-render
                 const escapedCode = code.trim().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                 const codeHtml = `
                     <div class="code-block">
@@ -307,29 +316,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 lastIndex = offset + match.length;
             });
 
-            // Tambahkan sisa teks setelah code block terakhir
             const remainingText = content.substring(lastIndex);
             if (remainingText) {
                 finalRenderedContent += `<span>${cleanAiTextFromMarkdown(remainingText)}</span>`;
             }
-            aiContentContainer.innerHTML = finalRenderedContent;
+            aiContentContainer.innerHTML += finalRenderedContent; // Tambahkan ke konten yang mungkin sudah ada gambar
             messageElement.appendChild(aiContentContainer);
 
-            // Tambahkan ke riwayat (versi teks, bukan HTML)
-            // Penting: Pastikan content di conversationHistory adalah teks murni atau teks Markdown
-            // yang akan dikirim ke AI, bukan HTML hasil render
-            conversationHistory.push({ role: 'assistant', content: content }); // Simpan teks asli dari AI
-            // ===============================================================
+            // Simpan teks asli dari AI ke conversation history (penting untuk konteks AI)
+            // Gambar tidak disimpan di conversationHistory karena AI sudah memprosesnya saat respons dihasilkan.
+            conversationHistory.push({ role: 'assistant', content: content });
         }
 
-        // Batasi panjang riwayat (ini akan memangkas dari awal)
-        // Setiap kali addChatMessage dipanggil, satu pesan ditambahkan.
-        // Jadi, kita ingin mempertahankan 10 pesan user dan 10 pesan assistant terakhir.
-        // Jika total messages > 20, pangkas
-        if (conversationHistory.length > MAX_HISTORY_LENGTH * 2) { // x2 karena ada user dan assistant
+        if (conversationHistory.length > MAX_HISTORY_LENGTH * 2) {
             conversationHistory = conversationHistory.slice(conversationHistory.length - (MAX_HISTORY_LENGTH * 2));
         }
-
 
         if (chatHistory && thinkingIndicator) {
             chatHistory.insertBefore(messageElement, thinkingIndicator);
@@ -357,21 +358,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const actionsContainer = document.createElement('div');
         actionsContainer.classList.add('ai-message-actions');
 
-        const getResponseText = (contentEl) => {
-            // Untuk speak/copy, kita mungkin ingin versi yang dibersihkan dari Markdown
-            // atau versi yang dekat dengan raw AI response.
-            // Untuk speak, textContent dari aiContentContainer yang sudah dibersihkan sudah oke.
-            // Untuk copy, mungkin ingin raw response aslinya (markdown + code blocks)
+        const getResponseTextForSpeak = (contentEl) => {
             let text = '';
             contentEl.childNodes.forEach(node => {
                 if (node.nodeType === Node.TEXT_NODE) {
                     text += node.textContent;
                 } else if (node.nodeType === Node.ELEMENT_NODE) {
                     if (node.tagName === 'SPAN') {
-                        text += node.textContent; // Teks biasa yang sudah dibersihkan
+                        text += node.textContent;
+                    } else if (node.tagName === 'IMG') {
+                        text += `[Gambar: ${node.alt}]`; // Deskripsikan gambar untuk Text-to-Speech
                     } else if (node.classList.contains('code-block')) {
-                        // Untuk code block, ambil konten pre tag
-                        text += node.querySelector('pre').textContent;
+                        text += `[Blok kode: ${node.querySelector('pre').textContent}]`; // Deskripsikan kode untuk Text-to-Speech
                     }
                 }
             });
@@ -379,11 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const getFullContentForCopy = (contentEl) => {
-            // Untuk copy, ambil konten dari history, karena itu raw AI response (termasuk markdown asli)
-            // Ini akan memastikan pengguna bisa meng-copy format Markdown lengkap jika mereka mau.
-            // Namun, karena kita menghapus markdown di frontend, ini sedikit rumit.
-            // Alternatif: simpan raw response di DOM element data attribute.
-            // Untuk saat ini, kita ambil yang di-render.
             let fullContent = '';
              contentEl.childNodes.forEach(node => {
                 if (node.nodeType === Node.TEXT_NODE) {
@@ -391,11 +384,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (node.nodeType === Node.ELEMENT_NODE) {
                     if (node.tagName === 'SPAN') {
                         fullContent += node.textContent;
+                    } else if (node.tagName === 'IMG') {
+                        fullContent += `\n[Gambar: ${node.alt} - URL: ${node.src}]\n`; // Sertakan info gambar untuk copy
                     } else if (node.classList.contains('code-block')) {
                         const langTag = node.querySelector('.language-tag');
                         const lang = langTag ? langTag.textContent.toLowerCase() : 'text';
                         const code = node.querySelector('pre').textContent;
-                        fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``; // Format ulang sebagai Markdown
+                        fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
                     }
                 }
             });
@@ -404,16 +399,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const buttons = [
             { name: 'copy', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullContentForCopy(contentContainer); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getResponseText(contentContainer); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
+            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getResponseTextForSpeak(contentContainer); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
             { name: 'like', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>', title: 'Like', action: (buttonEl) => { buttonEl.classList.toggle('liked'); } },
             { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => { const svg = buttonEl.querySelector('svg'); svg.classList.add('rotating'); buttonEl.disabled = true; buttonEl.style.cursor = 'wait';
-                // Untuk regenerate, ambil pesan user sebelumnya dari riwayat
                 const lastUserMessageObj = conversationHistory.slice().reverse().find(msg => msg.role === 'user');
                 if (lastUserMessageObj) {
-                    msgEl.remove(); // Hapus respons AI saat ini
-                    // Hapus respons AI terakhir dari history juga agar tidak jadi duplikat
-                    conversationHistory = conversationHistory.filter(msg => msg !== conversationHistory[conversationHistory.length -1]);
-                    // Gunakan pesan terakhir user dan kirim lagi
+                    msgEl.remove();
+                    // Hapus pesan AI terakhir dari history
+                    conversationHistory = conversationHistory.filter(msg => msg.role !== 'assistant' || msg.content !== msgEl.textContent); // Pastikan menghapus yang benar
+                    // Jika ada gambar, dan itu adalah pesan terakhir, mungkin juga ingin menghapusnya dari konteks AI.
+                    // Namun karena AI yang menghasilkan, ia sudah tahu tentang gambar itu.
                     generateRealAIResponse(lastUserMessageObj.content, attachedFiles);
                 } else {
                     svg.classList.remove('rotating');
@@ -439,6 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // === Fungsi generateRealAIResponse yang diperbarui untuk Multi-modal Input & Output ===
     async function generateRealAIResponse(userMessage, files = []) {
         if (thinkingIndicator) {
             thinkingIndicator.classList.remove('hidden');
@@ -450,7 +446,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 0);
 
         try {
-            // Ubah file menjadi Base64 sebelum dikirim
             const filesAsBase64 = await Promise.all(files.map(async file => {
                 const base64Data = await getBase64(file);
                 return {
@@ -461,10 +456,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const payload = {
                 userMessage: userMessage,
-                // === Kirim riwayat percakapan yang sudah ada ===
                 conversationHistory: conversationHistory,
-                // ============================================
-                attachedFiles: filesAsBase64 // Kirim data file Base64
+                attachedFiles: filesAsBase64
             };
 
             const response = await fetch('/api/generate', {
@@ -474,12 +467,22 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Server error: ${response.status}`);
+                let errorMessageText = `Server error: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    errorMessageText = errorData.message || errorMessageText;
+                } catch (jsonError) {
+                    const plainTextError = await response.text();
+                    errorMessageText = `Server error: ${response.status}. Detail: ${plainTextError.substring(0, 100)}... (bukan JSON)`;
+                    console.error("Server returned non-JSON error:", plainTextError);
+                }
+                throw new Error(errorMessageText);
             }
 
+            // Menerima respons yang kini bisa mengandung teks dan imageUrl
             const data = await response.json();
-            const rawAiResponseText = data.text;
+            const rawAiResponseText = data.text || ''; // Teks respons utama
+            const generatedImageUrl = data.imageUrl || null; // URL gambar Base64 jika ada
 
             if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
@@ -491,8 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     personalizedResponseText = greeting + rawAiResponseText;
                 }
 
-                // addChatMessage sekarang akan membersihkan markdown dan menangani code blocks
-                const aiMessageElement = addChatMessage(personalizedResponseText, 'ai');
+                // Kirim teks dan URL gambar ke addChatMessage
+                const aiMessageElement = addChatMessage(personalizedResponseText, 'ai', generatedImageUrl);
                 addAiMessageActions(aiMessageElement);
                 clearAttachedFiles();
                 checkScrollable();
@@ -525,7 +528,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentActivePage === 'welcome') {
                 showPage('chat', finalPrompt);
             } else {
-                // addChatMessage sekarang akan menyimpan user message ke history
                 addChatMessage(finalPrompt, 'user');
                 generateRealAIResponse(finalPrompt, attachedFiles);
             }
@@ -552,12 +554,9 @@ document.addEventListener('DOMContentLoaded', () => {
         autoResizeTextarea();
         clearAttachedFiles();
         updateInputAreaAppearance();
-        // === Reset conversation history saat kembali ===
         conversationHistory = [];
-        // ===============================================
     });
 
-    // Tema hanya dikontrol dari header sekarang
     const savedTheme = localStorage.getItem('novaai_theme');
     if (savedTheme === 'light-mode') {
         document.body.classList.add('light-mode');
@@ -639,7 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fileNamePreview.classList.add('file-name-preview');
         const maxNameDisplayLength = 10;
         const fileNameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-        const fileExt = file.name.substring(file.name.lastIndexOf('.'));
+        const fileExt = file.name.substring(file.name.lastIndexOf('.');
         fileNamePreview.textContent = fileNameWithoutExt.length > maxNameDisplayLength ?
                                     fileNameWithoutExt.substring(0, maxNameDisplayLength) + "..." + fileExt :
                                     file.name;

@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const plusButton = document.getElementById('plusButton');
     const fileInput = document.getElementById('fileInput');
-    // const inputWrapper = document.querySelector('.input-wrapper'); // Ini tidak lagi untuk padding main
     const bottomChatArea = document.getElementById('bottomChatArea'); // Wrapper baru untuk padding
 
     const MAX_FILE_SIZE_KB_NEW = 450;
@@ -208,11 +207,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
                 checkScrollable();
             }, 10);
-            quickCompleteContainer.classList.remove('active');
+            quickCompleteContainer.classList.remove('active'); // Pastikan quick complete disembunyikan di chat
         } else {
             landingThemeToggleContainer.classList.remove('hidden');
             menuIcon.classList.remove('hidden');
             backIcon.classList.add('hidden');
+            // Jika kembali ke welcome, quick complete mungkin perlu ditampilkan lagi (jika ada)
+            // quickCompleteContainer.classList.add('active'); // Tergantung perilaku yang diinginkan
         }
         if (pageName === 'chat' && initialMessage) {
             addChatMessage(initialMessage, 'user');
@@ -221,30 +222,31 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInputAreaAppearance();
     }
 
-    const placeholders_en = ["Ask me anything...","What's on your mind?","Tell me a story...","How can I help you today?","Start a conversation...","I'm ready to chat!","Let's explore together...","What do you want to learn?"];
-    let currentPlaceholderIndex = 0;
-    function animatePlaceholder() {
-        if (messageInput.value.trim() !== '') return;
-        messageInput.style.opacity = '0';
-        messageInput.style.transform = 'translateY(-10px)';
-        setTimeout(() => {
-            currentPlaceholderIndex = (currentPlaceholderIndex + 1) % placeholders_en.length;
-            messageInput.placeholder = placeholders_en[currentPlaceholderIndex];
-            messageInput.style.opacity = '1';
-            messageInput.style.transform = 'translateY(0)';
-        }, 500);
-    }
-    let placeholderInterval = setInterval(animatePlaceholder, 3000);
-    animatePlaceholder();
+    // --- Placeholder statis, tidak lagi dianimasikan ---
+    // const placeholders_en = ["Ask me anything...","What's on your mind?","Tell me a story...","How can I help you today?","Start a conversation...","I'm ready to chat!","Let's explore together...","What do you want to learn?"];
+    // let currentPlaceholderIndex = 0;
+    // function animatePlaceholder() {
+    //     if (messageInput.value.trim() !== '') return;
+    //     messageInput.style.opacity = '0';
+    //     messageInput.style.transform = 'translateY(-10px)';
+    //     setTimeout(() => {
+    //         currentPlaceholderIndex = (currentPlaceholderIndex + 1) % placeholders_en.length;
+    //         messageInput.placeholder = placeholders_en[currentPlaceholderIndex];
+    //         messageInput.style.opacity = '1';
+    //         messageInput.style.transform = 'translateY(0)';
+    //     }, 500);
+    // }
+    // let placeholderInterval = setInterval(animatePlaceholder, 3000);
+    // animatePlaceholder();
     messageInput.addEventListener('focus', () => {
-        clearInterval(placeholderInterval);
+        // clearInterval(placeholderInterval); // Hapus jika animatePlaceholder dihapus
         quickCompleteContainer.classList.remove('active');
     });
-    messageInput.addEventListener('blur', () => {
-        if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
-            placeholderInterval = setInterval(animatePlaceholder, 3000);
-        }
-    });
+    // messageInput.addEventListener('blur', () => { // Hapus jika animatePlaceholder dihapus
+    //     if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
+    //         placeholderInterval = setInterval(animatePlaceholder, 3000);
+    //     }
+    // });
     messageInput.addEventListener('input', () => {
         autoResizeTextarea();
     });
@@ -796,8 +798,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let finalTranscript = '';
         recognition.onstart = () => { voiceInputButton.style.backgroundColor = 'red'; messageInput.placeholder = 'Listening...'; };
         recognition.onresult = (event) => { let interimTranscript = ''; for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) { finalTranscript += event.results[i][0].transcript; } else { interimTranscript += event.results[i][0].transcript; } } messageInput.value = finalTranscript + interimTranscript; autoResizeTextarea(); };
-        recognition.onend = () => { voiceInputButton.style.backgroundColor = ''; if (finalTranscript.trim() !== '') { messageInput.value = finalTranscript.trim(); } if (messageInput.value.trim() === '') { messageInput.placeholder = placeholders_en[currentPlaceholderIndex]; } finalTranscript = ''; };
-        recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; messageInput.placeholder = placeholders_en[currentPlaceholderIndex]; finalTranscript = ''; alert('Speech recognition error: ' + event.error); };
+        recognition.onend = () => { voiceInputButton.style.backgroundColor = ''; if (finalTranscript.trim() !== '') { messageInput.value = finalTranscript.trim(); } if (messageInput.value.trim() === '') { messageInput.placeholder = "Let's explore together..."; } finalTranscript = ''; }; // Placeholder statis
+        recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; messageInput.placeholder = "Let's explore together..."; finalTranscript = ''; alert('Speech recognition error: ' + event.error); }; // Placeholder statis
         voiceInputButton.addEventListener('click', () => { try { if (recognition && typeof recognition.stop === 'function' && recognition.recording) { recognition.stop(); } else { recognition.start(); } } catch (e) { if (recognition && typeof recognition.stop === 'function') recognition.stop(); } });
     } else {
         voiceInputButton.style.display = 'none';

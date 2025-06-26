@@ -74,7 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const MAX_FILE_SIZE_BYTES_NEW = MAX_FILE_SIZE_KB_NEW * 1024;
     const MAX_FILES_ALLOWED = 5;
     const fileChipContainer = document.getElementById('fileChipContainer');
-    let attachedFiles = [];
+    let attachedFiles = []; // Ini akan menyimpan objek File asli
+
+    // === AWAL: IMPLEMENTASI DAYA INGAT (CONVERSATION HISTORY) ===
+    let conversationHistory = []; // Array untuk menyimpan riwayat pesan
+    const MAX_HISTORY_LENGTH = 10; // Batasi jumlah pasangan pesan (User+AI) yang disimpan
+    // =========================================================
 
     const voiceInputButton = document.getElementById('voiceInputButton');
     let recognition;
@@ -101,24 +106,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (confirm('Are you sure you want to delete all chat history? This action cannot be undone.')) {
                 if (chatHistory) {
                     chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
-                    // Re-append thinking indicator if it was removed
                     const reAddedThinkingIndicator = document.getElementById('thinkingIndicator');
-                    if(reAddedThinkingIndicator) thinkingIndicator.style.opacity = '0'; // Ensure it's hidden initially
+                    if(reAddedThinkingIndicator) thinkingIndicator.style.opacity = '0';
                 }
                 messageInput.value = '';
                 autoResizeTextarea();
-                clearAttachedFiles(); // Clear attached files as well
+                clearAttachedFiles();
                 updateInputAreaAppearance();
-                showPage('welcome'); // Kembali ke halaman welcome
-                sidebar.classList.remove('active'); // Tutup sidebar
-                sidebarOverlay.classList.remove('active'); // Tutup overlay
+                // === Reset conversation history saat hapus percakapan ===
+                conversationHistory = [];
+                // =======================================================
+                showPage('welcome');
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
             }
         });
     }
 
     // Navigasi Sidebar (pastikan ini di dalam DOMContentLoaded)
-    // Untuk elemen yang memiliki <a> di dalamnya, biarkan browser menanganinya
-    // Untuk elemen yang tidak, Anda bisa menambahkan event listener jika perlu
     document.querySelectorAll('.sidebar-item a').forEach(item => {
         item.addEventListener('click', () => {
             sidebar.classList.remove('active');
@@ -165,15 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
                 checkScrollable();
             }, 10);
-            quickCompleteContainer.classList.remove('active'); // Quick suggestions dinonaktifkan
+            quickCompleteContainer.classList.remove('active');
         } else {
             landingThemeToggleContainer.classList.remove('hidden');
             menuIcon.classList.remove('hidden');
             backIcon.classList.add('hidden');
-            // Quick suggestions dinonaktifkan
-            // if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
-            //     quickCompleteContainer.classList.add('active');
-            // }
         }
         if (pageName === 'chat' && initialMessage) {
             addChatMessage(initialMessage, 'user');
@@ -182,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInputAreaAppearance();
     }
 
-    // Placeholder disederhanakan, tidak lagi multilingual
     const placeholders_en = ["Ask me anything...","What's on your mind?","Tell me a story...","How can I help you today?","Start a conversation...","I'm ready to chat!","Let's explore together...","What do you want to learn?"];
     let currentPlaceholderIndex = 0;
     function animatePlaceholder() {
@@ -197,29 +197,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     }
     let placeholderInterval = setInterval(animatePlaceholder, 3000);
-    animatePlaceholder(); // Panggil sekali di awal
+    animatePlaceholder();
     messageInput.addEventListener('focus', () => {
         clearInterval(placeholderInterval);
-        quickCompleteContainer.classList.remove('active'); // Quick suggestions dinonaktifkan
+        quickCompleteContainer.classList.remove('active');
     });
     messageInput.addEventListener('blur', () => {
         if (messageInput.value.trim() === '' && attachedFiles.length === 0) {
             placeholderInterval = setInterval(animatePlaceholder, 3000);
-            // Quick suggestions dinonaktifkan
-            // if (currentActivePage === 'welcome') {
-            //     quickCompleteContainer.classList.add('active');
-            // }
         }
     });
     messageInput.addEventListener('input', () => {
-        // Quick suggestions dinonaktifkan
-        // if (messageInput.value.trim() !== '' || attachedFiles.length > 0) {
-        //     quickCompleteContainer.classList.remove('active');
-        // } else {
-        //     if (currentActivePage === 'welcome') {
-        //         quickCompleteContainer.classList.add('active');
-        //     }
-        // }
         autoResizeTextarea();
     });
 
@@ -233,6 +221,26 @@ document.addEventListener('DOMContentLoaded', () => {
     messageInput.addEventListener('input', autoResizeTextarea);
     autoResizeTextarea();
 
+    // === Pembersihan Teks AI dari Markdown (menghilangkan bintang dan format lain) ===
+    function cleanAiTextFromMarkdown(text) {
+        // Hapus semua karakter Markdown umum untuk formatting (bold, italic, strikethrough, dll)
+        // Ini akan membuat teksnya menjadi plain text
+        let cleanedText = text.replace(/(\*\*|__)(.*?)\1/g, '$2'); // Bold: **text** atau __text__ -> text
+        cleanedText = cleanedText.replace(/(\*|_)(.*?)\1/g, '$2');   // Italic: *text* atau _text_ -> text
+        cleanedText = cleanedText.replace(/~~(.*?)~~/g, '$1');      // Strikethrough: ~~text~~ -> text
+        cleanedText = cleanedText.replace(/`([^`]+)`/g, '$1');      // Inline code: `code` -> code
+        cleanedText = cleanedText.replace(/^#+\s*(.*)$/gm, '$1');   // Headers: # Header -> Header
+        cleanedText = cleanedText.replace(/^-+\s*(.*)$/gm, '$1');   // List items: - Item -> Item
+        cleanedText = cleanedText.replace(/^\d+\.\s*(.*)$/gm, '$1'); // Numbered lists: 1. Item -> Item
+        cleanedText = cleanedText.replace(/\[(.*?)\]\(.*?\)/g, '$1'); // Links: [text](url) -> text
+        
+        // Hapus juga sisa-sisa karakter yang mungkin ada di sekitar spasi ekstra
+        cleanedText = cleanedText.replace(/\s+/g, ' ').trim(); // Bersihkan spasi ganda
+        return cleanedText;
+    }
+    // ======================================================================
+
+
     function addChatMessage(content, sender = 'user') {
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', sender === 'user' ? 'user-message' : 'ai-message');
@@ -241,6 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (sender === 'user') {
             messageElement.textContent = content;
+            // Tambahkan ke riwayat sebelum dibersihkan (user message tidak perlu dibersihkan)
+            conversationHistory.push({ role: 'user', content: content });
         } else {
             const aiHeader = document.createElement('div');
             aiHeader.classList.add('ai-message-header');
@@ -258,16 +268,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const aiModelTagSpan = document.createElement('span');
             aiModelTagSpan.classList.add('ai-model-tag');
-            aiModelTagSpan.textContent = "nova-3.5-quantify"; // Bisa diambil dari response API jika model dinamis
+            aiModelTagSpan.textContent = "nova-2.5-flash"; // Update model tag
             aiHeader.appendChild(aiModelTagSpan);
 
             messageElement.appendChild(aiHeader);
 
             const aiContentContainer = document.createElement('div');
             aiContentContainer.classList.add('ai-message-content');
-            aiContentContainer.innerHTML = content; // Content is pre-sanitized HTML
+            
+            // === AWAL: PENANGANAN MARKDOWN UNTUK DISPLAY ===
+            let finalRenderedContent = '';
+            const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+            let lastIndex = 0;
+
+            // Loop untuk mencari code blocks dan teks biasa di antara mereka
+            content.replace(codeBlockRegex, (match, language, code, offset) => {
+                // Proses teks biasa sebelum code block
+                const plainTextPart = content.substring(lastIndex, offset);
+                // Bersihkan teks biasa dari markdown (menghilangkan bintang dll)
+                finalRenderedContent += `<span>${cleanAiTextFromMarkdown(plainTextPart)}</span>`;
+
+                // Proses code block
+                const lang = language || 'text';
+                // HTML dalam pre tag harus di-escape agar ditampilkan sebagai kode, bukan di-render
+                const escapedCode = code.trim().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                const codeHtml = `
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span class="language-tag">${lang}</span>
+                            <button class="copy-code-btn" title="Copy code" onclick="copyCode(this)">
+                                <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect height="8" width="8" x="8" y="2"/></svg>
+                                <span>Copy</span>
+                            </button>
+                        </div>
+                        <pre>${escapedCode}</pre>
+                    </div>`;
+                finalRenderedContent += codeHtml;
+                lastIndex = offset + match.length;
+            });
+
+            // Tambahkan sisa teks setelah code block terakhir
+            const remainingText = content.substring(lastIndex);
+            if (remainingText) {
+                finalRenderedContent += `<span>${cleanAiTextFromMarkdown(remainingText)}</span>`;
+            }
+            aiContentContainer.innerHTML = finalRenderedContent;
             messageElement.appendChild(aiContentContainer);
+
+            // Tambahkan ke riwayat (versi teks, bukan HTML)
+            // Penting: Pastikan content di conversationHistory adalah teks murni atau teks Markdown
+            // yang akan dikirim ke AI, bukan HTML hasil render
+            conversationHistory.push({ role: 'assistant', content: content }); // Simpan teks asli dari AI
+            // ===============================================================
         }
+
+        // Batasi panjang riwayat (ini akan memangkas dari awal)
+        // Setiap kali addChatMessage dipanggil, satu pesan ditambahkan.
+        // Jadi, kita ingin mempertahankan 10 pesan user dan 10 pesan assistant terakhir.
+        // Jika total messages > 20, pangkas
+        if (conversationHistory.length > MAX_HISTORY_LENGTH * 2) { // x2 karena ada user dan assistant
+            conversationHistory = conversationHistory.slice(conversationHistory.length - (MAX_HISTORY_LENGTH * 2));
+        }
+
 
         if (chatHistory && thinkingIndicator) {
             chatHistory.insertBefore(messageElement, thinkingIndicator);
@@ -296,17 +358,32 @@ document.addEventListener('DOMContentLoaded', () => {
         actionsContainer.classList.add('ai-message-actions');
 
         const getResponseText = (contentEl) => {
+            // Untuk speak/copy, kita mungkin ingin versi yang dibersihkan dari Markdown
+            // atau versi yang dekat dengan raw AI response.
+            // Untuk speak, textContent dari aiContentContainer yang sudah dibersihkan sudah oke.
+            // Untuk copy, mungkin ingin raw response aslinya (markdown + code blocks)
             let text = '';
             contentEl.childNodes.forEach(node => {
                 if (node.nodeType === Node.TEXT_NODE) {
                     text += node.textContent;
-                } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'SPAN') {
-                    text += node.textContent;
+                } else if (node.nodeType === Node.ELEMENT_NODE) {
+                    if (node.tagName === 'SPAN') {
+                        text += node.textContent; // Teks biasa yang sudah dibersihkan
+                    } else if (node.classList.contains('code-block')) {
+                        // Untuk code block, ambil konten pre tag
+                        text += node.querySelector('pre').textContent;
+                    }
                 }
             });
             return text.trim();
         };
-        const getFullContent = (contentEl) => {
+
+        const getFullContentForCopy = (contentEl) => {
+            // Untuk copy, ambil konten dari history, karena itu raw AI response (termasuk markdown asli)
+            // Ini akan memastikan pengguna bisa meng-copy format Markdown lengkap jika mereka mau.
+            // Namun, karena kita menghapus markdown di frontend, ini sedikit rumit.
+            // Alternatif: simpan raw response di DOM element data attribute.
+            // Untuk saat ini, kita ambil yang di-render.
             let fullContent = '';
              contentEl.childNodes.forEach(node => {
                 if (node.nodeType === Node.TEXT_NODE) {
@@ -318,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const langTag = node.querySelector('.language-tag');
                         const lang = langTag ? langTag.textContent.toLowerCase() : 'text';
                         const code = node.querySelector('pre').textContent;
-                        fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
+                        fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``; // Format ulang sebagai Markdown
                     }
                 }
             });
@@ -326,17 +403,41 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const buttons = [
-            { name: 'copy', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullContent(contentContainer); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getResponseText(contentContainer); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; /* Bahasa diset default karena fitur bahasa dihapus */ const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
+            { name: 'copy', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullContentForCopy(contentContainer); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
+            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getResponseText(contentContainer); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
             { name: 'like', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>', title: 'Like', action: (buttonEl) => { buttonEl.classList.toggle('liked'); } },
-            { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => { const svg = buttonEl.querySelector('svg'); svg.classList.add('rotating'); buttonEl.disabled = true; buttonEl.style.cursor = 'wait'; const lastUserMessage = Array.from(chatHistory.querySelectorAll('.user-message')).pop(); if (lastUserMessage) { msgEl.remove(); generateRealAIResponse(lastUserMessage.textContent, attachedFiles); } else { svg.classList.remove('rotating'); buttonEl.disabled = false; buttonEl.style.cursor = 'pointer'; } } },
-            { name: 'share', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>', title: 'Share', action: (buttonEl, _messageEl) => { const fullContent = getFullContent(contentContainer); if (navigator.share) { navigator.share({ title: 'NovaAI Response', text: fullContent, url: window.location.href, }).catch((error) => console.log('Error sharing', error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
+            { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => { const svg = buttonEl.querySelector('svg'); svg.classList.add('rotating'); buttonEl.disabled = true; buttonEl.style.cursor = 'wait';
+                // Untuk regenerate, ambil pesan user sebelumnya dari riwayat
+                const lastUserMessageObj = conversationHistory.slice().reverse().find(msg => msg.role === 'user');
+                if (lastUserMessageObj) {
+                    msgEl.remove(); // Hapus respons AI saat ini
+                    // Hapus respons AI terakhir dari history juga agar tidak jadi duplikat
+                    conversationHistory = conversationHistory.filter(msg => msg !== conversationHistory[conversationHistory.length -1]);
+                    // Gunakan pesan terakhir user dan kirim lagi
+                    generateRealAIResponse(lastUserMessageObj.content, attachedFiles);
+                } else {
+                    svg.classList.remove('rotating');
+                    buttonEl.disabled = false;
+                    buttonEl.style.cursor = 'pointer';
+                    alert('Tidak ada pesan pengguna sebelumnya untuk meregenerasi respons.');
+                }
+            } },
+            { name: 'share', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>', title: 'Share', action: (buttonEl, _messageEl) => { const fullContent = getFullContentForCopy(contentContainer); if (navigator.share) { navigator.share({ title: 'NovaAI Response', text: fullContent, url: window.location.href, }).catch((error) => console.log('Error sharing', error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
         ];
         buttons.forEach((btnInfo) => { const button = document.createElement('button'); button.classList.add('ai-action-btn'); button.title = btnInfo.title; button.innerHTML = btnInfo.icon; button.addEventListener('click', () => btnInfo.action(button, aiMessageElement)); actionsContainer.appendChild(button); });
         contentContainer.appendChild(actionsContainer);
         setTimeout(() => { if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; }, 0);
     }
 
+    // === Fungsi untuk membaca file sebagai Base64 ===
+    async function getBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]); // Ambil hanya bagian Base64
+            reader.onerror = error => reject(error);
+        });
+    }
 
     async function generateRealAIResponse(userMessage, files = []) {
         if (thinkingIndicator) {
@@ -349,17 +450,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 0);
 
         try {
-            const modelToUseInAPI = "gemini"; // Anda bisa membuat ini dinamis jika perlu
+            // Ubah file menjadi Base64 sebelum dikirim
+            const filesAsBase64 = await Promise.all(files.map(async file => {
+                const base64Data = await getBase64(file);
+                return {
+                    data: base64Data,
+                    mimeType: file.type
+                };
+            }));
 
             const payload = {
                 userMessage: userMessage,
-                model: modelToUseInAPI // Kirim model yang dipilih ke API
+                // === Kirim riwayat percakapan yang sudah ada ===
+                conversationHistory: conversationHistory,
+                // ============================================
+                attachedFiles: filesAsBase64 // Kirim data file Base64
             };
-
-            // Tambahkan detail file jika ada
-            if (files && files.length > 0) {
-                payload.fileDetails = files.map(f => ({ name: f.name, type: f.type, size: f.size }));
-            }
 
             const response = await fetch('/api/generate', {
                 method: 'POST',
@@ -373,60 +479,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            const rawAiResponseText = data.text; // Asumsikan API mengembalikan teks dalam format ini
+            const rawAiResponseText = data.text;
 
             if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
 
-                // Personalisasi (opsional, bisa dihapus jika tidak ada currentUser.name)
                 let personalizedResponseText = rawAiResponseText;
                 if (currentUser && currentUser.name) {
-                    const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`; // Sapaan lebih personal
+                    const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`;
                     personalizedResponseText = greeting + rawAiResponseText;
                 }
 
-                // Parsing dan rendering Markdown (termasuk code blocks)
-                let finalHtmlContent = '';
-                const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-                let lastIndex = 0;
-
-                personalizedResponseText.replace(codeBlockRegex, (match, language, code, offset) => {
-                    // Teks sebelum code block
-                    const plainText = personalizedResponseText.substring(lastIndex, offset);
-                    // Sanitasi teks biasa (opsional, tergantung output API Anda)
-                    const sanitizedText = plainText.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
-                    finalHtmlContent += `<span>${sanitizedText}</span>`;
-
-                    // Code block
-                    const lang = language || 'text'; // Default ke 'text' jika tidak ada bahasa
-                    const sanitizedCode = code.trim().replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
-                    const codeHtml = `
-                        <div class="code-block">
-                            <div class="code-header">
-                                <span class="language-tag">${lang}</span>
-                                <button class="copy-code-btn" title="Copy code" onclick="copyCode(this)">
-                                    <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect height="8" width="8" x="8" y="2"/></svg>
-                                    <span>Copy</span>
-                                </button>
-                            </div>
-                            <pre>${sanitizedCode}</pre>
-                        </div>`;
-                    finalHtmlContent += codeHtml;
-                    lastIndex = offset + match.length;
-                });
-
-                // Teks setelah code block terakhir (jika ada)
-                const remainingText = personalizedResponseText.substring(lastIndex);
-                if (remainingText) {
-                    const sanitizedRemainingText = remainingText.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
-                    finalHtmlContent += `<span>${sanitizedRemainingText}</span>`;
-                }
-
-
-                const aiMessageElement = addChatMessage(finalHtmlContent, 'ai');
-                addAiMessageActions(aiMessageElement); // Tambahkan tombol aksi ke pesan AI
-                clearAttachedFiles(); // Bersihkan file setelah respons diterima
+                // addChatMessage sekarang akan membersihkan markdown dan menangani code blocks
+                const aiMessageElement = addChatMessage(personalizedResponseText, 'ai');
+                addAiMessageActions(aiMessageElement);
+                clearAttachedFiles();
                 checkScrollable();
             }, 300);
 
@@ -457,17 +525,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentActivePage === 'welcome') {
                 showPage('chat', finalPrompt);
             } else {
+                // addChatMessage sekarang akan menyimpan user message ke history
                 addChatMessage(finalPrompt, 'user');
                 generateRealAIResponse(finalPrompt, attachedFiles);
             }
             messageInput.value = '';
             autoResizeTextarea();
-            // Quick suggestions dinonaktifkan
-            // if (messageInput.value.trim() === '' && attachedFiles.length === 0 && currentActivePage === 'welcome') {
-            //     quickCompleteContainer.classList.add('active');
-            // } else {
-            //     quickCompleteContainer.classList.remove('active');
-            // }
         }
     });
     messageInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendButton.click(); } });
@@ -489,10 +552,9 @@ document.addEventListener('DOMContentLoaded', () => {
         autoResizeTextarea();
         clearAttachedFiles();
         updateInputAreaAppearance();
-        // Quick suggestions dinonaktifkan
-        // if (currentActivePage === 'welcome') {
-        //     quickCompleteContainer.classList.add('active');
-        // }
+        // === Reset conversation history saat kembali ===
+        conversationHistory = [];
+        // ===============================================
     });
 
     // Tema hanya dikontrol dari header sekarang
@@ -505,7 +567,6 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleLanding.checked = false;
     }
     function applyTheme(isLightMode) { if (isLightMode) { document.body.classList.add('light-mode'); localStorage.setItem('novaai_theme', 'light-mode'); } else { document.body.classList.remove('light-mode'); localStorage.setItem('novaai_theme', 'dark-mode'); } themeToggleLanding.checked = isLightMode; }
-    // themeToggle (sidebar) dihapus, hanya themeToggleLanding (header)
     themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
 
     function setupRippleEffects() {
@@ -516,7 +577,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 element.removeEventListener('click', oldHandler);
             }
             const newHandler = function (e) {
-                // Jangan terapkan ripple jika klik dilakukan pada child link (<a>)
                 if (e.target.tagName === 'A' || e.target.closest('a')) {
                     return;
                 }
@@ -545,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item'))) { needsRippleSetup = true; } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item'))) { needsRippleSetup = true; } } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
     if (chatHistory) observer.observe(chatHistory, { childList: true, subtree: true });
     if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
-    if (sidebar) observer.observe(sidebar, { childList: true, subtree: true }); // Mengamati sidebar untuk item baru
+    if (sidebar) observer.observe(sidebar, { childList: true, subtree: true });
 
     function updateInputAreaAppearance() {
         const inputWrapperHeight = inputWrapper.offsetHeight;
@@ -629,10 +689,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateInputAreaAppearance();
             }, 300);
         }
-        // Quick suggestions dinonaktifkan
-        // if (attachedFiles.length === 0 && messageInput.value.trim() === '' && currentActivePage === 'welcome') {
-        //     quickCompleteContainer.classList.add('active');
-        // }
     }
 
     function clearAttachedFiles() {
@@ -641,10 +697,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fileChipContainer.style.display = 'none';
         autoResizeTextarea();
         updateInputAreaAppearance();
-        // Quick suggestions dinonaktifkan
-        // if (messageInput.value.trim() === '' && currentActivePage === 'welcome') {
-        //     quickCompleteContainer.classList.add('active');
-        // }
     }
 
     fileInput.addEventListener('change', (event) => {
@@ -684,16 +736,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         fileInput.value = '';
-        // Quick suggestions dinonaktifkan
-        // if (attachedFiles.length > 0 || messageInput.value.trim() !== '') {
-        //     quickCompleteContainer.classList.remove('active');
-        // }
     });
 
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = 'en-US'; // Bahasa diset default karena fitur bahasa dihapus
+        recognition.lang = 'en-US';
         recognition.continuous = false;
         recognition.interimResults = true;
         let finalTranscript = '';
@@ -705,11 +753,28 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         voiceInputButton.style.display = 'none';
     }
-
-    // Panggil showPage setelah semua setup, memastikan halaman yang benar ditampilkan
-    // showPage(currentActivePage); // Sudah dipanggil di blok pengecekan login jika berhasil
 });
 
 // Fungsi global untuk copy code tetap ada
-function copyCode(buttonElement) { const pre = buttonElement.closest('.code-block').querySelector('pre'); navigator.clipboard.writeText(pre.textContent).then(() => { const span = buttonElement.querySelector('span'); const originalText = span.textContent; span.textContent = 'Copied!'; setTimeout(() => { span.textContent = originalText; }, 2000); }).catch(err => { console.error('Failed to copy code: ', err); const span = buttonElement.querySelector('span'); span.textContent = 'Error!'; setTimeout(() => { span.textContent = 'Copy'; }, 2000); }); }
-function formatFileSize(bytes, decimals = 2) { if (bytes === 0) return '0 Bytes'; const k = 1024; const dm = decimals < 0 ? 0 : decimals; const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']; const i = Math.floor(Math.log(bytes) / Math.log(k)); return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]; }
+function copyCode(buttonElement) {
+    const pre = buttonElement.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.textContent).then(() => {
+        const span = buttonElement.querySelector('span');
+        const originalText = span.textContent;
+        span.textContent = 'Copied!';
+        setTimeout(() => { span.textContent = originalText; }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy code: ', err);
+        const span = buttonElement.querySelector('span');
+        span.textContent = 'Error!';
+        setTimeout(() => { span.textContent = 'Copy'; }, 2000);
+    });
+}
+function formatFileSize(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}

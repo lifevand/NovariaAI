@@ -28,7 +28,7 @@ export default async function handler(req, res) {
 
     // 4. Tentukan nama model API yang akan digunakan
     // MENGGUNAKAN 'gemini-2.5-flash' sesuai permintaan Anda
-    const apiModelName = 'gemini-2.5-flash'; // Ganti dengan "gemini-2.5-flash" jika itu adalah nama API yang benar dan sudah rilis publik
+    const apiModelName = 'gemini-2.0-flash'; // Ganti dengan "gemini-2.5-flash" jika itu adalah nama API yang benar dan sudah rilis publik
                                                  // Saya menggunakan 'gemini-1.5-flash-latest' karena '2.5-flash' kemungkinan masih internal/pratinjau.
                                                  // Jika Anda melihat "gemini-2.5-flash" di AI Studio, gunakan nama itu persis.
 

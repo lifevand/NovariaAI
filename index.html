@@ -60,31 +60,43 @@
     <!-- Quick complete buttons akan dikosongkan oleh JS atau bisa dihapus jika tidak ada sumber data -->
   </div>
 
-  <div class="input-wrapper">
-    <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
-
-    <button class="btn-circle btn-plus" id="plusButton">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19" />
-        <line x1="5" y1="12" x2="19" y2="12" />
-      </svg>
-    </button>
-
-    <div id="fileChipContainer" class="file-chip-container">
-        <!-- Item pratinjau file (chip) akan ditambahkan di sini oleh JavaScript -->
+  <!-- Wrapper baru untuk menampung file chips dan input chat -->
+  <div class="bottom-chat-area" id="bottomChatArea">
+    <!-- Area untuk menampilkan chip file yang dilampirkan -->
+    <div class="file-chips-area" id="fileChipsArea">
+        <div id="fileChipContainer" class="file-chip-container">
+            <!-- Item pratinjau file (chip) akan ditambahkan di sini oleh JavaScript -->
+        </div>
     </div>
 
-    <button class="btn-circle btn-voice" id="voiceInputButton">
-        <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
-        </svg>
-    </button>
-    <textarea id="messageInput" placeholder="Ask me anything..." rows="1"></textarea>
-    <button class="btn-circle btn-send" id="sendButton">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-            <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
-        </svg>
-    </button>
+    <div class="input-wrapper">
+        <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
+
+        <button class="btn-circle btn-plus" id="plusButton">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </button>
+
+        <div class="model-selector-container">
+            <select id="modelSelector">
+                <!-- Opsi model akan ditambahkan oleh JavaScript -->
+            </select>
+        </div>
+
+        <button class="btn-circle btn-voice" id="voiceInputButton">
+            <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
+            </svg>
+        </button>
+        <textarea id="messageInput" placeholder="Ask me anything..." rows="1"></textarea>
+        <button class="btn-circle btn-send" id="sendButton">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
+            </svg>
+        </button>
+    </div>
   </div>
 
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -142,7 +154,7 @@
         <span>Hapus Percakapan</span>
       </div>
       <div class="sidebar-item" id="logoutButton">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="17 17 22 12 17 7"></polyline><line x1="22" y1="12" x2="10" y2="12"></line></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="17 17 22 12 17 7"></polyline><line x1="22" y1="12" x2="12" y2="12"></line></svg>
         <span>Logout</span>
       </div>
     </div>

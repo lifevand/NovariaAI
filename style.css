@@ -42,6 +42,13 @@
   --code-language-tag-text: #ffffff;
   --glass-bg: rgba(25, 25, 25, 0.6);
   --glass-border-color: rgba(255, 255, 255, 0.1);
+
+  /* New Model Selector / File Chip positioning */
+  --model-selector-bg: #222222;
+  --model-selector-border: #444444;
+  --model-selector-text: #ffffff;
+  --model-selector-hover-bg: #3a3a3a;
+  --file-chip-area-bg: rgba(25, 25, 25, 0.4); /* background transparan untuk area chips */
 }
 
 body.light-mode {
@@ -84,6 +91,13 @@ body.light-mode {
   --code-language-tag-text: #333333;
   --glass-bg: rgba(255, 255, 255, 0.5);
   --glass-border-color: rgba(0, 0, 0, 0.1);
+
+  /* New Model Selector / File Chip positioning for Light Mode */
+  --model-selector-bg: #eeeeee;
+  --model-selector-border: #dddddd;
+  --model-selector-text: #333333;
+  --model-selector-hover-bg: #cccccc;
+  --file-chip-area-bg: rgba(255, 255, 255, 0.4);
 }
 
 /* General Styles */
@@ -293,6 +307,21 @@ main {
     white-space: pre-wrap; /* Agar \n di teks biasa juga berfungsi */
 }
 
+/* Gambar yang dihasilkan AI */
+.ai-generated-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px; /* Sudut membulat */
+    margin-bottom: 5px; /* Sedikit jarak dari teks di bawahnya */
+    object-fit: contain; /* Memastikan gambar pas tanpa terpotong */
+    border: 1px solid var(--border-color); /* Garis tipis untuk membedakan */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sedikit bayangan */
+}
+body.light-mode .ai-generated-image {
+    border: 1px solid var(--lm-card-border-color);
+}
+
+
 .ai-message-actions { display: flex; gap: 8px; margin-top: 8px; }
 .ai-action-btn { background-color: var(--action-button-bg); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; color: var(--action-button-icon-color); }
 .ai-action-btn:hover { background-color: var(--action-button-hover-bg); }
@@ -310,6 +339,55 @@ main {
 .quick-complete-btn:hover { background-color: var(--quick-complete-hover-bg); border-color: var(--quick-complete-hover-bg); }
 
 
+/* === START: New Input Wrapper and File Chip Positioning === */
+.bottom-chat-area {
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px);
+    max-width: 900px;
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    gap: 8px; /* Space between file chips area and input wrapper */
+    z-index: 95;
+    box-sizing: border-box;
+    align-items: center; /* Center horizontally */
+}
+
+.file-chips-area {
+    width: 100%;
+    min-height: 0; /* Allow it to collapse when empty */
+    max-height: 100px; /* Batasi tinggi area chips */
+    overflow-y: hidden; /* Sembunyikan scroll vertikal */
+    padding: 0 12px; /* Padding agar chip tidak mentok ke samping */
+    box-sizing: border-box;
+    opacity: 1; /* Default visible, JS akan mengatur hidden */
+    transition: opacity 0.3s ease;
+    display: flex; /* Dipakai untuk justify-content: flex-start */
+    justify-content: flex-start; /* Chips dimulai dari kiri */
+}
+
+.file-chip-container {
+  display: flex; /* Item chip akan berbaris horizontal */
+  align-items: center; /* Tengah secara vertikal */
+  gap: 6px; /* Jarak antar chip */
+  overflow-x: auto; /* Scroll horizontal jika chip melebihi ruang */
+  overflow-y: hidden; /* Penting agar scrollbar horizontal saja */
+  flex-shrink: 1; /* Biarkan menyusut jika textarea membesar */
+  min-width: 0; /* Penting untuk flexbox */
+  /* Remove fixed height, let chips determine height */
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--button-hover-bg) transparent;
+}
+.file-chip-container::-webkit-scrollbar { height: 4px; }
+.file-chip-container::-webkit-scrollbar-track { background: transparent; }
+.file-chip-container::-webkit-scrollbar-thumb { background-color: var(--button-hover-bg); border-radius: 2px; }
+.file-chip-container::-webkit-scrollbar-thumb:hover { background-color: var(--button-bg); }
+
+
+/* Input wrapper now becomes a child of bottom-chat-area */
 .input-wrapper {
   background-color: var(--glass-bg);
   backdrop-filter: blur(12px);
@@ -318,50 +396,16 @@ main {
   box-shadow: none;
   border-radius: 28px;
   padding: 8px 10px;
-  position: fixed;
-  bottom: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 40px);
-  max-width: 900px;
+  /* Removed fixed positioning as it's now inside bottom-chat-area */
+  position: relative; /* Keep for internal ripple */
+  width: 100%; /* Take full width of bottom-chat-area */
   display: flex;
   align-items: flex-end; /* Align items ke bawah */
   gap: 8px;
   min-height: 56px;
-  max-height: 160px; /* Batas tinggi keseluruhan input wrapper */
+  max-height: 160px;
   box-sizing: border-box;
-  transition: height 0.2s ease; /* Transisi untuk perubahan tinggi */
-  z-index: 95;
-}
-
-.file-chip-container {
-  display: flex; /* Item chip akan berbaris horizontal */
-  align-items: center; /* Tengah secara vertikal */
-  gap: 6px; /* Jarak antar chip */
-  overflow-x: auto; /* Scroll horizontal jika chip melebihi ruang */
-  overflow-y: hidden;
-  max-width: 40%; /* Batasi lebar agar textarea masih punya ruang. SESUAIKAN! */
-  height: 40px; /* Samakan dengan tinggi tombol agar rapi */
-  flex-shrink: 1; /* Biarkan menyusut jika textarea membesar */
-  min-width: 0; /* Penting untuk flexbox */
-  margin-bottom: 2px; /* Samakan dengan margin tombol */
-
-  scrollbar-width: thin;
-  scrollbar-color: var(--button-hover-bg) transparent;
-}
-
-.file-chip-container::-webkit-scrollbar {
-  height: 4px;
-}
-.file-chip-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-.file-chip-container::-webkit-scrollbar-thumb {
-  background-color: var(--button-hover-bg);
-  border-radius: 2px;
-}
-.file-chip-container::-webkit-scrollbar-thumb:hover {
-  background-color: var(--button-bg);
+  transition: height 0.2s ease;
 }
 
 .file-chip-item {
@@ -369,104 +413,91 @@ main {
   align-items: center;
   background-color: var(--file-chip-bg);
   color: var(--file-chip-text);
-  padding: 5px 10px; /* Padding chip */
-  border-radius: 20px; /* Chip lebih bulat */
-  font-size: 0.85em; /* Font sedikit lebih kecil */
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
   gap: 6px;
   cursor: default;
-  flex-shrink: 0; /* Chip tidak mengecil */
+  flex-shrink: 0;
   transition: background-color 0.2s ease, opacity 0.3s ease, transform 0.3s ease;
   white-space: nowrap;
-  max-width: 150px; /* Lebar maksimum satu chip, sesuaikan */
-  height: 30px; /* Tinggi chip, sesuaikan agar pas */
+  max-width: 150px;
+  height: 30px;
   box-sizing: border-box;
   opacity: 0;
   transform: scale(0.9);
 }
 
-.file-chip-item.visible {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.file-chip-item .file-icon svg {
-  width: 16px;
-  height: 16px;
-  stroke: var(--file-chip-text);
-  flex-shrink: 0;
-}
-
-.file-chip-item .file-details {
-  display: flex; /* Nama dan ukuran sejajar */
-  align-items: baseline; /* Agar teks baseline sejajar */
-  gap: 4px;
-  overflow: hidden;
-  text-align: left;
-  line-height: 1; /* Agar tidak ada spasi vertikal aneh */
-}
-
-.file-chip-item .file-name-preview {
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.file-chip-item .file-size-preview {
-  font-size: 0.9em;
-  opacity: 0.8;
-  white-space: nowrap; /* Ukuran tidak boleh wrap */
-}
-
+.file-chip-item.visible { opacity: 1; transform: scale(1); }
+.file-chip-item .file-icon svg { width: 16px; height: 16px; stroke: var(--file-chip-text); flex-shrink: 0; }
+.file-chip-item .file-details { display: flex; align-items: baseline; gap: 4px; overflow: hidden; text-align: left; line-height: 1; }
+.file-chip-item .file-name-preview { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-chip-item .file-size-preview { font-size: 0.9em; opacity: 0.8; white-space: nowrap; }
 .file-chip-item .remove-chip-btn {
-  background: none;
-  border: none;
-  color: var(--file-chip-text);
-  opacity: 0.7;
-  font-size: 1.4em; /* Ukuran 'x' */
-  line-height: 0.5; /* Turunkan 'x' agar pas di tengah chip */
-  cursor: pointer;
-  padding: 0;
-  margin-left: 4px; /* Jarak 'x' dari teks */
-  transition: opacity 0.2s ease, transform 0.1s ease, color 0.2s ease;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px; /* Area klik tombol x */
-  height: 16px;
+  background: none; border: none; color: var(--file-chip-text); opacity: 0.7; font-size: 1.4em; line-height: 0.5; cursor: pointer; padding: 0; margin-left: 4px;
+  transition: opacity 0.2s ease, transform 0.1s ease, color 0.2s ease; flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px;
 }
-
-.file-chip-item .remove-chip-btn:hover {
-  opacity: 1;
-  color: var(--file-chip-remove-hover-color);
-  transform: scale(1.1);
-}
+.file-chip-item .remove-chip-btn:hover { opacity: 1; color: var(--file-chip-remove-hover-color); transform: scale(1.1); }
 
 .input-wrapper textarea {
-  flex-grow: 1;
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-family: 'Inter', sans-serif;
-  font-size: 1.1em;
-  outline: none;
-  resize: none;
-  overflow-y: auto;
-  padding: 8px 0;
-  margin-bottom: 2px;
-  line-height: 1.4;
-  min-height: 24px;
-  max-height: 120px;
-  box-sizing: border-box;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  flex-grow: 1; background: none; border: none; color: var(--text-color); font-family: 'Inter', sans-serif; font-size: 1.1em; outline: none; resize: none; overflow-y: auto; padding: 8px 0; line-height: 1.4; min-height: 24px; max-height: 120px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word;
+  margin-bottom: 0; /* Remove previous margin-bottom from btn-circle */
 }
 .input-wrapper textarea::placeholder { color: var(--placeholder-color); transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; font-weight: 400; }
-.btn-circle { background-color: var(--button-bg); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden; margin-bottom: 2px; }
+.btn-circle {
+  background-color: var(--button-bg); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden;
+  margin-bottom: 0; /* Ensure no margin-bottom */
+}
 .btn-circle:hover { background-color: var(--button-hover-bg); }
 .btn-circle svg { stroke: var(--text-color); width: 20px; height: 20px; transition: stroke 0.3s ease; }
 
+
+/* Model Selector Styling */
+.model-selector-container {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0; /* Jangan biarkan mengecil */
+    margin-bottom: 0; /* Pastikan rata dengan elemen lain */
+}
+.model-selector-container select {
+    background-color: var(--model-selector-bg);
+    color: var(--model-selector-text);
+    border: 1px solid var(--model-selector-border);
+    border-radius: 20px; /* Rounded pill shape */
+    padding: 8px 12px;
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    appearance: none; /* Hapus default arrow */
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23ffffff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Custom arrow */
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 18px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    padding-right: 30px; /* Ruang untuk ikon */
+    max-width: 150px; /* Batasi lebar dropdown */
+    text-overflow: ellipsis; /* Tambahkan ellipsis jika teks terlalu panjang */
+    white-space: nowrap;
+    overflow: hidden;
+}
+body.light-mode .model-selector-container select {
+    background-color: var(--model-selector-bg);
+    border: 1px solid var(--model-selector-border);
+    color: var(--model-selector-text);
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23333333" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+}
+.model-selector-container select:hover {
+    background-color: var(--model-selector-hover-bg);
+    border-color: var(--model-selector-hover-bg);
+}
+.model-selector-container select option {
+    background-color: var(--model-selector-bg);
+    color: var(--model-selector-text);
+}
+
+
+/* === END: New Input Wrapper and File Chip Positioning === */
 
 .ripple { position: absolute; border-radius: 50%; opacity: 0; background-color: var(--ripple-color); animation: ripple-animation 0.6s linear; transform: scale(0); pointer-events: none; }
 @keyframes ripple-animation { from { transform: scale(0); opacity: 0.6; } to { transform: scale(2.5); opacity: 0; } }

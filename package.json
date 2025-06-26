@@ -1,15 +1,22 @@
 {
   "name": "novaria-ai",
   "version": "1.0.0",
+  "description": "Aplikasi Novaria AI",
   "main": "index.js",
-  "type": "module", // Pastikan ini ada karena kita pakai ES Modules
+  "type": "module",
   "scripts": {
-    "start": "node index.js" // Atau script start yang sesuai jika ada
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "ai",
+    "chatbot",
+    "novaria"
+  ],
+  "author": "rizlifeinvander",
+  "license": "ISC",
   "dependencies": {
-    "@google/generative-ai": "^0.x.y", // Versi harus sesuai yang terinstal
-    "dotenv": "^16.x.y", // Versi harus sesuai yang terinstal
-    "express": "^4.x.y" // Jika Anda menggunakan Express.js
-    // ... dependensi lain jika ada
+    "node-fetch": "^3.3.2",
+    "@google/generative-ai": "^0.14.1",
+    "dotenv": "^16.4.5"
   }
-  }
+}

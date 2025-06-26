@@ -101,12 +101,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fungsi untuk menampilkan modal pemilihan model
     function openModelSelectModal() {
         modelSelectModal.classList.add('active');
+        // Tambahkan class ke body untuk mencegah scroll
+        document.body.style.overflow = 'hidden';
         populateModelOptions();
     }
 
     // Fungsi untuk menyembunyikan modal pemilihan model
     function closeModelSelectModal() {
         modelSelectModal.classList.remove('active');
+        // Hapus class dari body untuk mengembalikan scroll
+        document.body.style.overflow = '';
     }
 
     // Fungsi untuk mengisi opsi model ke dalam modal
@@ -131,10 +135,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentSelectedModelValue = model.value;
                 localStorage.setItem('selectedAiModel', currentSelectedModelValue);
                 selectedModelName.textContent = model.label; // Update teks pada trigger
-                closeModelSelectModal();
+                
+                // Hapus kelas 'selected' dari semua opsi dan tambahkan ke yang baru dipilih
+                document.querySelectorAll('.model-option-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                optionItem.classList.add('selected');
 
-                // Optional: Beri tahu pengguna jika model berubah dan tawarkan reset chat
-                // Misalnya, Anda bisa menambahkan notifikasi atau konfirmasi di sini
+                // Tutup modal setelah sedikit penundaan untuk melihat animasi 'selected'
+                setTimeout(closeModelSelectModal, 200); 
             });
             modelOptionsContainer.appendChild(optionItem);
         });

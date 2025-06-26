@@ -439,15 +439,50 @@ body.light-mode .ai-generated-image {
 }
 .file-chip-item .remove-chip-btn:hover { opacity: 1; color: var(--file-chip-remove-hover-color); transform: scale(1.1); }
 
+/* Input field (textarea) */
 .input-wrapper textarea {
-  flex-grow: 1; background: none; border: none; color: var(--text-color); font-family: 'Inter', sans-serif; font-size: 1.1em; outline: none; resize: none; overflow-y: auto; padding: 8px 0; line-height: 1.4; min-height: 24px; max-height: 120px; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word;
-  margin-bottom: 0; /* Remove previous margin-bottom from btn-circle */
+  flex-grow: 1; /* Agar mengambil ruang yang tersedia */
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+  font-size: 1.1em;
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+  padding: 8px 0;
+  line-height: 1.4;
+  min-height: 24px;
+  max-height: 120px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin-bottom: 0;
   text-align: left; /* Pastikan placeholder dan teks rata kiri */
 }
-.input-wrapper textarea::placeholder { color: var(--placeholder-color); transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; font-weight: 400; text-align: left; /* Pastikan placeholder rata kiri */ }
+.input-wrapper textarea::placeholder {
+  color: var(--placeholder-color);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  font-weight: 400;
+  text-align: left; /* Pastikan placeholder rata kiri */
+}
+
+/* Button circles */
 .btn-circle {
-  background-color: var(--button-bg); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s ease; position: relative; overflow: hidden;
-  margin-bottom: 0; /* Ensure no margin-bottom */
+  background-color: var(--button-bg);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 0;
 }
 .btn-circle:hover { background-color: var(--button-hover-bg); }
 .btn-circle svg { stroke: var(--text-color); width: 20px; height: 20px; transition: stroke 0.3s ease; }
@@ -480,7 +515,7 @@ body.light-mode .ai-generated-image {
     display: flex;
     align-items: center;
     gap: 5px;
-    position: relative; /* Untuk ripple effect */
+    position: relative; /* For ripple effect */
 }
 body.light-mode .custom-selector-trigger {
     background-color: var(--model-selector-bg);

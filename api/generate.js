@@ -2,9 +2,12 @@
 // Menggunakan model Gemini dengan systemInstruction untuk respons yang lebih dinamis.
 // Penanganan riwayat percakapan dan input multi-modal (gambar).
 
-const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require('@google/generative-ai');
-require('dotenv').config(); // Untuk memuat API_KEY dari .env
+// Ganti require menjadi import
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+// Untuk dotenv, gunakan import ini untuk memuat variabel lingkungan di ES module
+import 'dotenv/config'; 
 
+// Export default function seperti yang sudah ada, ini sudah ES Module syntax
 export default async function handler(req, res) {
     // 1. Hanya izinkan metode POST
     if (req.method !== 'POST') {
@@ -27,19 +30,19 @@ export default async function handler(req, res) {
     const genAI = new GoogleGenerativeAI(apiKey);
 
     // 4. Tentukan nama model API yang akan digunakan
-    // MENGGUNAKAN 'gemini-2.5-flash' sesuai permintaan Anda
-    const apiModelName = 'gemini-1.5-flash'; // Ganti dengan "gemini-2.5-flash" jika itu adalah nama API yang benar dan sudah rilis publik
-                                                 // Saya menggunakan 'gemini-1.5-flash-latest' karena '2.5-flash' kemungkinan masih internal/pratinjau.
-                                                 // Jika Anda melihat "gemini-2.5-flash" di AI Studio, gunakan nama itu persis.
+    // MENGGUNAKAN 'gemini-2.5-flash' sesuai informasi Anda,
+    // TETAPI saya mempertahankan 'gemini-1.5-flash-latest' sebagai fallback/rekomendasi stabil.
+    // GANTI NAMA MODEL DI BAWAH INI SESUAI DENGAN YANG ANDA LIHAT DI GOOGLE AI STUDIO (misalnya 'gemini-2.5-flash')
+    const apiModelName = 'gemini-2.5-flash'; 
+    // const apiModelName = 'gemini-2.5-flash'; // Coba gunakan ini jika Anda yakin namanya persis dan sudah tersedia untuk API Anda.
 
     // === System Instruction untuk AI Novaria ===
-    // Instruksi untuk respons yang lebih kompleks, empati, dan tanpa markdown formatting.
     const systemInstructionParts = [
         { text: "You are Novaria, a helpful, empathetic, and slightly proactive AI assistant. Your goal is to provide comprehensive and encouraging responses." },
         { text: "Do NOT use Markdown formatting for bolding (**), italicizing (*), or other inline styles. Use plain text for all responses unless explicitly generating code blocks." },
         { text: "When responding, if it feels natural and appropriate, try to ask a follow-up question or suggest potential next steps to better understand the user's needs or to encourage further interaction." },
         { text: "If the user seems to be facing a challenge or expressing uncertainty, offer a sense of encouragement or briefly suggest positive perspectives. Frame these as possibilities or general avenues." },
-        { text: "Maintain a friendly and supportive tone. If providing code, always put it inside Markdown code blocks (```language\ncode\n```)." },
+        { text: "Maintain a friendly and supportive tone." },
         { text: "For multimodal input (images), analyze the image and incorporate its context into your response." }
     ];
 
@@ -47,8 +50,8 @@ export default async function handler(req, res) {
         const geminiModel = genAI.getGenerativeModel({ model: apiModelName });
 
         // === 5. Persiapkan Riwayat Percakapan untuk Model AI ===
-        const historyForGemini = conversationHistory.map(msg => ({
-            // Gemini API menggunakan 'user' dan 'model' untuk peran dalam history
+        // Memastikan riwayat adalah array, jika tidak, inisialisasi kosong
+        const historyForGemini = (conversationHistory || []).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'model',
             parts: [{ text: msg.content }]
         }));
@@ -58,12 +61,17 @@ export default async function handler(req, res) {
 
         if (attachedFiles && attachedFiles.length > 0) {
             for (const file of attachedFiles) {
-                currentUserMessageParts.push({
-                    inlineData: {
-                        data: file.data, // Data Base64 dari frontend
-                        mimeType: file.mimeType // MIME type dari frontend
-                    }
-                });
+                // Pastikan file memiliki data dan mimeType yang valid
+                if (file.data && file.mimeType) {
+                    currentUserMessageParts.push({
+                        inlineData: {
+                            data: file.data, // Data Base64 dari frontend
+                            mimeType: file.mimeType // MIME type dari frontend
+                        }
+                    });
+                } else {
+                    console.warn('Skipping invalid attached file data:', file);
+                }
             }
         }
 
@@ -108,16 +116,25 @@ export default async function handler(req, res) {
         console.error('Error in /api/generate:', error);
         let errorMessage = 'An internal server error occurred while contacting the AI model.';
 
+        // Periksa apakah error memiliki respons dari API (misalnya dari Google Gemini API)
         if (error.response) {
-            const errorDetails = await error.response.json();
+            // Coba parse respons error sebagai JSON jika ada metode .json()
+            let errorDetails;
+            try {
+                errorDetails = await error.response.json();
+            } catch (jsonParseError) {
+                // Jika tidak bisa di-parse sebagai JSON, ambil sebagai teks mentah
+                errorDetails = await error.response.text();
+                console.error("API error response was not JSON:", errorDetails);
+            }
             console.error('API Error Details:', errorDetails);
 
-            if (errorDetails.error && errorDetails.error.message) {
+            if (typeof errorDetails === 'object' && errorDetails.error && errorDetails.error.message) {
                 errorMessage = errorDetails.error.message;
             }
 
             // Penanganan spesifik untuk finishReason dari Gemini API
-            if (errorDetails.candidates && errorDetails.candidates[0] && errorDetails.candidates[0].finishReason) {
+            if (typeof errorDetails === 'object' && errorDetails.candidates && errorDetails.candidates[0] && errorDetails.candidates[0].finishReason) {
                 const finishReason = errorDetails.candidates[0].finishReason;
                 if (finishReason === "SAFETY") {
                     errorMessage = "Maaf, respons ini diblokir karena tidak memenuhi pedoman keamanan.";
@@ -126,18 +143,19 @@ export default async function handler(req, res) {
                 } else if (finishReason === "OTHER") {
                     errorMessage = "Maaf, terjadi masalah saat menghasilkan respons karena alasan yang tidak spesifik.";
                 }
-            } else if (errorDetails.promptFeedback && errorDetails.promptFeedback.blockReason) {
+            } else if (typeof errorDetails === 'object' && errorDetails.promptFeedback && errorDetails.promptFeedback.blockReason) {
                 errorMessage = "Permintaan Anda diblokir sebelum diproses oleh model karena alasan keamanan. Harap sesuaikan permintaan Anda.";
-            } else if (errorDetails.error && errorDetails.error.code === 404 && errorDetails.error.message.toLowerCase().includes("model not found")) {
+            } else if (typeof errorDetails === 'object' && errorDetails.error && errorDetails.error.code === 404 && errorDetails.error.message.toLowerCase().includes("model not found")) {
                  errorMessage = `Model AI '${apiModelName}' tidak ditemukan. Mohon periksa kembali nama model di backend Anda.`;
-            } else if (errorDetails.error && errorDetails.error.code === 400 && errorDetails.error.message.toLowerCase().includes("systeminstruction not supported")) {
+            } else if (typeof errorDetails === 'object' && errorDetails.error && errorDetails.error.code === 400 && errorDetails.error.message.toLowerCase().includes("systeminstruction not supported")) {
                 errorMessage = `Model '${apiModelName}' mungkin tidak mendukung 'systemInstruction'. Coba ganti model atau hapus systemInstruction.`;
             }
         } else {
-            // Error network atau error lainnya
+            // Error network atau error lainnya yang tidak dari API respons
             errorMessage = error.message || errorMessage;
         }
 
+        // Gunakan status dari error.response jika ada, kalau tidak default ke 500
         res.status(error.response?.status || 500).json({ message: errorMessage });
     }
-}
+            }

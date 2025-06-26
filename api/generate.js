@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     // 1. 'gemini-2.0-flash-preview-image-generation' (jika Anda yakin tersedia API-nya dan stabil)
     // 2. 'gemini-1.5-pro-latest' (lebih stabil dan pasti mendukung output multimodal)
     // 3. 'gemini-1.5-flash-latest' (lebih cepat dan murah, juga mendukung output multimodal)
-    const apiModelName = 'gemini-1.5-pro-latest'; // <-- Contoh model yang pasti bisa multimodal output
+    const apiModelName = 'gemini-2.0-flash-preview-image-generation'; // <-- Contoh model yang pasti bisa multimodal output
 
     const systemInstructionParts = [
         // ... (system instruction Anda yang sudah ada)

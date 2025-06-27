@@ -38,7 +38,6 @@ body.light-mode {
     --secondary-text-color: #4b5563;
     --background-color: #f9fafb;
     --header-bg-color: rgba(255, 255, 255, 0.85);
-    --card-background-color: #ffffff;
     --card-border-color: #e5e7eb;
     --link-hover-color: #2563eb;
     --slider-bg-dark: #d1d5db; /* Latar slider di light mode */
@@ -58,6 +57,7 @@ body.light-mode {
     --modal-close-btn-hover-bg: #d1d5db;
     --google-btn-bg-light: #1f2937;
     --google-btn-text-light: #ffffff;
+    --card-background-color: #ffffff; /* Tambahkan ini jika belum ada */
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -72,8 +72,23 @@ body {
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    /* MEMPERBARUI TRANSISI UNTUK ANIMASI AWAL HALAMAN */
+    transition: background-color 0.3s ease, color 0.3s ease, opacity 0.7s ease-out, transform 0.7s ease-out;
 }
+
+/* MENAMBAHKAN ATURAN CSS UNTUK ANIMASI AWAL HALAMAN */
+body.login-hidden {
+    opacity: 0;
+    pointer-events: none; /* Cegah interaksi saat tersembunyi */
+    transform: translateY(20px); /* Mulai sedikit di bawah */
+}
+
+body.login-loaded {
+    opacity: 1;
+    pointer-events: auto; /* Izinkan interaksi setelah tampil */
+    transform: translateY(0); /* Geser ke posisi normal */
+}
+
 
 /* Header Styles */
 .login-header {

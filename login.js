@@ -333,7 +333,7 @@ window.onload = function () {
             headerAuthPlaceholder.innerHTML = "<button class='auth-button' disabled style='cursor:not-allowed;'>Login Error</button>";
             headerAuthPlaceholder.querySelector('button').title = "Client ID tidak valid atau tidak terkonfigurasi";
         }
-        return; // Hentikan eksekusi jika Client ID bermasalah
+        // return; // Hentikan eksekusi jika Client ID bermasalah - dihapus agar halaman tetap render walaupun ada warning
     }
     const clientId = clientIdMeta.content;
 
@@ -355,4 +355,8 @@ window.onload = function () {
         const errorDiv = document.getElementById('googleSignInError');
         if (errorDiv) { errorDiv.textContent = `Gagal memuat layanan login Google: ${error.message}. Pastikan Client ID dan Authorized Origins benar.`; errorDiv.style.display = 'block'; }
     }
+
+    // MENAMBAHKAN INI UNTUK MENGAKTIFKAN ANIMASI SAAT HALAMAN DIMUAT
+    document.body.classList.remove('login-hidden'); // Hapus class hidden
+    document.body.classList.add('login-loaded'); // Tambahkan class loaded untuk transisi
 };

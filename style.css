@@ -1,3 +1,5 @@
+--- START OF FILE style.css ---
+
 /* GANTI SELURUH ISI STYLE.CSS ANDA DENGAN KODE INI */
 
 /* CSS Variables for Themes */
@@ -49,6 +51,16 @@
   --model-selector-text: #ffffff;
   --model-selector-hover-bg: #3a3a3a;
   --file-chip-area-bg: rgba(25, 25, 25, 0.4); /* background transparan untuk area chips */
+
+  /* New input area specific colors */
+  --new-input-container-bg: #1c1c1c; /* Background for the main input rectangle */
+  --new-input-container-border: rgba(255, 255, 255, 0.08); /* Border for the main input rectangle */
+  --toggle-group-bg: #333333; /* Background for Fast/Smart toggle group */
+  --toggle-button-bg: transparent; /* Default button background in toggle */
+  --toggle-button-text: rgba(255, 255, 255, 0.6); /* Default button text in toggle */
+  --toggle-button-active-bg: #555555; /* Active button background in toggle */
+  --toggle-button-active-text: #ffffff; /* Active button text in toggle */
+  --button-plus-top-bg: #333333; /* Background for the top plus button */
 }
 
 body.light-mode {
@@ -98,6 +110,16 @@ body.light-mode {
   --model-selector-text: #333333;
   --model-selector-hover-bg: #cccccc;
   --file-chip-area-bg: rgba(255, 255, 255, 0.4);
+
+  /* New input area specific colors - Light Mode */
+  --new-input-container-bg: #ffffff;
+  --new-input-container-border: rgba(0, 0, 0, 0.08);
+  --toggle-group-bg: #e0e0e0;
+  --toggle-button-bg: transparent;
+  --toggle-button-text: rgba(0, 0, 0, 0.6);
+  --toggle-button-active-bg: #c0c0c0;
+  --toggle-button-active-text: #333333;
+  --button-plus-top-bg: #cccccc;
 }
 
 /* General Styles */
@@ -333,10 +355,11 @@ body.light-mode .ai-generated-image {
 #thinkingIndicator .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes pulse-dot { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
 
-.quick-complete-container { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: calc(100% - 40px); max-width: 700px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; z-index: 90; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
-.quick-complete-container.active { opacity: 1; visibility: visible; }
-.quick-complete-btn { background-color: var(--quick-complete-bg); color: var(--quick-complete-text); border: 1px solid var(--border-color); border-radius: 20px; padding: 8px 15px; font-size: 0.95em; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; white-space: nowrap; position: relative; overflow: hidden; }
-.quick-complete-btn:hover { background-color: var(--quick-complete-hover-bg); border-color: var(--quick-complete-hover-bg); }
+.quick-complete-container {
+  display: none !important; /* Hide quick complete buttons as per new design */
+}
+.quick-complete-container.active { /* This class won't be applied due to display: none */ }
+.quick-complete-btn { /* No longer relevant due to display: none */ }
 
 
 /* === START: New Input Wrapper and File Chip Positioning === */
@@ -387,26 +410,36 @@ body.light-mode .ai-generated-image {
 .file-chip-container::-webkit-scrollbar-thumb:hover { background-color: var(--button-bg); }
 
 
-/* Input wrapper now becomes a child of bottom-chat-area */
-.input-wrapper {
-  background-color: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border-color);
-  box-shadow: none;
-  border-radius: 28px;
-  padding: 8px 10px;
-  /* Removed fixed positioning as it's now inside bottom-chat-area */
-  position: relative; /* Keep for internal ripple */
-  width: 100%; /* Take full width of bottom-chat-area */
-  display: flex;
-  align-items: flex-end; /* Align items ke bawah */
-  gap: 8px;
-  min-height: 56px;
-  max-height: 160px;
-  box-sizing: border-box;
-  transition: height 0.2s ease;
+/* New input wrapper container for the two rows */
+.new-input-wrapper-container {
+    background-color: var(--new-input-container-bg);
+    border: 1px solid var(--new-input-container-border);
+    border-radius: 28px;
+    padding: 12px; /* Adjusted padding */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Gap between top and bottom rows */
+    box-sizing: border-box;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Subtle shadow */
 }
+
+.input-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Distribute items */
+    gap: 10px; /* Gap between elements in the top row */
+}
+
+.input-bottom-row {
+    display: flex;
+    align-items: flex-end; /* Align buttons with textarea baseline */
+    gap: 8px;
+    background-color: var(--input-bg); /* Inner input background */
+    border-radius: 20px; /* Rounded corners for the inner input field */
+    padding: 8px 12px; /* Inner padding for the input elements */
+}
+
 
 .file-chip-item {
   display: flex;
@@ -440,19 +473,19 @@ body.light-mode .ai-generated-image {
 .file-chip-item .remove-chip-btn:hover { opacity: 1; color: var(--file-chip-remove-hover-color); transform: scale(1.1); }
 
 /* Input field (textarea) */
-.input-wrapper textarea {
+.input-bottom-row textarea {
   flex-grow: 1; /* Agar mengambil ruang yang tersedia */
   background: none;
   border: none;
   color: var(--text-color);
   font-family: 'Inter', sans-serif;
-  font-size: 1.1em;
+  font-size: 1em; /* Smaller font size to match image */
   outline: none;
   resize: none;
   overflow-y: auto;
-  padding: 8px 0;
+  padding: 8px 0; /* Vertical padding */
   line-height: 1.4;
-  min-height: 24px;
+  min-height: 20px; /* Adjusted min-height */
   max-height: 120px;
   box-sizing: border-box;
   white-space: pre-wrap;
@@ -460,16 +493,16 @@ body.light-mode .ai-generated-image {
   margin-bottom: 0;
   text-align: left; /* Pastikan placeholder dan teks rata kiri */
 }
-.input-wrapper textarea::placeholder {
+.input-bottom-row textarea::placeholder {
   color: var(--placeholder-color);
-  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  /* No more morphing animation */
   font-weight: 400;
   text-align: left; /* Pastikan placeholder rata kiri */
 }
 
-/* Button circles */
+/* Button circles (general style) */
 .btn-circle {
-  background-color: var(--button-bg);
+  background-color: var(--button-bg); /* Default button-bg */
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -482,10 +515,33 @@ body.light-mode .ai-generated-image {
   transition: background-color 0.2s ease;
   position: relative;
   overflow: hidden;
-  margin-bottom: 0;
 }
 .btn-circle:hover { background-color: var(--button-hover-bg); }
 .btn-circle svg { stroke: var(--text-color); width: 20px; height: 20px; transition: stroke 0.3s ease; }
+
+/* Specific button styles for the new layout */
+.btn-plus-top {
+    background-color: var(--button-plus-top-bg); /* Use a specific variable if different */
+    width: 36px; /* Smaller plus button */
+    height: 36px;
+}
+.btn-plus-top svg {
+    width: 18px; /* Smaller icon */
+    height: 18px;
+}
+.btn-voice-bottom, .btn-send-bottom {
+    background-color: var(--button-bg); /* Use general button-bg */
+    width: 36px; /* Smaller than previous btn-circle */
+    height: 36px;
+}
+.btn-voice-bottom svg, .btn-send-bottom svg {
+    width: 18px;
+    height: 18px;
+}
+.btn-send-bottom svg {
+    /* For send button, rotate up arrow */
+    transform: rotate(-90deg);
+}
 
 
 /* Model Selector Styling (Updated for custom button) */
@@ -493,7 +549,6 @@ body.light-mode .ai-generated-image {
     display: flex;
     align-items: center;
     flex-shrink: 0; /* Jangan biarkan mengecil */
-    margin-bottom: 0; /* Pastikan rata dengan elemen lain */
 }
 .custom-selector-trigger {
     background-color: var(--model-selector-bg);
@@ -516,6 +571,8 @@ body.light-mode .ai-generated-image {
     align-items: center;
     gap: 5px;
     position: relative; /* For ripple effect */
+    height: 36px; /* Align height with other buttons in top row */
+    box-sizing: border-box;
 }
 body.light-mode .custom-selector-trigger {
     background-color: var(--model-selector-bg);
@@ -674,6 +731,50 @@ body.light-mode .custom-selector-trigger {
 }
 /* === END: Custom Model Select Modal Styling === */
 
+/* === START: Fast/Smart Toggle Styling === */
+.speed-smart-toggle-container {
+    flex-grow: 1; /* Allow it to take available space */
+    display: flex;
+    justify-content: center; /* Center the toggle group */
+}
+
+.toggle-switch-group {
+    display: flex;
+    background-color: var(--toggle-group-bg);
+    border-radius: 20px; /* Pill shape */
+    overflow: hidden; /* Ensure inner buttons respect border-radius */
+    padding: 3px; /* Small padding inside the group */
+    height: 36px; /* Match height of other elements in top row */
+    box-sizing: border-box;
+}
+
+.toggle-button {
+    background-color: var(--toggle-button-bg);
+    color: var(--toggle-button-text);
+    border: none;
+    padding: 6px 15px; /* Padding for text inside button */
+    border-radius: 17px; /* Slightly less than half of height to make it rounded */
+    font-size: 0.9em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+}
+
+.toggle-button.active {
+    background-color: var(--toggle-button-active-bg);
+    color: var(--toggle-button-active-text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15); /* Subtle shadow for active state */
+}
+
+.toggle-button:hover:not(.active) {
+    background-color: var(--toggle-button-bg); /* Still transparent, maybe slightly lighter text */
+    color: var(--toggle-button-active-text); /* Hover color for text */
+}
+/* === END: Fast/Smart Toggle Styling === */
+
 
 .ripple { position: absolute; border-radius: 50%; opacity: 0; background-color: var(--ripple-color); animation: ripple-animation 0.6s linear; transform: scale(0); pointer-events: none; }
 @keyframes ripple-animation { from { transform: scale(0); opacity: 0.6; } to { transform: scale(2.5); opacity: 0; } }
@@ -806,16 +907,6 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-/* Modal (variabelnya ada tapi stylingnya sudah tidak digunakan karena modal dihapus) */
-/* .modal-overlay { ... } */
-/* .modal-overlay.active { ... } */
-/* .modal-content { ... } */
-/* .modal-overlay.active .modal-content { ... } */
-/* .modal-content h3 { ... } */
-/* .modal-content p { ... } */
-/* .modal-close-btn { ... } */
-/* .modal-close-btn:hover { ... } */
 
 .code-block { background-color: var(--code-block-bg); color: var(--code-block-text); padding: 15px; border-radius: 8px; margin-top: 15px; margin-bottom: 10px; position: relative; overflow-x: auto; font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 0.9em; line-height: 1.5; border: 1px solid var(--code-block-border); text-align: left; white-space: pre-wrap; word-break: break-all; }
 .code-block pre { margin: 0; padding: 0; white-space: pre-wrap; word-break: break-all; }

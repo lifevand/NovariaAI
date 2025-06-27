@@ -1,3 +1,5 @@
+--- START OF FILE index.html ---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,6 +27,7 @@
       </div>
     </div>
     <div class="header-right-group">
+        <!-- Keep the theme toggle here for the overall app theme -->
         <div id="landingThemeToggleContainer" class="theme-toggle-landing">
             <label class="switch">
                 <input type="checkbox" id="themeToggleLanding">
@@ -57,7 +60,7 @@
   </main>
 
   <div class="quick-complete-container" id="quickCompleteContainer">
-    <!-- Quick complete buttons akan dikosongkan oleh JS atau bisa dihapus jika tidak ada sumber data -->
+    <!-- Quick complete buttons will be hidden by CSS -->
   </div>
 
   <!-- Wrapper baru untuk menampung file chips dan input chat -->
@@ -69,39 +72,56 @@
         </div>
     </div>
 
-    <div class="input-wrapper">
-        <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
+    <!-- New wrapper for the top and bottom input rows -->
+    <div class="new-input-wrapper-container">
+        <div class="input-top-row">
+            <!-- Model Selector Trigger (pill-shaped button) -->
+            <div class="model-selector-container">
+                <button id="customModelSelectorTrigger" class="custom-selector-trigger">
+                    <span id="selectedModelName"></span>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+                </button>
+            </div>
 
-        <button class="btn-circle btn-plus" id="plusButton">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-        </button>
+            <!-- New: Fast/Smart Toggle -->
+            <div class="speed-smart-toggle-container">
+                <div class="toggle-switch-group">
+                    <button id="fastButton" class="toggle-button active">Fast</button>
+                    <button id="smartButton" class="toggle-button">Smart</button>
+                </div>
+            </div>
 
-        <!-- Area pengetikan pesan dipindahkan ke sini -->
-        <textarea id="messageInput" placeholder="Let's explore together..." rows="1"></textarea>
-
-        <!-- Model Selector dipindahkan ke sini -->
-        <div class="model-selector-container">
-            <button id="customModelSelectorTrigger" class="custom-selector-trigger">
-                <span id="selectedModelName"></span>
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+            <!-- Plus button moved to top row -->
+            <button class="btn-circle btn-plus-top" id="plusButtonTop">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
             </button>
         </div>
 
-        <button class="btn-circle btn-voice" id="voiceInputButton">
-            <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
-            </svg>
-        </button>
-        <button class="btn-circle btn-send" id="sendButton">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
-            </svg>
-        </button>
+        <div class="input-bottom-row">
+            <!-- Area pengetikan pesan -->
+            <textarea id="messageInput" placeholder="Ask me anything..." rows="1"></textarea>
+
+            <!-- Voice Input Button -->
+            <button class="btn-circle btn-voice-bottom" id="voiceInputButtonBottom">
+                <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
+                </svg>
+            </button>
+            <!-- Send Button -->
+            <button class="btn-circle btn-send-bottom" id="sendButtonBottom">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
+                </svg>
+            </button>
+        </div>
     </div>
   </div>
+
+  <!-- fileInput moved outside bottom-chat-area to keep it hidden -->
+  <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
 
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 

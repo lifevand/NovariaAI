@@ -1,3 +1,5 @@
+--- START OF FILE script.js ---
+
 // === GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI ===
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,9 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // === AKHIR: PENGECEKAN LOGIN ===
 
-
+    // Updated Element IDs
     const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendButton');
+    const sendButton = document.getElementById('sendButtonBottom'); // Updated ID
     const menuIcon = document.getElementById('menuIcon');
     const backIcon = document.getElementById('backIcon');
     const sidebar = document.getElementById('sidebar');
@@ -61,14 +63,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const welcomeSection = document.getElementById('welcomeSection');
     const chatSection = document.getElementById('chatSection');
-    const landingThemeToggleContainer = document.getElementById('landingThemeToggleContainer');
+    const landingThemeToggleContainer = document.getElementById('landingThemeToggleContainer'); // This remains for global theme toggle
     const mainContent = document.querySelector('main');
 
     let currentActivePage = 'welcome';
 
-    const plusButton = document.getElementById('plusButton');
-    const fileInput = document.getElementById('fileInput');
-    const bottomChatArea = document.getElementById('bottomChatArea'); // Wrapper baru untuk padding
+    const plusButton = document.getElementById('plusButtonTop'); // Updated ID
+    const fileInput = document.getElementById('fileInput'); // ID remains the same, but HTML moved
+    const bottomChatArea = document.getElementById('bottomChatArea'); // Wrapper for whole bottom section
+    const newInputWrapperContainer = document.querySelector('.new-input-wrapper-container'); // The main new input container
 
     const MAX_FILE_SIZE_KB_NEW = 450;
     const MAX_FILE_SIZE_BYTES_NEW = MAX_FILE_SIZE_KB_NEW * 1024;
@@ -82,26 +85,55 @@ document.addEventListener('DOMContentLoaded', () => {
     const MAX_HISTORY_LENGTH = 10; // Batasi jumlah pasangan pesan (User+AI) yang disimpan
     // =========================================================
 
-    // === AWAL: CUSTOM SELEKTOR MODEL AI (MODAL) ===
+    // === AWAL: CUSTOM SELEKTOR MODEL AI (MODAL) & NEW FAST/SMART TOGGLE ===
     const customModelSelectorTrigger = document.getElementById('customModelSelectorTrigger');
     const selectedModelName = document.getElementById('selectedModelName');
     const modelSelectModal = document.getElementById('modelSelectModal');
     const modelOptionsContainer = document.getElementById('modelOptions');
     const closeModelModalButton = document.getElementById('closeModelModal');
 
-    // Definisikan model yang tersedia dengan label yang lebih rapi
+    // New Fast/Smart Toggle elements
+    const fastButton = document.getElementById('fastButton');
+    const smartButton = document.getElementById('smartButton');
+
+    // Define available models with appropriate labels
+    // Aligned for Fast/Smart: 1.5 Flash for Fast, 1.5 Pro for Smart
     const availableModels = [
-        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
-        { value: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro' },
-        { value: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash' }
+        { value: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash', type: 'fast' },
+        { value: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', type: 'smart' },
+        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'other' } // Example of another model
     ];
 
     let currentSelectedModelValue = '';
 
+    // Function to set the selected model and update UI
+    function setSelectedModel(modelValue, updateFastSmartToggle = true) {
+        currentSelectedModelValue = modelValue;
+        localStorage.setItem('selectedAiModel', currentSelectedModelValue);
+        const selectedModel = availableModels.find(m => m.value === currentSelectedModelValue);
+        if (selectedModel) {
+            selectedModelName.textContent = selectedModel.label;
+            if (updateFastSmartToggle) {
+                // Update Fast/Smart toggle state
+                fastButton.classList.remove('active');
+                smartButton.classList.remove('active');
+                if (selectedModel.type === 'fast') {
+                    fastButton.classList.add('active');
+                } else if (selectedModel.type === 'smart') {
+                    smartButton.classList.add('active');
+                }
+            }
+        } else {
+            // Fallback if model not found (e.g., from old storage)
+            selectedModelName.textContent = 'Unknown Model';
+            fastButton.classList.remove('active');
+            smartButton.classList.remove('active');
+        }
+    }
+
     // Fungsi untuk menampilkan modal pemilihan model
     function openModelSelectModal() {
         modelSelectModal.classList.add('active');
-        // Tambahkan class ke body untuk mencegah scroll
         document.body.style.overflow = 'hidden';
         populateModelOptions();
     }
@@ -109,7 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fungsi untuk menyembunyikan modal pemilihan model
     function closeModelSelectModal() {
         modelSelectModal.classList.remove('active');
-        // Hapus class dari body untuk mengembalikan scroll
         document.body.style.overflow = '';
     }
 
@@ -132,37 +163,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             optionItem.addEventListener('click', () => {
-                currentSelectedModelValue = model.value;
-                localStorage.setItem('selectedAiModel', currentSelectedModelValue);
-                selectedModelName.textContent = model.label; // Update teks pada trigger
-                
-                // Hapus kelas 'selected' dari semua opsi dan tambahkan ke yang baru dipilih
-                document.querySelectorAll('.model-option-item').forEach(item => {
-                    item.classList.remove('selected');
-                });
-                optionItem.classList.add('selected');
-
-                // Tutup modal setelah sedikit penundaan untuk melihat animasi 'selected'
-                setTimeout(closeModelSelectModal, 200); 
+                setSelectedModel(model.value, true); // Update toggle based on selection
+                setTimeout(closeModelSelectModal, 200);
             });
             modelOptionsContainer.appendChild(optionItem);
         });
     }
 
-    // Set default model saat DOMContentLoaded
+    // Set default model on DOMContentLoaded
     const savedModelValue = localStorage.getItem('selectedAiModel');
     const defaultModel = availableModels.find(m => m.value === savedModelValue) || availableModels[0];
-    currentSelectedModelValue = defaultModel.value;
-    selectedModelName.textContent = defaultModel.label;
+    setSelectedModel(defaultModel.value, true); // Initialize selected model and toggle state
 
-    // Event listeners untuk modal
+    // Event listeners for model modal
     if (customModelSelectorTrigger) {
         customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
     }
     if (closeModelModalButton) {
         closeModelModalButton.addEventListener('click', closeModelSelectModal);
     }
-    // Tutup modal jika mengklik di luar area konten (overlay)
     if (modelSelectModal) {
         modelSelectModal.addEventListener('click', (event) => {
             if (event.target === modelSelectModal) {
@@ -170,10 +189,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    // === AKHIR: CUSTOM SELEKTOR MODEL AI (MODAL) ===
+
+    // Event listeners for Fast/Smart toggle
+    if (fastButton) {
+        fastButton.addEventListener('click', () => {
+            setSelectedModel('gemini-1.5-flash-latest', false); // Do not update the toggle from within
+            fastButton.classList.add('active');
+            smartButton.classList.remove('active');
+        });
+    }
+    if (smartButton) {
+        smartButton.addEventListener('click', () => {
+            setSelectedModel('gemini-1.5-pro-latest', false); // Do not update the toggle from within
+            smartButton.classList.add('active');
+            fastButton.classList.remove('active');
+        });
+    }
+    // === AKHIR: CUSTOM SELEKTOR MODEL AI (MODAL) & NEW FAST/SMART TOGGLE ===
 
 
-    const voiceInputButton = document.getElementById('voiceInputButton');
+    const voiceInputButton = document.getElementById('voiceInputButtonBottom'); // Updated ID
     let recognition;
 
     // === AWAL: ELEMEN SIDEBAR BARU & FUNGSINYA ===
@@ -267,8 +302,8 @@ document.addEventListener('DOMContentLoaded', () => {
             landingThemeToggleContainer.classList.remove('hidden');
             menuIcon.classList.remove('hidden');
             backIcon.classList.add('hidden');
-            // Jika kembali ke welcome, quick complete mungkin perlu ditampilkan lagi (jika ada)
-            // quickCompleteContainer.classList.add('active'); // Tergantung perilaku yang diinginkan
+            // If returning to welcome, quick complete should be hidden anyway by CSS, but good to be explicit
+            quickCompleteContainer.classList.remove('active');
         }
         if (pageName === 'chat' && initialMessage) {
             addChatMessage(initialMessage, 'user');
@@ -277,8 +312,9 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInputAreaAppearance();
     }
 
+    // Removed placeholder morphing logic
     messageInput.addEventListener('focus', () => {
-        quickCompleteContainer.classList.remove('active');
+        // No need to hide quick complete specifically on focus if it's display: none
     });
     messageInput.addEventListener('input', () => {
         autoResizeTextarea();
@@ -292,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInputAreaAppearance();
     }
     messageInput.addEventListener('input', autoResizeTextarea);
-    autoResizeTextarea();
+    autoResizeTextarea(); // Initial call to set correct height
 
     // === Pembersihan Teks AI dari Markdown (menghilangkan bintang dan format lain) ===
     function cleanAiTextFromMarkdown(text) {
@@ -337,7 +373,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const aiModelTagSpan = document.createElement('span');
             aiModelTagSpan.classList.add('ai-model-tag');
-            aiModelTagSpan.textContent = modelTag; // Gunakan parameter modelTag
+            // Use the correct label for the model tag based on `currentSelectedModelValue` or `modelTag` from response
+            const actualModelLabel = availableModels.find(m => m.value === modelTag)?.label || modelTag;
+            aiModelTagSpan.textContent = actualModelLabel;
             aiHeader.appendChild(aiModelTagSpan);
 
             messageElement.appendChild(aiHeader);
@@ -639,8 +677,8 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
 
     function setupRippleEffects() {
-        // Tambahkan '.custom-selector-trigger' dan '.model-option-item'
-        const clickableElements = document.querySelectorAll('.btn-circle, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item');
+        // Updated query selector to include new button classes
+        const clickableElements = document.querySelectorAll('.btn-circle, .btn-plus-top, .btn-voice-bottom, .btn-send-bottom, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item, .toggle-button');
         clickableElements.forEach(element => {
             const oldHandler = element._rippleHandler;
             if (oldHandler) {
@@ -650,7 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (e.target.tagName === 'A' || e.target.closest('a')) {
                     return;
                 }
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') { // Hapus SELECT dari sini
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
                     return;
                 }
                 const ripple = document.createElement('span');
@@ -672,11 +710,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     setupRippleEffects();
-    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item') || node.matches('.model-option-item'))) { needsRippleSetup = true; } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item') || node.querySelector('.model-option-item'))) { needsRippleSetup = true; } } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
+    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { // Check for new button classes
+                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item') || node.matches('.model-option-item') || node.matches('.toggle-button'))) {
+                            needsRippleSetup = true;
+                        } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button'))) {
+                            needsRippleSetup = true;
+                        }
+                    } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
     if (chatHistory) observer.observe(chatHistory, { childList: true, subtree: true });
     if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
     if (sidebar) observer.observe(sidebar, { childList: true, subtree: true });
     if (modelOptionsContainer) observer.observe(modelOptionsContainer, { childList: true, subtree: true }); // Amati perubahan pada modal options
+    // Observe the new input wrapper for dynamic height changes
+    if (newInputWrapperContainer) observer.observe(newInputWrapperContainer, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+
 
     // Update padding-bottom for main content based on the new bottom-chat-area height
     function updateInputAreaAppearance() {
@@ -686,17 +733,20 @@ document.addEventListener('DOMContentLoaded', () => {
         mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`; // Tambahan 20px buffer
 
         if (chatHistory) {
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+            // Scroll to bottom only if user is already near bottom or new message comes in
+            const isAtBottom = chatHistory.scrollHeight - chatHistory.scrollTop <= chatHistory.clientHeight + 50; // A bit more tolerance
+            if (isAtBottom) {
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
         }
     }
 
     // Panggil updateInputAreaAppearance setiap kali elemen-elemen di bottomChatArea mungkin berubah
-    // (misalnya saat file chip ditambahkan/dihapus, textarea resize)
-    const resizeObserver = new ResizeObserver(() => {
+    const resizeObserverForBottomArea = new ResizeObserver(() => {
         updateInputAreaAppearance();
     });
     if (bottomChatArea) {
-        resizeObserver.observe(bottomChatArea);
+        resizeObserverForBottomArea.observe(bottomChatArea);
     }
     // Also call on input/blur from messageInput if it affects height
     messageInput.addEventListener('input', updateInputAreaAppearance);
@@ -833,8 +883,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let finalTranscript = '';
         recognition.onstart = () => { voiceInputButton.style.backgroundColor = 'red'; messageInput.placeholder = 'Listening...'; };
         recognition.onresult = (event) => { let interimTranscript = ''; for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) { finalTranscript += event.results[i][0].transcript; } else { interimTranscript += event.results[i][0].transcript; } } messageInput.value = finalTranscript + interimTranscript; autoResizeTextarea(); };
-        recognition.onend = () => { voiceInputButton.style.backgroundColor = ''; if (finalTranscript.trim() !== '') { messageInput.value = finalTranscript.trim(); } if (messageInput.value.trim() === '') { messageInput.placeholder = "Let's explore together..."; } finalTranscript = ''; }; // Placeholder statis
-        recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; messageInput.placeholder = "Let's explore together..."; finalTranscript = ''; alert('Speech recognition error: ' + event.error); }; // Placeholder statis
+        recognition.onend = () => { voiceInputButton.style.backgroundColor = ''; if (finalTranscript.trim() !== '') { messageInput.value = finalTranscript.trim(); } if (messageInput.value.trim() === '') { messageInput.placeholder = "Ask me anything..."; } finalTranscript = ''; };
+        recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; messageInput.placeholder = "Ask me anything..."; finalTranscript = ''; alert('Speech recognition error: ' + event.error); };
         voiceInputButton.addEventListener('click', () => { try { if (recognition && typeof recognition.stop === 'function' && recognition.recording) { recognition.stop(); } else { recognition.start(); } } catch (e) { if (recognition && typeof recognition.stop === 'function') recognition.stop(); } });
     } else {
         voiceInputButton.style.display = 'none';

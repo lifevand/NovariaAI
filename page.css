@@ -1,0 +1,427 @@
+/* General styles to inherit from main app if possible, or define standalone */
+:root {
+    /* Dark Mode Defaults (consistent with index.html) */
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --header-bg: rgba(13, 17, 23, 0.85); /* Slightly transparent header */
+    --card-bg: #0d1117; /* Darker card background */
+    --card-border: #21262d; /* Card border */
+    --secondary-text-color: #7d8590; /* Muted text */
+
+    /* Gradients for highlights (inspired by monica.im and your app) */
+    --primary-gradient-start: #a855f7; /* Purple */
+    --primary-gradient-end: #ec4899;   /* Pink */
+    --secondary-gradient-start: #3b82f6; /* Blue */
+    --secondary-gradient-end: #60a5fa;   /* Lighter Blue */
+
+    --button-text-color: #ffffff;
+    --button-bg-hover: #333333; /* Generic button hover */
+    --button-border: #4b5563; /* For outline buttons */
+    
+    --footer-bg: #0d1117; /* Dark footer */
+    --footer-text: #e6edf3; /* Lighter text for footer */
+    --footer-link-hover: #58a6ff; /* Blue link hover */
+
+    --font-family: 'Inter', sans-serif;
+}
+
+/* Light mode overrides for this page */
+body.light-mode {
+    --bg-color: #f8f8f8;
+    --text-color: #333333;
+    --header-bg: rgba(255, 255, 255, 0.85);
+    --card-bg: #ffffff;
+    --card-border: #e5e7eb;
+    --secondary-text-color: #6b7280;
+
+    --primary-gradient-start: #8b5cf6;
+    --primary-gradient-end: #ef4444;
+    --secondary-gradient-start: #2563eb;
+    --secondary-gradient-end: #3b82f6;
+
+    --button-bg-hover: #cccccc;
+    --button-border: #d1d5db;
+
+    --footer-bg: #f3f4f6;
+    --footer-text: #374151;
+    --footer-link-hover: #1d4ed8;
+}
+
+/* Global Reset & Body */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body.page-body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Header */
+.page-header {
+    background-color: var(--header-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--card-border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0 20px;
+}
+.header-content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 64px;
+}
+.header-left {
+    display: flex;
+    align-items: center;
+}
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.header-logo {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+.header-app-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+/* Auth Button Styles (consistent with login.html's auth-button) */
+.auth-button {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    min-width: 80px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none; /* For button acting as a link */
+}
+.auth-button:hover {
+    background-color: var(--card-border);
+}
+.auth-button.user-initial-button { /* Style if user is logged in */
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    padding: 0;
+    font-weight: 600;
+    background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    color: var(--button-text-color);
+    border: none;
+    font-size: 1rem;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.auth-button.user-initial-button:hover {
+    opacity: 0.9;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
+    background-color: transparent; /* Override default hover */
+}
+
+
+/* Main Content */
+.page-main {
+    flex-grow: 1;
+    padding: 60px 20px; /* General padding */
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    margin-bottom: 80px;
+    padding: 40px 0;
+}
+.hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+.hero-section h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem); /* Responsive font size */
+    font-weight: 800;
+    margin-bottom: 20px;
+    line-height: 1.1;
+}
+.highlight-text {
+    background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.hero-subtitle {
+    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+    color: var(--secondary-text-color);
+    max-width: 600px;
+    margin: 0 auto 40px auto;
+}
+
+/* CTA Buttons */
+.cta-button {
+    display: inline-block;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 30px; /* Pill shape */
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    cursor: pointer;
+    text-align: center;
+}
+.primary-cta {
+    background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end));
+    color: var(--button-text-color);
+    border: none;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+.primary-cta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+    opacity: 0.9;
+}
+.secondary-cta {
+    background: linear-gradient(90deg, var(--secondary-gradient-start), var(--secondary-gradient-end));
+    color: var(--button-text-color);
+    border: none;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+.secondary-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 18px rgba(0,0,0,0.3);
+    opacity: 0.9;
+}
+.highlight-text-alt {
+    background: linear-gradient(90deg, var(--secondary-gradient-start), var(--secondary-gradient-end));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Features Section */
+.features-section {
+    margin-bottom: 80px;
+    padding: 40px 0;
+}
+.section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 60px;
+    color: var(--text-color);
+}
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+.feature-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+.feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+.feature-card .card-icon {
+    font-size: 3rem;
+    color: var(--primary-gradient-start); /* Use one of the gradient colors */
+    margin-bottom: 20px;
+    font-variation-settings: 'FILL' 0; /* Ensure outline style */
+}
+.feature-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text-color);
+}
+.feature-card p {
+    font-size: 1rem;
+    color: var(--secondary-text-color);
+    line-height: 1.5;
+}
+
+/* Mid CTA Section */
+.mid-cta-section {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 60px 40px;
+    text-align: center;
+    margin-bottom: 80px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.mid-cta-section h2 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+.mid-cta-section p {
+    font-size: 1.1rem;
+    color: var(--secondary-text-color);
+    margin-bottom: 40px;
+}
+
+/* Footer */
+.page-footer {
+    background-color: var(--footer-bg);
+    border-top: 1px solid var(--card-border);
+    color: var(--footer-text);
+    padding: 40px 20px;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: auto; /* Pushes footer to the bottom */
+}
+.page-footer .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+.page-footer .social-links {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 0;
+}
+.page-footer .social-links a {
+    color: var(--footer-text);
+    font-size: 1.8rem;
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+.page-footer .social-links a:hover {
+    color: var(--footer-link-hover);
+    transform: scale(1.1) translateY(-2px);
+}
+.page-footer .social-icon-svg {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+}
+.page-footer .copyright-text {
+    margin: 0;
+    font-size: 0.9rem;
+}
+.page-footer .footer-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.page-footer .footer-links a {
+    color: var(--footer-text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+.page-footer .footer-links a:hover {
+    color: var(--footer-link-hover);
+    text-decoration: underline;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-header { padding: 0 16px; }
+    .header-content-wrapper { height: 56px; }
+    .header-app-name { font-size: 1.2rem; }
+    .header-logo { width: 28px; height: 28px; }
+
+    .page-main { padding: 40px 16px; }
+    .hero-section { margin-bottom: 60px; padding: 20px 0; }
+    .hero-section h1 { font-size: clamp(2rem, 8vw, 3.5rem); }
+    .hero-subtitle { font-size: clamp(1rem, 3vw, 1.2rem); margin-bottom: 30px; }
+
+    .cta-button { padding: 12px 25px; font-size: 1rem; }
+
+    .features-section { margin-bottom: 60px; padding: 20px 0; }
+    .section-title { font-size: clamp(1.8rem, 5vw, 2.5rem); margin-bottom: 40px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .feature-card { padding: 25px; }
+    .feature-card .card-icon { font-size: 2.5rem; margin-bottom: 15px; }
+    .feature-card h3 { font-size: 1.3rem; margin-bottom: 10px; }
+    .feature-card p { font-size: 0.9rem; }
+
+    .mid-cta-section { padding: 40px 25px; margin-bottom: 60px; }
+    .mid-cta-section h2 { font-size: clamp(1.5rem, 5vw, 2rem); }
+    .mid-cta-section p { font-size: 1rem; margin-bottom: 30px; }
+
+    .page-footer { padding: 30px 16px; }
+    .page-footer .social-links { gap: 20px; }
+    .page-footer .social-links a { font-size: 1.6rem; }
+    .page-footer .social-icon-svg { width: 24px; height: 24px; }
+    .page-footer .copyright-text { font-size: 0.8rem; }
+    .page-footer .footer-links { gap: 12px; }
+    .page-footer .footer-links a { font-size: 0.8rem; }
+}
+
+@media (max-width: 480px) {
+    .header-content-wrapper { padding: 0 10px; }
+    .header-app-name { display: none; /* Hide app name on very small screens if logo is enough */ }
+    .header-logo { width: 36px; height: 36px; } /* Larger logo if name is hidden */
+
+    .hero-section h1 { font-size: clamp(2rem, 10vw, 2.8rem); }
+    .hero-subtitle { font-size: 0.9rem; margin-bottom: 25px; }
+
+    .mid-cta-section { padding: 30px 20px; }
+    .mid-cta-section p { font-size: 0.9rem; margin-bottom: 25px; }
+    
+    .page-footer .social-links, .page-footer .footer-links {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

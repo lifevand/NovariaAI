@@ -1,3 +1,5 @@
+--- START OF FILE script.js ---
+
 // === GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI ===
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -47,9 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // === AKHIR: PENGECEKAN LOGIN ===
 
-    // Updated Element IDs
+
     const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendButtonBottom'); // Updated ID
+    const sendButton = document.getElementById('sendButtonBottom');
     const menuIcon = document.getElementById('menuIcon');
     const backIcon = document.getElementById('backIcon');
     const sidebar = document.getElementById('sidebar');
@@ -61,50 +63,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const welcomeSection = document.getElementById('welcomeSection');
     const chatSection = document.getElementById('chatSection');
-    const landingThemeToggleContainer = document.getElementById('landingThemeToggleContainer'); // This remains for global theme toggle
+    const landingThemeToggleContainer = document.getElementById('landingThemeToggleContainer');
     const mainContent = document.querySelector('main');
 
     let currentActivePage = 'welcome';
+    let currentTypingAnimation = null; // Variable to hold the current typing animation interval
 
-    const plusButton = document.getElementById('plusButtonTop'); // Updated ID
-    const fileInput = document.getElementById('fileInput'); // ID remains the same, but HTML moved
-    const bottomChatArea = document.getElementById('bottomChatArea'); // Wrapper for whole bottom section
-    const newInputWrapperContainer = document.querySelector('.new-input-wrapper-container'); // The main new input container
+    const plusButton = document.getElementById('plusButtonTop');
+    const fileInput = document.getElementById('fileInput');
+    const bottomChatArea = document.getElementById('bottomChatArea');
+    const newInputWrapperContainer = document.querySelector('.new-input-wrapper-container');
 
     const MAX_FILE_SIZE_KB_NEW = 450;
     const MAX_FILE_SIZE_BYTES_NEW = MAX_FILE_SIZE_KB_NEW * 1024;
     const MAX_FILES_ALLOWED = 5;
     const fileChipContainer = document.getElementById('fileChipContainer');
-    const fileChipsArea = document.getElementById('fileChipsArea'); // Area pembungkus chips
-    let attachedFiles = []; // Ini akan menyimpan objek File asli
+    const fileChipsArea = document.getElementById('fileChipsArea');
+    let attachedFiles = [];
 
-    // === AWAL: IMPLEMENTASI DAYA INGAT (CONVERSATION HISTORY) ===
-    let conversationHistory = []; // Array untuk menyimpan riwayat pesan
-    const MAX_HISTORY_LENGTH = 10; // Batasi jumlah pasangan pesan (User+AI) yang disimpan
-    // =========================================================
+    let conversationHistory = [];
+    const MAX_HISTORY_LENGTH = 10;
 
-    // === AWAL: CUSTOM SELEKTOR MODEL AI (MODAL) & NEW FAST/SMART TOGGLE ===
     const customModelSelectorTrigger = document.getElementById('customModelSelectorTrigger');
     const selectedModelName = document.getElementById('selectedModelName');
     const modelSelectModal = document.getElementById('modelSelectModal');
     const modelOptionsContainer = document.getElementById('modelOptions');
     const closeModelModalButton = document.getElementById('closeModelModal');
 
-    // New Fast/Smart Toggle elements
     const fastButton = document.getElementById('fastButton');
     const smartButton = document.getElementById('smartButton');
 
-    // Define available models with appropriate labels
-    // Aligned for Fast/Smart: 1.5 Flash for Fast, 1.5 Pro for Smart
     const availableModels = [
         { value: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash', type: 'fast' },
         { value: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', type: 'smart' },
-        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'other' } // Example of another model
+        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'other' }
     ];
 
     let currentSelectedModelValue = '';
 
-    // Function to set the selected model and update UI
     function setSelectedModel(modelValue, updateFastSmartToggle = true) {
         currentSelectedModelValue = modelValue;
         localStorage.setItem('selectedAiModel', currentSelectedModelValue);
@@ -112,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedModel) {
             selectedModelName.textContent = selectedModel.label;
             if (updateFastSmartToggle) {
-                // Update Fast/Smart toggle state
                 fastButton.classList.remove('active');
                 smartButton.classList.remove('active');
                 if (selectedModel.type === 'fast') {
@@ -122,29 +117,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
-            // Fallback if model not found (e.g., from old storage)
             selectedModelName.textContent = 'Unknown Model';
             fastButton.classList.remove('active');
             smartButton.classList.remove('active');
         }
     }
 
-    // Fungsi untuk menampilkan modal pemilihan model
     function openModelSelectModal() {
         modelSelectModal.classList.add('active');
         document.body.style.overflow = 'hidden';
         populateModelOptions();
     }
 
-    // Fungsi untuk menyembunyikan modal pemilihan model
     function closeModelSelectModal() {
         modelSelectModal.classList.remove('active');
         document.body.style.overflow = '';
     }
 
-    // Fungsi untuk mengisi opsi model ke dalam modal
     function populateModelOptions() {
-        modelOptionsContainer.innerHTML = ''; // Bersihkan opsi sebelumnya
+        modelOptionsContainer.innerHTML = '';
         availableModels.forEach(model => {
             const optionItem = document.createElement('div');
             optionItem.classList.add('model-option-item');
@@ -161,19 +152,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             optionItem.addEventListener('click', () => {
-                setSelectedModel(model.value, true); // Update toggle based on selection
+                setSelectedModel(model.value, true);
                 setTimeout(closeModelSelectModal, 200);
             });
             modelOptionsContainer.appendChild(optionItem);
         });
     }
 
-    // Set default model on DOMContentLoaded
     const savedModelValue = localStorage.getItem('selectedAiModel');
     const defaultModel = availableModels.find(m => m.value === savedModelValue) || availableModels[0];
-    setSelectedModel(defaultModel.value, true); // Initialize selected model and toggle state
+    setSelectedModel(defaultModel.value, true);
 
-    // Event listeners for model modal
     if (customModelSelectorTrigger) {
         customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
     }
@@ -188,35 +177,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Event listeners for Fast/Smart toggle
     if (fastButton) {
         fastButton.addEventListener('click', () => {
-            setSelectedModel('gemini-1.5-flash-latest', false); // Do not update the toggle from within
+            setSelectedModel('gemini-1.5-flash-latest', false);
             fastButton.classList.add('active');
             smartButton.classList.remove('active');
         });
     }
     if (smartButton) {
         smartButton.addEventListener('click', () => {
-            setSelectedModel('gemini-1.5-pro-latest', false); // Do not update the toggle from within
+            setSelectedModel('gemini-1.5-pro-latest', false);
             smartButton.classList.add('active');
             fastButton.classList.remove('active');
         });
     }
-    // === AKHIR: CUSTOM SELEKTOR MODEL AI (MODAL) & NEW FAST/SMART TOGGLE ===
 
-
-    const voiceInputButton = document.getElementById('voiceInputButtonBottom'); // Updated ID
+    const voiceInputButton = document.getElementById('voiceInputButtonBottom');
     let recognition;
 
-    // === AWAL: ELEMEN SIDEBAR BARU & FUNGSINYA ===
     const logoutButton = document.getElementById('logoutButton');
     const clearChatHistoryButton = document.getElementById('clearChatHistoryButton');
 
-    // Event Listener untuk Logout
     if (logoutButton) {
         logoutButton.addEventListener('click', (event) => {
-            event.preventDefault(); // Mencegah navigasi default jika itu tautan
+            event.preventDefault();
             if (confirm('Are you sure you want to log out?')) {
                 localStorage.removeItem('isLoggedIn');
                 localStorage.removeItem('novaUser');
@@ -225,22 +209,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Event Listener untuk Hapus Percakapan
     if (clearChatHistoryButton) {
         clearChatHistoryButton.addEventListener('click', () => {
             if (confirm('Are you sure you want to delete all chat history? This action cannot be undone.')) {
                 if (chatHistory) {
-                    chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
+                    // Clear previous typing animations if any
+                    if (currentTypingAnimation) {
+                        clearTimeout(currentTypingAnimation);
+                        currentTypingAnimation = null;
+                    }
+                    chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
                     const reAddedThinkingIndicator = document.getElementById('thinkingIndicator');
                     if(reAddedThinkingIndicator) thinkingIndicator.style.opacity = '0';
                 }
                 messageInput.value = '';
                 autoResizeTextarea();
-                clearAttachedFiles(); // Clear attached files as well
-                updateInputAreaAppearance();
-                // === Reset conversation history saat hapus percakapan ===
+                clearAttachedFiles();
                 conversationHistory = [];
-                // =======================================================
                 showPage('welcome');
                 sidebar.classList.remove('active');
                 sidebarOverlay.classList.remove('active');
@@ -248,15 +233,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Navigasi Sidebar (pastikan ini di dalam DOMContentLoaded)
     document.querySelectorAll('.sidebar-item a').forEach(item => {
         item.addEventListener('click', () => {
             sidebar.classList.remove('active');
             sidebarOverlay.classList.remove('active');
         });
     });
-    // === AKHIR: ELEMEN SIDEBAR BARU & FUNGSINYA ===
-
 
     function checkScrollable() {
         setTimeout(() => {
@@ -295,12 +277,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
                 checkScrollable();
             }, 10);
-            quickCompleteContainer.classList.remove('active'); // Pastikan quick complete disembunyikan di chat
+            quickCompleteContainer.classList.remove('active');
         } else {
             landingThemeToggleContainer.classList.remove('hidden');
             menuIcon.classList.remove('hidden');
             backIcon.classList.add('hidden');
-            // If returning to welcome, quick complete should be hidden anyway by CSS, but good to be explicit
             quickCompleteContainer.classList.remove('active');
         }
         if (pageName === 'chat' && initialMessage) {
@@ -310,10 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInputAreaAppearance();
     }
 
-    // Removed placeholder morphing logic
-    messageInput.addEventListener('focus', () => {
-        // No need to hide quick complete specifically on focus if it's display: none
-    });
+    messageInput.addEventListener('focus', () => {});
     messageInput.addEventListener('input', () => {
         autoResizeTextarea();
     });
@@ -326,10 +304,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInputAreaAppearance();
     }
     messageInput.addEventListener('input', autoResizeTextarea);
-    autoResizeTextarea(); // Initial call to set correct height
+    autoResizeTextarea();
 
     // === Pembersihan Teks AI dari Markdown (menghilangkan bintang dan format lain) ===
     function cleanAiTextFromMarkdown(text) {
+        // This function is still useful for initial rendering to prevent markdown from being "typed out"
+        // before syntax highlighting or other processing.
         let cleanedText = text.replace(/(\*\*|__)(.*?)\1/g, '$2');
         cleanedText = cleanedText.replace(/(\*|_)(.*?)\1/g, '$2');
         cleanedText = cleanedText.replace(/~~(.*?)~~/g, '$1');
@@ -344,8 +324,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // ======================================================================
 
-    // === Fungsi addChatMessage yang diperbarui untuk Multi-modal Output ===
-    function addChatMessage(content, sender = 'user', imageUrl = null, modelTag = "Novaria") { // Tambahkan parameter modelTag
+    // Function to stop any ongoing typing animation
+    function stopCurrentTypingAnimation() {
+        if (currentTypingAnimation) {
+            clearTimeout(currentTypingAnimation);
+            currentTypingAnimation = null;
+        }
+    }
+
+    // New: Function to type out message content
+    function typeMessage(element, textContent, delay = 5) { // Faster typing delay
+        let i = 0;
+        element.textContent = ''; // Clear content before typing
+        
+        function typeChar() {
+            if (i < textContent.length) {
+                element.textContent += textContent.charAt(i);
+                i++;
+                currentTypingAnimation = setTimeout(typeChar, delay);
+            } else {
+                currentTypingAnimation = null; // Animation finished
+            }
+            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; // Keep scrolling
+        }
+        typeChar();
+    }
+
+    // === Fungsi addChatMessage yang diperbarui untuk Multi-modal Output dan Typing Effect ===
+    function addChatMessage(content, sender = 'user', imageUrl = null, modelTag = "Novaria", aiResponseRawText = null) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', sender === 'user' ? 'user-message' : 'ai-message');
         messageElement.style.opacity = '0';
@@ -355,6 +361,8 @@ document.addEventListener('DOMContentLoaded', () => {
             messageElement.textContent = content;
             conversationHistory.push({ role: 'user', content: content });
         } else {
+            stopCurrentTypingAnimation(); // Stop any previous typing when a new AI response starts
+
             const aiHeader = document.createElement('div');
             aiHeader.classList.add('ai-message-header');
 
@@ -371,7 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const aiModelTagSpan = document.createElement('span');
             aiModelTagSpan.classList.add('ai-model-tag');
-            // Use the correct label for the model tag based on `currentSelectedModelValue` or `modelTag` from response
             const actualModelLabel = availableModels.find(m => m.value === modelTag)?.label || modelTag;
             aiModelTagSpan.textContent = actualModelLabel;
             aiHeader.appendChild(aiModelTagSpan);
@@ -380,55 +387,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const aiContentContainer = document.createElement('div');
             aiContentContainer.classList.add('ai-message-content');
-            
-            // Tambahkan gambar jika ada
+            messageElement.appendChild(aiContentContainer);
+
+            // Add image if available
             if (imageUrl) {
                 const imgElement = document.createElement('img');
                 imgElement.src = imageUrl;
                 imgElement.alt = "Generated image";
                 imgElement.classList.add('ai-generated-image');
                 aiContentContainer.appendChild(imgElement);
-                if (content.trim()) {
+                if (content.trim()) { // Add spacer only if there's text content after the image
                     const spacer = document.createElement('div');
                     spacer.style.height = '10px';
                     aiContentContainer.appendChild(spacer);
                 }
             }
 
-            // Tambahkan teks
-            let finalRenderedContent = '';
+            // Process text content for typing animation and code blocks
+            const segments = [];
             const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
             let lastIndex = 0;
 
-            content.replace(codeBlockRegex, (match, language, code, offset) => {
-                const plainTextPart = content.substring(lastIndex, offset);
-                finalRenderedContent += `<span>${cleanAiTextFromMarkdown(plainTextPart)}</span>`;
+            // Use the raw AI response text provided as an argument, or fallback to 'content'
+            const textToProcess = aiResponseRawText || content;
 
-                const lang = language || 'text';
-                const escapedCode = code.trim().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                const codeHtml = `
-                    <div class="code-block">
-                        <div class="code-header">
-                            <span class="language-tag">${lang}</span>
-                            <button class="copy-code-btn" title="Copy code" onclick="copyCode(this)">
-                                <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect height="8" width="8" x="8" y="2"/></svg>
-                                <span>Copy</span>
-                            </button>
-                        </div>
-                        <pre>${escapedCode}</pre>
-                    </div>`;
-                finalRenderedContent += codeHtml;
+            textToProcess.replace(codeBlockRegex, (match, language, code, offset) => {
+                // Add preceding plain text segment
+                if (offset > lastIndex) {
+                    segments.push({ type: 'text', content: textToProcess.substring(lastIndex, offset) });
+                }
+                // Add code block segment
+                segments.push({ type: 'code', language: language || 'text', content: code.trim(), raw: match });
                 lastIndex = offset + match.length;
             });
 
-            const remainingText = content.substring(lastIndex);
-            if (remainingText) {
-                finalRenderedContent += `<span>${cleanAiTextFromMarkdown(remainingText)}</span>`;
+            // Add any remaining plain text
+            if (lastIndex < textToProcess.length) {
+                segments.push({ type: 'text', content: textToProcess.substring(lastIndex) });
             }
-            aiContentContainer.innerHTML += finalRenderedContent;
-            messageElement.appendChild(aiContentContainer);
 
-            conversationHistory.push({ role: 'assistant', content: content });
+            let segmentIndex = 0;
+            const typingSpeed = 5; // Adjust for faster/slower typing
+
+            function processNextSegment() {
+                if (segmentIndex < segments.length) {
+                    const segment = segments[segmentIndex];
+                    if (segment.type === 'text') {
+                        const spanElement = document.createElement('span');
+                        aiContentContainer.appendChild(spanElement);
+                        typeMessage(spanElement, segment.content, typingSpeed);
+                        // Schedule next segment processing after this text segment is done typing
+                        currentTypingAnimation = setTimeout(() => {
+                            segmentIndex++;
+                            processNextSegment();
+                        }, segment.content.length * typingSpeed); // Delay based on text length
+                    } else if (segment.type === 'code') {
+                        // Directly append code block HTML, no typing animation for code
+                        const codeHtml = `
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <span class="language-tag">${segment.language}</span>
+                                    <button class="copy-code-btn" title="Copy code" onclick="copyCode(this)">
+                                        <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect height="8" width="8" x="8" y="2"/></svg>
+                                        <span>Copy</span>
+                                    </button>
+                                </div>
+                                <pre><code class="language-${segment.language}">${segment.content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+                            </div>`;
+                        aiContentContainer.insertAdjacentHTML('beforeend', codeHtml);
+                        const newCodeBlock = aiContentContainer.lastElementChild;
+                        if (newCodeBlock && newCodeBlock.querySelector('code')) {
+                            // Highlight the newly added code block
+                            hljs.highlightElement(newCodeBlock.querySelector('code'));
+                        }
+
+                        segmentIndex++;
+                        processNextSegment(); // Immediately process next segment after code block
+                    }
+                } else {
+                    currentTypingAnimation = null; // All segments processed
+                    // Add actions once all content is rendered
+                    addAiMessageActions(messageElement);
+                    clearAttachedFiles();
+                    checkScrollable();
+                }
+                if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; // Keep scrolling during process
+            }
+            processNextSegment(); // Start processing segments
+            conversationHistory.push({ role: 'assistant', content: textToProcess }); // Store the full raw text in history
         }
 
         if (conversationHistory.length > MAX_HISTORY_LENGTH * 2) {
@@ -454,66 +500,53 @@ document.addEventListener('DOMContentLoaded', () => {
         return messageElement;
     }
 
-    function addAiMessageActions(aiMessageElement) {
-        const contentContainer = aiMessageElement.querySelector('.ai-message-content');
-        if (!contentContainer || contentContainer.querySelector('.ai-message-actions')) return;
+    // Function to get the full raw text from an AI message element
+    // Used by copy and speak buttons
+    function getFullRawContent(messageEl) {
+        let fullContent = '';
+        const contentContainer = messageEl.querySelector('.ai-message-content');
+        if (!contentContainer) return '';
 
+        contentContainer.childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE || (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'SPAN')) {
+                fullContent += node.textContent;
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                if (node.tagName === 'IMG') {
+                    fullContent += `\n[Gambar: ${node.alt} - URL: ${node.src}]\n`;
+                } else if (node.classList.contains('code-block')) {
+                    const langTag = node.querySelector('.language-tag');
+                    const lang = langTag ? langTag.textContent.toLowerCase() : 'text';
+                    const code = node.querySelector('code').textContent; // Get the raw code from the code tag
+                    fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
+                }
+            }
+        });
+        return fullContent.trim();
+    }
+
+    function addAiMessageActions(aiMessageElement) {
         const actionsContainer = document.createElement('div');
         actionsContainer.classList.add('ai-message-actions');
 
-        const getResponseTextForSpeak = (contentEl) => {
-            let text = '';
-            contentEl.childNodes.forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    text += node.textContent;
-                } else if (node.nodeType === Node.ELEMENT_NODE) {
-                    if (node.tagName === 'SPAN') {
-                        text += node.textContent;
-                    } else if (node.tagName === 'IMG') {
-                        text += `[Gambar: ${node.alt}]`;
-                    } else if (node.classList.contains('code-block')) {
-                        text += `[Blok kode: ${node.querySelector('pre').textContent}]`;
-                    }
-                }
-            });
-            return text.trim();
-        };
-
-        const getFullContentForCopy = (contentEl) => {
-            let fullContent = '';
-             contentEl.childNodes.forEach(node => {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    fullContent += node.textContent;
-                } else if (node.nodeType === Node.ELEMENT_NODE) {
-                    if (node.tagName === 'SPAN') {
-                        fullContent += node.textContent;
-                    } else if (node.tagName === 'IMG') {
-                        fullContent += `\n[Gambar: ${node.alt} - URL: ${node.src}]\n`;
-                    } else if (node.classList.contains('code-block')) {
-                        const langTag = node.querySelector('.language-tag');
-                        const lang = langTag ? langTag.textContent.toLowerCase() : 'text';
-                        const code = node.querySelector('pre').textContent;
-                        fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
-                    }
-                }
-            });
-            return fullContent.trim();
-        };
-
         const buttons = [
-            { name: 'copy', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullContentForCopy(contentContainer); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getResponseTextForSpeak(contentContainer); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
+            { name: 'copy', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
+            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
             { name: 'like', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>', title: 'Like', action: (buttonEl) => { buttonEl.classList.toggle('liked'); } },
-            { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => { const svg = buttonEl.querySelector('svg'); svg.classList.add('rotating'); buttonEl.disabled = true; buttonEl.style.cursor = 'wait';
+            { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => {
+                stopCurrentTypingAnimation(); // Stop any typing before regenerating
+                const svg = buttonEl.querySelector('svg');
+                svg.classList.add('rotating');
+                buttonEl.disabled = true;
+                buttonEl.style.cursor = 'wait';
+
                 const lastUserMessageObj = conversationHistory.slice().reverse().find(msg => msg.role === 'user');
                 if (lastUserMessageObj) {
                     msgEl.remove();
-                    conversationHistory = conversationHistory.filter(msg => !(msg.role === 'assistant' && msg.content === msgEl.textContent)); // Hapus respons AI terakhir
-                    // Jika pesan AI terakhir memiliki gambar, hapus juga dari DOM
-                    const lastMessageElement = chatHistory.lastElementChild; // Atau cara lebih spesifik untuk menemukan pesan AI terakhir yang dihapus
-                    if (lastMessageElement && lastMessageElement.classList.contains('ai-message')) {
-                        const img = lastMessageElement.querySelector('img.ai-generated-image');
-                        if (img) img.remove();
+                    // Remove the last AI response from history
+                    // We need to find and remove the exact message to avoid issues with regenerating a regenerated message.
+                    // This is simplified by just removing the very last message in history, assuming it's the one being regenerated.
+                    if (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'assistant') {
+                        conversationHistory.pop();
                     }
 
                     generateRealAIResponse(lastUserMessageObj.content, attachedFiles);
@@ -524,10 +557,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Tidak ada pesan pengguna sebelumnya untuk meregenerasi respons.');
                 }
             } },
-            { name: 'share', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>', title: 'Share', action: (buttonEl, _messageEl) => { const fullContent = getFullContentForCopy(contentContainer); if (navigator.share) { navigator.share({ title: 'NovaAI Response', text: fullContent, url: window.location.href, }).catch((error) => console.log('Error sharing', error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
+            { name: 'share', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>', title: 'Share', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); if (navigator.share) { navigator.share({ title: 'NovaAI Response', text: fullContent, url: window.location.href, }).catch((error) => console.log('Error sharing', error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
         ];
-        buttons.forEach((btnInfo) => { const button = document.createElement('button'); button.classList.add('ai-action-btn'); button.title = btnInfo.title; button.innerHTML = btnInfo.icon; button.addEventListener('click', () => btnInfo.action(button, aiMessageElement)); actionsContainer.appendChild(button); });
-        contentContainer.appendChild(actionsContainer);
+        buttons.forEach((btnInfo) => {
+            const button = document.createElement('button');
+            button.classList.add('ai-action-btn');
+            button.title = btnInfo.title;
+            button.innerHTML = btnInfo.icon;
+            button.addEventListener('click', () => btnInfo.action(button, aiMessageElement));
+            actionsContainer.appendChild(button);
+        });
+        aiMessageElement.appendChild(actionsContainer); // Append actions to the message element, not content container
         setTimeout(() => { if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; }, 0);
     }
 
@@ -563,7 +603,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 userMessage: userMessage,
                 conversationHistory: conversationHistory,
                 attachedFiles: filesAsBase64,
-                selectedModel: currentSelectedModelValue // Kirim model yang dipilih ke backend
+                selectedModel: currentSelectedModelValue
             };
 
             const response = await fetch('/api/generate', {
@@ -588,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             const rawAiResponseText = data.text || '';
             const generatedImageUrl = data.imageUrl || null;
-            const modelUsed = data.modelUsed || "Novaria"; // Ambil model yang benar-benar digunakan dari backend
+            const modelUsed = data.modelUsed || "Novaria";
 
             if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
@@ -600,11 +640,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     personalizedResponseText = greeting + rawAiResponseText;
                 }
 
-                // Kirim teks, URL gambar, dan nama model ke addChatMessage
-                const aiMessageElement = addChatMessage(personalizedResponseText, 'ai', generatedImageUrl, modelUsed);
-                addAiMessageActions(aiMessageElement);
-                clearAttachedFiles();
-                checkScrollable();
+                // Pass the raw AI response text for proper typing and highlighting
+                addChatMessage(personalizedResponseText, 'ai', generatedImageUrl, modelUsed, rawAiResponseText);
+                // Actions and file clearing are now handled inside addChatMessage for AI responses
             }, 300);
 
         } catch (error) {
@@ -622,6 +660,8 @@ document.addEventListener('DOMContentLoaded', () => {
     sendButton.addEventListener('click', () => {
         const message = messageInput.value.trim();
         if (message !== '' || attachedFiles.length > 0) {
+            stopCurrentTypingAnimation(); // Stop any ongoing typing animation
+
             let finalPrompt = message;
             if (attachedFiles.length > 0 && message === '') {
                 const fileNames = attachedFiles.map(f => f.name).join(', ');
@@ -650,9 +690,11 @@ document.addEventListener('DOMContentLoaded', () => {
     menuIcon.addEventListener('click', () => { sidebar.classList.add('active'); sidebarOverlay.classList.add('active'); });
     sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); });
     backIcon.addEventListener('click', () => {
+        stopCurrentTypingAnimation(); // Stop typing when navigating back
+
         showPage('welcome');
         if (chatHistory && thinkingIndicator) {
-             chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>`;
+             chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
         } else if (chatHistory) {
             chatHistory.innerHTML = '';
         }
@@ -664,18 +706,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const savedTheme = localStorage.getItem('novaai_theme');
-    if (savedTheme === 'light-mode') {
-        document.body.classList.add('light-mode');
-        themeToggleLanding.checked = true;
-    } else {
-        document.body.classList.remove('light-mode');
-        themeToggleLanding.checked = false;
+    const hljsDarkTheme = document.querySelector('link[href*="atom-one-dark.min.css"]');
+    // const hljsLightTheme = document.querySelector('.hljs-light-theme'); // No longer needed if we swap href
+
+    function applyTheme(isLightMode) {
+        if (isLightMode) {
+            document.body.classList.add('light-mode');
+            localStorage.setItem('novaai_theme', 'light-mode');
+            if (hljsDarkTheme) hljsDarkTheme.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css";
+        } else {
+            document.body.classList.remove('light-mode');
+            localStorage.setItem('novaai_theme', 'dark-mode');
+            if (hljsDarkTheme) hljsDarkTheme.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css";
+        }
+        themeToggleLanding.checked = isLightMode;
+        // Re-highlight all code blocks on theme change
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
     }
-    function applyTheme(isLightMode) { if (isLightMode) { document.body.classList.add('light-mode'); localStorage.setItem('novaai_theme', 'light-mode'); } else { document.body.classList.remove('light-mode'); localStorage.setItem('novaai_theme', 'dark-mode'); } themeToggleLanding.checked = isLightMode; }
+
+    // Apply theme on load and re-apply highlight.js if body class is updated
+    if (savedTheme === 'light-mode') {
+        applyTheme(true);
+    } else {
+        applyTheme(false);
+    }
     themeToggleLanding.addEventListener('change', () => applyTheme(themeToggleLanding.checked));
 
+
     function setupRippleEffects() {
-        // Updated query selector to include new button classes
         const clickableElements = document.querySelectorAll('.btn-circle, .btn-plus-top, .btn-voice-bottom, .btn-send-bottom, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item, .toggle-button');
         clickableElements.forEach(element => {
             const oldHandler = element._rippleHandler;
@@ -708,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     setupRippleEffects();
-    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) { // Check for new button classes
+    const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) {
                         if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item') || node.matches('.model-option-item') || node.matches('.toggle-button'))) {
                             needsRippleSetup = true;
                         } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button'))) {
@@ -718,35 +778,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (chatHistory) observer.observe(chatHistory, { childList: true, subtree: true });
     if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
     if (sidebar) observer.observe(sidebar, { childList: true, subtree: true });
-    if (modelOptionsContainer) observer.observe(modelOptionsContainer, { childList: true, subtree: true }); // Amati perubahan pada modal options
-    // Observe the new input wrapper for dynamic height changes
+    if (modelOptionsContainer) observer.observe(modelOptionsContainer, { childList: true, subtree: true });
     if (newInputWrapperContainer) observer.observe(newInputWrapperContainer, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
 
 
-    // Update padding-bottom for main content based on the new bottom-chat-area height
     function updateInputAreaAppearance() {
-        if (!bottomChatArea) return; // Pastikan elemen ada
+        if (!bottomChatArea) return;
 
-        const totalBottomSpace = bottomChatArea.offsetHeight + 15; // Jarak dari bottom window + padding
-        mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`; // Tambahan 20px buffer
+        const totalBottomSpace = bottomChatArea.offsetHeight + 15;
+        mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`;
 
         if (chatHistory) {
-            // Scroll to bottom only if user is already near bottom or new message comes in
-            const isAtBottom = chatHistory.scrollHeight - chatHistory.scrollTop <= chatHistory.clientHeight + 50; // A bit more tolerance
+            const isAtBottom = chatHistory.scrollHeight - chatHistory.scrollTop <= chatHistory.clientHeight + 50;
             if (isAtBottom) {
                 chatHistory.scrollTop = chatHistory.scrollHeight;
             }
         }
     }
 
-    // Panggil updateInputAreaAppearance setiap kali elemen-elemen di bottomChatArea mungkin berubah
     const resizeObserverForBottomArea = new ResizeObserver(() => {
         updateInputAreaAppearance();
     });
     if (bottomChatArea) {
         resizeObserverForBottomArea.observe(bottomChatArea);
     }
-    // Also call on input/blur from messageInput if it affects height
     messageInput.addEventListener('input', updateInputAreaAppearance);
     messageInput.addEventListener('blur', updateInputAreaAppearance);
     messageInput.addEventListener('focus', updateInputAreaAppearance);
@@ -800,12 +855,11 @@ document.addEventListener('DOMContentLoaded', () => {
         fileChipContainer.appendChild(chipItem);
         setTimeout(() => chipItem.classList.add('visible'), 10);
 
-        // Tampilkan area chips jika ada chip
         if (fileChipContainer.children.length > 0) {
             fileChipsArea.style.display = 'flex';
             fileChipContainer.scrollLeft = fileChipContainer.scrollWidth;
         }
-        updateInputAreaAppearance(); // Perbarui padding
+        updateInputAreaAppearance();
     }
 
     function removeAttachedFile(fileName, fileSize) {
@@ -817,11 +871,10 @@ document.addEventListener('DOMContentLoaded', () => {
             fileItemToRemove.classList.remove('visible');
             setTimeout(() => {
                 fileItemToRemove.remove();
-                // Sembunyikan area chips jika tidak ada chip tersisa
                 if (fileChipContainer.children.length === 0) {
                     fileChipsArea.style.display = 'none';
                 }
-                updateInputAreaAppearance(); // Perbarui padding
+                updateInputAreaAppearance();
             }, 300);
         }
     }
@@ -829,8 +882,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearAttachedFiles() {
         attachedFiles = [];
         fileChipContainer.innerHTML = '';
-        fileChipsArea.style.display = 'none'; // Pastikan tersembunyi
-        updateInputAreaAppearance(); // Perbarui padding
+        fileChipsArea.style.display = 'none';
+        updateInputAreaAppearance();
     }
 
     fileInput.addEventListener('change', (event) => {
@@ -891,7 +944,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Fungsi global untuk copy code tetap ada
 function copyCode(buttonElement) {
-    const pre = buttonElement.closest('.code-block').querySelector('pre');
+    const pre = buttonElement.closest('.code-block').querySelector('code'); // Target the <code> tag
+    if (!pre) return; // Guard against missing element
     navigator.clipboard.writeText(pre.textContent).then(() => {
         const span = buttonElement.querySelector('span');
         const originalText = span.textContent;

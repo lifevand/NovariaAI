@@ -43,8 +43,7 @@ export default async function handler(req, res) {
         { text: "When responding, if it feels natural and appropriate, try to ask a follow-up question or suggest potential next steps to better understand the user's needs or to encourage further interaction." },
         { text: "If the user seems to be facing a challenge or expressing uncertainty, offer a sense of encouragement or briefly suggest positive perspectives. Frame these as possibilities or general avenues." },
         { text: "Maintain a friendly and supportive tone." },
-        { text: "For multimodal input (images), analyze the image and incorporate its context into your response." }
-        { text: "give an error message when someone asks for criticism of the Indonesian government or provides bad facts about the Indonesian state." },
+        { text: "For multimodal input (images), analyze the image and incorporate its context into your response." },
       ];
 
     try {

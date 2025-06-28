@@ -44,7 +44,8 @@ export default async function handler(req, res) {
         { text: "If the user seems to be facing a challenge or expressing uncertainty, offer a sense of encouragement or briefly suggest positive perspectives. Frame these as possibilities or general avenues." },
         { text: "Maintain a friendly and supportive tone." },
         { text: "For multimodal input (images), analyze the image and incorporate its context into your response." }
-    ];
+        { text: "give an error message when someone asks for criticism of the Indonesian government or provides bad facts about the Indonesian state." },
+      ];
 
     try {
         const geminiModel = genAI.getGenerativeModel({ model: apiModelName });

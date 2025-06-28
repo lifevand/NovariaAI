@@ -1,3 +1,4 @@
+// --- START OF FILE script.js ---
 // === GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI ===
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -94,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const availableModels = [
         { value: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash', type: 'fast' },
         { value: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', type: 'smart' },
-        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'other' }
+        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'other' } // Added as per generate.js
     ];
 
     let currentSelectedModelValue = '';
@@ -115,9 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
-            selectedModelName.textContent = 'Unknown Model';
-            fastButton.classList.remove('active');
-            smartButton.classList.remove('active');
+            // Default ke model pertama jika yang disimpan tidak ditemukan
+            setSelectedModel(availableModels[0].value, updateFastSmartToggle);
         }
     }
 
@@ -177,14 +177,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (fastButton) {
         fastButton.addEventListener('click', () => {
-            setSelectedModel('gemini-1.5-flash-latest', false);
+            setSelectedModel('gemini-1.5-flash-latest', false); // Hardcoded value for 'fast'
             fastButton.classList.add('active');
             smartButton.classList.remove('active');
         });
     }
     if (smartButton) {
         smartButton.addEventListener('click', () => {
-            setSelectedModel('gemini-1.5-pro-latest', false);
+            setSelectedModel('gemini-1.5-pro-latest', false); // Hardcoded value for 'smart'
             smartButton.classList.add('active');
             fastButton.classList.remove('active');
         });
@@ -305,9 +305,10 @@ document.addEventListener('DOMContentLoaded', () => {
     autoResizeTextarea();
 
     // === Pembersihan Teks AI dari Markdown (menghilangkan bintang dan format lain) ===
+    // Fungsi ini tidak lagi digunakan secara langsung untuk teks AI yang akan di-type out,
+    // karena kita ingin mempertahankan markdown untuk code block dan formatting lainnya.
+    // Namun, bisa berguna jika ada kebutuhan untuk menampilkan plain text tanpa format.
     function cleanAiTextFromMarkdown(text) {
-        // This function is still useful for initial rendering to prevent markdown from being "typed out"
-        // before syntax highlighting or other processing.
         let cleanedText = text.replace(/(\*\*|__)(.*?)\1/g, '$2');
         cleanedText = cleanedText.replace(/(\*|_)(.*?)\1/g, '$2');
         cleanedText = cleanedText.replace(/~~(.*?)~~/g, '$1');
@@ -401,78 +402,88 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Process text content for typing animation and code blocks
-            const segments = [];
-            const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
-            let lastIndex = 0;
+            // If it's an error message or not a raw AI response, just set text content directly.
+            // This prevents typing animation on error messages.
+            if (content.startsWith('<span>') || !aiResponseRawText) {
+                aiContentContainer.innerHTML = content; // Assuming content is already formatted HTML for errors
+                // Add actions directly for non-typing messages
+                addAiMessageActions(messageElement);
+                clearAttachedFiles();
+                checkScrollable();
+            } else {
+                // Process text content for typing animation and code blocks
+                const segments = [];
+                const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+                let lastIndex = 0;
 
-            // Use the raw AI response text provided as an argument, or fallback to 'content'
-            const textToProcess = aiResponseRawText || content;
+                // Use the raw AI response text provided as an argument
+                const textToProcess = aiResponseRawText;
 
-            textToProcess.replace(codeBlockRegex, (match, language, code, offset) => {
-                // Add preceding plain text segment
-                if (offset > lastIndex) {
-                    segments.push({ type: 'text', content: textToProcess.substring(lastIndex, offset) });
-                }
-                // Add code block segment
-                segments.push({ type: 'code', language: language || 'text', content: code.trim(), raw: match });
-                lastIndex = offset + match.length;
-            });
-
-            // Add any remaining plain text
-            if (lastIndex < textToProcess.length) {
-                segments.push({ type: 'text', content: textToProcess.substring(lastIndex) });
-            }
-
-            let segmentIndex = 0;
-            const typingSpeed = 5; // Adjust for faster/slower typing
-
-            function processNextSegment() {
-                if (segmentIndex < segments.length) {
-                    const segment = segments[segmentIndex];
-                    if (segment.type === 'text') {
-                        const spanElement = document.createElement('span');
-                        aiContentContainer.appendChild(spanElement);
-                        typeMessage(spanElement, segment.content, typingSpeed);
-                        // Schedule next segment processing after this text segment is done typing
-                        currentTypingAnimation = setTimeout(() => {
-                            segmentIndex++;
-                            processNextSegment();
-                        }, segment.content.length * typingSpeed); // Delay based on text length
-                    } else if (segment.type === 'code') {
-                        // Directly append code block HTML, no typing animation for code
-                        const codeHtml = `
-                            <div class="code-block">
-                                <div class="code-header">
-                                    <span class="language-tag">${segment.language}</span>
-                                    <button class="copy-code-btn" title="Copy code" onclick="copyCode(this)">
-                                        <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect height="8" width="8" x="8" y="2"/></svg>
-                                        <span>Copy</span>
-                                    </button>
-                                </div>
-                                <pre><code class="language-${segment.language}">${segment.content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
-                            </div>`;
-                        aiContentContainer.insertAdjacentHTML('beforeend', codeHtml);
-                        const newCodeBlock = aiContentContainer.lastElementChild;
-                        if (newCodeBlock && newCodeBlock.querySelector('code')) {
-                            // Highlight the newly added code block
-                            hljs.highlightElement(newCodeBlock.querySelector('code'));
-                        }
-
-                        segmentIndex++;
-                        processNextSegment(); // Immediately process next segment after code block
+                textToProcess.replace(codeBlockRegex, (match, language, code, offset) => {
+                    // Add preceding plain text segment
+                    if (offset > lastIndex) {
+                        segments.push({ type: 'text', content: textToProcess.substring(lastIndex, offset) });
                     }
-                } else {
-                    currentTypingAnimation = null; // All segments processed
-                    // Add actions once all content is rendered
-                    addAiMessageActions(messageElement);
-                    clearAttachedFiles();
-                    checkScrollable();
+                    // Add code block segment
+                    segments.push({ type: 'code', language: language || 'text', content: code.trim(), raw: match });
+                    lastIndex = offset + match.length;
+                });
+
+                // Add any remaining plain text
+                if (lastIndex < textToProcess.length) {
+                    segments.push({ type: 'text', content: textToProcess.substring(lastIndex) });
                 }
-                if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; // Keep scrolling during process
+
+                let segmentIndex = 0;
+                const typingSpeed = 5; // Adjust for faster/slower typing
+
+                function processNextSegment() {
+                    if (segmentIndex < segments.length) {
+                        const segment = segments[segmentIndex];
+                        if (segment.type === 'text') {
+                            const spanElement = document.createElement('span');
+                            aiContentContainer.appendChild(spanElement);
+                            typeMessage(spanElement, segment.content, typingSpeed);
+                            // Schedule next segment processing after this text segment is done typing
+                            currentTypingAnimation = setTimeout(() => {
+                                segmentIndex++;
+                                processNextSegment();
+                            }, segment.content.length * typingSpeed); // Delay based on text length
+                        } else if (segment.type === 'code') {
+                            // Directly append code block HTML, no typing animation for code
+                            const codeHtml = `
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <span class="language-tag">${segment.language}</span>
+                                        <button class="copy-code-btn" title="Copy code" onclick="copyCode(this)">
+                                            <svg fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect height="8" width="8" x="8" y="2"/></svg>
+                                            <span>Copy</span>
+                                        </button>
+                                    </div>
+                                    <pre><code class="language-${segment.language}">${segment.content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+                                </div>`;
+                            aiContentContainer.insertAdjacentHTML('beforeend', codeHtml);
+                            const newCodeBlock = aiContentContainer.lastElementChild;
+                            if (newCodeBlock && newCodeBlock.querySelector('code')) {
+                                // Highlight the newly added code block
+                                hljs.highlightElement(newCodeBlock.querySelector('code'));
+                            }
+
+                            segmentIndex++;
+                            processNextSegment(); // Immediately process next segment after code block
+                        }
+                    } else {
+                        currentTypingAnimation = null; // All segments processed
+                        // Add actions once all content is rendered
+                        addAiMessageActions(messageElement);
+                        clearAttachedFiles();
+                        checkScrollable();
+                    }
+                    if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; // Keep scrolling during process
+                }
+                processNextSegment(); // Start processing segments
+                conversationHistory.push({ role: 'assistant', content: textToProcess }); // Store the full raw text in history
             }
-            processNextSegment(); // Start processing segments
-            conversationHistory.push({ role: 'assistant', content: textToProcess }); // Store the full raw text in history
         }
 
         if (conversationHistory.length > MAX_HISTORY_LENGTH * 2) {
@@ -611,16 +622,26 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                let errorMessageText = `Server error: ${response.status}`;
+                let errorMessageToDisplay = `Terjadi kesalahan server: ${response.status}.`;
                 try {
                     const errorData = await response.json();
-                    errorMessageText = errorData.message || errorMessageText;
+                    errorMessageToDisplay = errorData.message || errorMessageToDisplay;
                 } catch (jsonError) {
                     const plainTextError = await response.text();
-                    errorMessageText = `Server error: ${response.status}. Detail: ${plainTextError.substring(0, 100)}... (bukan JSON)`;
+                    errorMessageToDisplay = `Terjadi kesalahan server: ${response.status}. Detail: ${plainTextError.substring(0, 100)}... (bukan JSON)`;
                     console.error("Server returned non-JSON error:", plainTextError);
                 }
-                throw new Error(errorMessageText);
+                
+                // === START MODIFIKASI UNTUK ERROR HANDLING SPESIFIK ===
+                // Sembunyikan indikator berpikir segera saat error
+                if (thinkingIndicator) {
+                    thinkingIndicator.style.opacity = '0';
+                    setTimeout(() => thinkingIndicator.classList.add('hidden'), 300);
+                }
+                // Tampilkan pesan error kustom yang didapat dari backend
+                addChatMessage(`<span>${errorMessageToDisplay}</span>`, 'ai');
+                return; // Hentikan eksekusi lebih lanjut
+                // === END MODIFIKASI UNTUK ERROR HANDLING SPESIFIK ===
             }
 
             const data = await response.json();
@@ -634,8 +655,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let personalizedResponseText = rawAiResponseText;
                 if (currentUser && currentUser.name) {
-                    const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`;
-                    personalizedResponseText = greeting + rawAiResponseText;
+                    // Hanya tambahkan sapaan jika pesan bukan error dari backend
+                    if (!rawAiResponseText.startsWith('<span>Maaf, terjadi kesalahan:')) { // Check if it's not an error message
+                        const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`;
+                        personalizedResponseText = greeting + rawAiResponseText;
+                    }
                 }
 
                 // Pass the raw AI response text for proper typing and highlighting
@@ -644,12 +668,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
 
         } catch (error) {
-            console.error('Error fetching from /api/generate:', error);
+            console.error('Error fetching from /api/generate (network or unexpected):', error);
             if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
-                const errorMessage = `<span>Maaf, terjadi kesalahan: ${error.message}. Silakan coba lagi.</span>`;
-                addChatMessage(errorMessage, 'ai');
+                // Pesan error umum untuk masalah jaringan atau yang tidak tertangkap oleh filter backend
+                const genericErrorMessage = `Maaf, terjadi masalah koneksi atau server: ${error.message || 'Silakan coba lagi.'}`;
+                addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai');
             }, 300);
         }
     }
@@ -926,7 +951,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = 'en-US';
+        recognition.lang = 'en-US'; // Sesuaikan jika perlu bahasa Indonesia 'id-ID'
         recognition.continuous = false;
         recognition.interimResults = true;
         let finalTranscript = '';
@@ -964,3 +989,4 @@ function formatFileSize(bytes, decimals = 2) {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
+// --- END OF FILE script.js ---

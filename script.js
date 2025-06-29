@@ -58,12 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleLanding = document.getElementById('themeToggleLanding');
     const quickCompleteContainer = document.getElementById('quickCompleteContainer');
     const chatHistory = document.getElementById('chatHistory');
-    
-    // Dipindahkan: thinkingIndicator
-    const thinkingIndicator = document.getElementById('thinkingIndicator'); 
-    
-    const scrollToBottomBtn = document.getElementById('scrollToBottomBtn'); // Elemen baru
-    const SCROLL_THRESHOLD = 100; // Jarak dari bawah untuk dianggap "di bawah"
+    const thinkingIndicator = document.getElementById('thinkingIndicator');
 
     const welcomeSection = document.getElementById('welcomeSection');
     const chatSection = document.getElementById('chatSection');
@@ -170,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
     }
     if (closeModelModalButton) {
-        closeModelModalButton.addEventListener('click', closeModelModalButton); // Fix: Was closeModelModalButton, should be closeModelSelectModal
+        closeModelModalButton.addEventListener('click', closeModelSelectModal);
     }
     if (modelSelectModal) {
         modelSelectModal.addEventListener('click', (event) => {
@@ -215,20 +210,23 @@ document.addEventListener('DOMContentLoaded', () => {
     if (clearChatHistoryButton) {
         clearChatHistoryButton.addEventListener('click', () => {
             if (confirm('Are you sure you want to delete all chat history? This action cannot be undone.')) {
-                stopCurrentTypingAnimation();
                 if (chatHistory) {
-                    chatHistory.innerHTML = ''; // Kosongkan chat history
+                    // Clear previous typing animations if any
+                    if (currentTypingAnimation) {
+                        clearTimeout(currentTypingAnimation);
+                        currentTypingAnimation = null;
+                    }
+                    chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+                    const reAddedThinkingIndicator = document.getElementById('thinkingIndicator');
+                    if(reAddedThinkingIndicator) thinkingIndicator.style.opacity = '0';
                 }
                 messageInput.value = '';
                 autoResizeTextarea();
                 clearAttachedFiles();
                 conversationHistory = [];
-                hideThinkingIndicator(); // Sembunyikan indikator
-                hideScrollToBottomButton(); // Sembunyikan tombol
                 showPage('welcome');
                 sidebar.classList.remove('active');
                 sidebarOverlay.classList.remove('active');
-                if (chatHistory) chatHistory.scrollTop = 0; // Gulir ke atas saat membersihkan
             }
         });
     }
@@ -240,81 +238,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Helper: Cek apakah user sedang di paling bawah chat
-    function isUserAtBottom() {
-        if (!chatHistory) return true; // Asumsikan di bawah jika tidak ada chatHistory
-        return chatHistory.scrollHeight - chatHistory.scrollTop <= chatHistory.clientHeight + SCROLL_THRESHOLD;
-    }
-
-    // Helper: Gulir ke bagian bawah dengan smooth behavior
-    function smoothScrollToBottom() {
-        if (chatHistory) {
-            chatHistory.scrollTo({
-                top: chatHistory.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
-        hideScrollToBottomButton(); // Sembunyikan tombol setelah menggulir
-    }
-
-    // Fungsi untuk mengupdate status tombol scroll to bottom
-    function updateScrollToBottomButtonVisibility() {
-        if (!chatHistory || !scrollToBottomBtn) return;
-
-        // Cek apakah ada scrollbar dan user TIDAK di bawah
-        if (chatHistory.scrollHeight > chatHistory.clientHeight && !isUserAtBottom()) {
-            showScrollToBottomButton();
-        } else {
-            hideScrollToBottomButton();
-        }
-    }
-
-    function showScrollToBottomButton() {
-        scrollToBottomBtn.classList.add('active');
-    }
-
-    function hideScrollToBottomButton() {
-        scrollToBottomBtn.classList.remove('active');
-    }
-
-    function showThinkingIndicator() {
-        if (thinkingIndicator) {
-            thinkingIndicator.classList.add('active');
-            // Pastikan indikator terlihat jika chat history kosong
-            if (chatHistory.children.length <= 1) { // 1 karena thinkingIndicator ada di luar
-                smoothScrollToBottom();
-            }
-        }
-    }
-
-    function hideThinkingIndicator() {
-        if (thinkingIndicator) {
-            thinkingIndicator.classList.remove('active');
-        }
-    }
-
-
-    // Event listener untuk scroll pada chat history
-    if (chatHistory) {
-        chatHistory.addEventListener('scroll', () => {
-            // Update fade effect (jika masih digunakan)
+    function checkScrollable() {
+        setTimeout(() => {
+            if (!chatHistory) return;
             const isScrollable = chatHistory.scrollHeight > chatHistory.clientHeight;
-            const isAtBottom = chatHistory.scrollHeight - chatHistory.scrollTop <= chatHistory.clientHeight + 5; // Untuk efek fade
+            const isAtBottom = chatHistory.scrollHeight - chatHistory.scrollTop <= chatHistory.clientHeight + 5;
             if (isScrollable && !isAtBottom) {
                 chatHistory.classList.add('has-scroll-fade');
             } else {
                 chatHistory.classList.remove('has-scroll-fade');
             }
-            
-            // Update tombol scroll to bottom
-            updateScrollToBottomButtonVisibility();
-        });
+        }, 100);
     }
-
-    if (scrollToBottomBtn) {
-        scrollToBottomBtn.addEventListener('click', smoothScrollToBottom);
+    if (chatHistory) {
+      chatHistory.addEventListener('scroll', checkScrollable);
     }
-
 
     function showPage(pageName, initialMessage = null) {
         if (currentActivePage === pageName && !initialMessage) return;
@@ -333,12 +271,10 @@ document.addEventListener('DOMContentLoaded', () => {
             landingThemeToggleContainer.classList.add('hidden');
             menuIcon.classList.add('hidden');
             backIcon.classList.remove('hidden');
-            
-            // Gulir ke bawah ketika masuk halaman chat, hanya jika ada pesan
-            if (chatHistory.children.length > 0) {
-                 smoothScrollToBottom();
-            }
-            updateScrollToBottomButtonVisibility();
+            setTimeout(() => {
+                if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+                checkScrollable();
+            }, 10);
             quickCompleteContainer.classList.remove('active');
         } else {
             landingThemeToggleContainer.classList.remove('hidden');
@@ -368,6 +304,25 @@ document.addEventListener('DOMContentLoaded', () => {
     messageInput.addEventListener('input', autoResizeTextarea);
     autoResizeTextarea();
 
+    // === Pembersihan Teks AI dari Markdown (menghilangkan bintang dan format lain) ===
+    // Fungsi ini tidak lagi digunakan secara langsung untuk teks AI yang akan di-type out,
+    // karena kita ingin mempertahankan markdown untuk code block dan formatting lainnya.
+    // Namun, bisa berguna jika ada kebutuhan untuk menampilkan plain text tanpa format.
+    function cleanAiTextFromMarkdown(text) {
+        let cleanedText = text.replace(/(\*\*|__)(.*?)\1/g, '$2');
+        cleanedText = cleanedText.replace(/(\*|_)(.*?)\1/g, '$2');
+        cleanedText = cleanedText.replace(/~~(.*?)~~/g, '$1');
+        cleanedText = cleanedText.replace(/`([^`]+)`/g, '$1');
+        cleanedText = cleanedText.replace(/^#+\s*(.*)$/gm, '$1');
+        cleanedText = cleanedText.replace(/^-+\s*(.*)$/gm, '$1');
+        cleanedText = cleanedText.replace(/^\d+\.\s*(.*)$/gm, '$1');
+        cleanedText = cleanedText.replace(/\[(.*?)\]\(.*?\)/g, '$1');
+        
+        cleanedText = cleanedText.replace(/\s+/g, ' ').trim();
+        return cleanedText;
+    }
+    // ======================================================================
+
     // Function to stop any ongoing typing animation
     function stopCurrentTypingAnimation() {
         if (currentTypingAnimation) {
@@ -389,13 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 currentTypingAnimation = null; // Animation finished
             }
-            // Tetap gulir saat mengetik jika pengguna di bawah
-            if (isUserAtBottom()) {
-                if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
-            } else {
-                // Jika user scroll ke atas saat AI mengetik, tampilkan tombol scroll
-                updateScrollToBottomButtonVisibility();
-            }
+            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; // Keep scrolling
         }
         typeChar();
     }
@@ -407,17 +356,11 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElement.style.opacity = '0';
         messageElement.style.transform = 'translateY(15px)';
 
-        let shouldScrollToBottom = false;
-
         if (sender === 'user') {
             messageElement.textContent = content;
             conversationHistory.push({ role: 'user', content: content });
-            shouldScrollToBottom = true; // Selalu gulir untuk pesan user
         } else {
             stopCurrentTypingAnimation(); // Stop any previous typing when a new AI response starts
-            
-            // Periksa posisi scroll user SEBELUM menambahkan pesan AI
-            shouldScrollToBottom = isUserAtBottom();
 
             const aiHeader = document.createElement('div');
             aiHeader.classList.add('ai-message-header');
@@ -461,18 +404,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // If it's an error message or not a raw AI response, just set text content directly.
             // This prevents typing animation on error messages.
-            if (content.startsWith('<span>') || !aiResponseRawText) { // Cek <span> untuk indikasi error
+            if (content.startsWith('<span>') || !aiResponseRawText) {
                 aiContentContainer.innerHTML = content; // Assuming content is already formatted HTML for errors
                 // Add actions directly for non-typing messages
                 addAiMessageActions(messageElement);
                 clearAttachedFiles();
-                updateScrollToBottomButtonVisibility(); // Update tombol scroll setelah error
+                checkScrollable();
             } else {
                 // Process text content for typing animation and code blocks
                 const segments = [];
                 const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
                 let lastIndex = 0;
 
+                // Use the raw AI response text provided as an argument
                 const textToProcess = aiResponseRawText;
 
                 textToProcess.replace(codeBlockRegex, (match, language, code, offset) => {
@@ -491,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 let segmentIndex = 0;
-                const typingSpeed = 5; 
+                const typingSpeed = 5; // Adjust for faster/slower typing
 
                 function processNextSegment() {
                     if (segmentIndex < segments.length) {
@@ -504,8 +448,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             currentTypingAnimation = setTimeout(() => {
                                 segmentIndex++;
                                 processNextSegment();
-                            }, segment.content.length * typingSpeed); 
+                            }, segment.content.length * typingSpeed); // Delay based on text length
                         } else if (segment.type === 'code') {
+                            // Directly append code block HTML, no typing animation for code
                             const codeHtml = `
                                 <div class="code-block">
                                     <div class="code-header">
@@ -520,22 +465,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             aiContentContainer.insertAdjacentHTML('beforeend', codeHtml);
                             const newCodeBlock = aiContentContainer.lastElementChild;
                             if (newCodeBlock && newCodeBlock.querySelector('code')) {
+                                // Highlight the newly added code block
                                 hljs.highlightElement(newCodeBlock.querySelector('code'));
                             }
 
                             segmentIndex++;
-                            processNextSegment(); 
+                            processNextSegment(); // Immediately process next segment after code block
                         }
                     } else {
                         currentTypingAnimation = null; // All segments processed
+                        // Add actions once all content is rendered
                         addAiMessageActions(messageElement);
                         clearAttachedFiles();
-                        updateScrollToBottomButtonVisibility(); // Update tombol scroll setelah selesai mengetik
+                        checkScrollable();
                     }
-                    // Tetap gulir saat proses AI (kode/teks) jika pengguna di bawah
-                    if (isUserAtBottom()) {
-                        if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
-                    }
+                    if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; // Keep scrolling during process
                 }
                 processNextSegment(); // Start processing segments
                 conversationHistory.push({ role: 'assistant', content: textToProcess }); // Store the full raw text in history
@@ -546,7 +490,9 @@ document.addEventListener('DOMContentLoaded', () => {
             conversationHistory = conversationHistory.slice(conversationHistory.length - (MAX_HISTORY_LENGTH * 2));
         }
 
-        if (chatHistory) {
+        if (chatHistory && thinkingIndicator) {
+            chatHistory.insertBefore(messageElement, thinkingIndicator);
+        } else if (chatHistory) {
             chatHistory.appendChild(messageElement);
         }
 
@@ -555,16 +501,16 @@ document.addEventListener('DOMContentLoaded', () => {
             messageElement.style.transform = 'translateY(0)';
         }, 10);
 
-        // Gulir setelah pesan ditambahkan dan dianimasikan
-        if (shouldScrollToBottom) {
-            smoothScrollToBottom();
-        } else {
-            // Jika tidak scroll, pastikan tombol "Scroll to Bottom" muncul
-            updateScrollToBottomButtonVisibility();
-        }
+        setTimeout(() => {
+            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+            checkScrollable();
+        }, 50);
+
+        return messageElement;
     }
 
-    // Fungsi untuk mendapatkan teks mentah dari elemen pesan AI (untuk copy/speak)
+    // Function to get the full raw text from an AI message element
+    // Used by copy and speak buttons
     function getFullRawContent(messageEl) {
         let fullContent = '';
         const contentContainer = messageEl.querySelector('.ai-message-content');
@@ -601,13 +547,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 svg.classList.add('rotating');
                 buttonEl.disabled = true;
                 buttonEl.style.cursor = 'wait';
-                hideThinkingIndicator(); // Sembunyikan indikator saat tombol berputar
 
                 const lastUserMessageObj = conversationHistory.slice().reverse().find(msg => msg.role === 'user');
                 if (lastUserMessageObj) {
                     msgEl.remove();
-                    // Hapus pesan AI terakhir dari histori.
-                    // Ini penting agar regenerate tidak menambah pesan lama dan duplikat.
+                    // Remove the last AI response from history
+                    // We need to find and remove the exact message to avoid issues with regenerating a regenerated message.
+                    // This is simplified by just removing the very last message in history, assuming it's the one being regenerated.
                     if (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'assistant') {
                         conversationHistory.pop();
                     }
@@ -630,7 +576,8 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', () => btnInfo.action(button, aiMessageElement));
             actionsContainer.appendChild(button);
         });
-        aiMessageElement.appendChild(actionsContainer);
+        aiMessageElement.appendChild(actionsContainer); // Append actions to the message element, not content container
+        setTimeout(() => { if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; }, 0);
     }
 
     async function getBase64(file) {
@@ -643,12 +590,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function generateRealAIResponse(userMessage, files = []) {
-        showThinkingIndicator(); // Tampilkan indikator berpikir
-        
-        // Atur scroll ke bawah jika sedang di bawah saat mulai berpikir
-        if (isUserAtBottom()) {
-            smoothScrollToBottom();
+        if (thinkingIndicator) {
+            thinkingIndicator.classList.remove('hidden');
+            thinkingIndicator.style.opacity = '1';
         }
+        setTimeout(() => {
+            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
+            checkScrollable();
+        }, 0);
 
         try {
             const filesAsBase64 = await Promise.all(files.map(async file => {
@@ -672,9 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload),
             });
 
-            // Sembunyikan indikator berpikir setelah respons diterima (baik sukses atau error)
-            hideThinkingIndicator();
-
             if (!response.ok) {
                 let errorMessageToDisplay = `Terjadi kesalahan server: ${response.status}.`;
                 try {
@@ -686,9 +632,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Server returned non-JSON error:", plainTextError);
                 }
                 
+                // === START MODIFIKASI UNTUK ERROR HANDLING SPESIFIK ===
+                // Sembunyikan indikator berpikir segera saat error
+                if (thinkingIndicator) {
+                    thinkingIndicator.style.opacity = '0';
+                    setTimeout(() => thinkingIndicator.classList.add('hidden'), 300);
+                }
                 // Tampilkan pesan error kustom yang didapat dari backend
                 addChatMessage(`<span>${errorMessageToDisplay}</span>`, 'ai');
                 return; // Hentikan eksekusi lebih lanjut
+                // === END MODIFIKASI UNTUK ERROR HANDLING SPESIFIK ===
             }
 
             const data = await response.json();
@@ -696,24 +649,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const generatedImageUrl = data.imageUrl || null;
             const modelUsed = data.modelUsed || "Novaria";
 
-            let personalizedResponseText = rawAiResponseText;
-            if (currentUser && currentUser.name) {
-                // Hanya tambahkan sapaan jika pesan bukan error dari backend
-                if (!rawAiResponseText.startsWith('<span>Maaf, terjadi kesalahan:')) { 
-                    const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`;
-                    personalizedResponseText = greeting + rawAiResponseText;
-                }
-            }
+            if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
+            setTimeout(() => {
+                if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
 
-            addChatMessage(personalizedResponseText, 'ai', generatedImageUrl, modelUsed, rawAiResponseText);
-            // Actions and file clearing are now handled inside addChatMessage for AI responses
+                let personalizedResponseText = rawAiResponseText;
+                if (currentUser && currentUser.name) {
+                    // Hanya tambahkan sapaan jika pesan bukan error dari backend
+                    if (!rawAiResponseText.startsWith('<span>Maaf, terjadi kesalahan:')) { // Check if it's not an error message
+                        const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`;
+                        personalizedResponseText = greeting + rawAiResponseText;
+                    }
+                }
+
+                // Pass the raw AI response text for proper typing and highlighting
+                addChatMessage(personalizedResponseText, 'ai', generatedImageUrl, modelUsed, rawAiResponseText);
+                // Actions and file clearing are now handled inside addChatMessage for AI responses
+            }, 300);
 
         } catch (error) {
             console.error('Error fetching from /api/generate (network or unexpected):', error);
-            hideThinkingIndicator(); // Sembunyikan indikator jika ada error jaringan
-            // Pesan error umum untuk masalah jaringan atau yang tidak tertangkap oleh filter backend
-            const genericErrorMessage = `Maaf, terjadi masalah koneksi atau server: ${error.message || 'Silakan coba lagi.'}`;
-            addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai');
+            if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
+            setTimeout(() => {
+                if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
+                // Pesan error umum untuk masalah jaringan atau yang tidak tertangkap oleh filter backend
+                const genericErrorMessage = `Maaf, terjadi masalah koneksi atau server: ${error.message || 'Silakan coba lagi.'}`;
+                addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai');
+            }, 300);
         }
     }
 
@@ -754,21 +716,22 @@ document.addEventListener('DOMContentLoaded', () => {
         stopCurrentTypingAnimation(); // Stop typing when navigating back
 
         showPage('welcome');
-        if (chatHistory) {
-             chatHistory.innerHTML = ''; // Kosongkan chat history saat kembali ke welcome
+        if (chatHistory && thinkingIndicator) {
+             chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+        } else if (chatHistory) {
+            chatHistory.innerHTML = '';
         }
         messageInput.value = '';
         autoResizeTextarea();
         clearAttachedFiles();
         updateInputAreaAppearance();
-        hideThinkingIndicator(); // Sembunyikan indikator
-        hideScrollToBottomButton(); // Sembunyikan tombol
         conversationHistory = [];
     });
 
     const savedTheme = localStorage.getItem('novaai_theme');
     const hljsDarkTheme = document.querySelector('link[href*="atom-one-dark.min.css"]');
-    
+    // const hljsLightTheme = document.querySelector('.hljs-light-theme'); // No longer needed if we swap href
+
     function applyTheme(isLightMode) {
         if (isLightMode) {
             document.body.classList.add('light-mode');
@@ -796,7 +759,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function setupRippleEffects() {
-        const clickableElements = document.querySelectorAll('.btn-circle, .btn-plus-top, .btn-voice-bottom, .btn-send-bottom, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item, .toggle-button, .scroll-to-bottom-btn'); // Tambahkan tombol scroll
+        const clickableElements = document.querySelectorAll('.btn-circle, .btn-plus-top, .btn-voice-bottom, .btn-send-bottom, .icon-btn, .sidebar-item, .quick-complete-btn, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item, .toggle-button');
         clickableElements.forEach(element => {
             const oldHandler = element._rippleHandler;
             if (oldHandler) {
@@ -829,9 +792,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     setupRippleEffects();
     const observer = new MutationObserver((mutations) => { mutations.forEach((mutation) => { if (mutation.type === 'childList' && mutation.addedNodes.length > 0) { let needsRippleSetup = false; mutation.addedNodes.forEach(node => { if (node.nodeType === 1) {
-                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item') || node.matches('.model-option-item') || node.matches('.toggle-button') || node.matches('.scroll-to-bottom-btn'))) { // Tambahkan tombol scroll
+                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.quick-complete-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item') || node.matches('.model-option-item') || node.matches('.toggle-button'))) {
                             needsRippleSetup = true;
-                        } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button') || node.querySelector('.scroll-to-bottom-btn'))) { // Tambahkan tombol scroll
+                        } else if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.quick-complete-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button'))) {
                             needsRippleSetup = true;
                         }
                     } }); if (needsRippleSetup) { setupRippleEffects(); } } }); });
@@ -845,25 +808,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateInputAreaAppearance() {
         if (!bottomChatArea) return;
 
-        // Update CSS variable for bottom chat area height
-        document.documentElement.style.setProperty('--bottom-chat-area-height', `${bottomChatArea.offsetHeight}px`);
-        
         const totalBottomSpace = bottomChatArea.offsetHeight + 15;
         mainContent.style.paddingBottom = `${totalBottomSpace + 20}px`;
 
-        // Atur posisi thinking indicator dan scroll to bottom button
-        if (thinkingIndicator) {
-            thinkingIndicator.style.bottom = `${bottomChatArea.offsetHeight + 10}px`;
+        if (chatHistory) {
+            const isAtBottom = chatHistory.scrollHeight - chatHistory.scrollTop <= chatHistory.clientHeight + 50;
+            if (isAtBottom) {
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
         }
-        if (scrollToBottomBtn) {
-            scrollToBottomBtn.style.bottom = `${bottomChatArea.offsetHeight + 15}px`;
-        }
-
-        // Gulir ke bawah jika sedang di bawah saat area input berubah ukuran
-        if (isUserAtBottom()) {
-            smoothScrollToBottom();
-        }
-        updateScrollToBottomButtonVisibility(); // Update visibilitas tombol scroll juga
     }
 
     const resizeObserverForBottomArea = new ResizeObserver(() => {
@@ -1010,9 +963,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         voiceInputButton.style.display = 'none';
     }
-
-    // Call updateInputAreaAppearance initially to set padding and indicator positions
-    updateInputAreaAppearance();
 });
 
 // Fungsi global untuk copy code tetap ada

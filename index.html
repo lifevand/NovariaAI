@@ -53,11 +53,37 @@
     </section>
 
     <section id="chatSection" class="page-section hidden">
-        <div id="chatHistory">
-            <div id="thinkingIndicator" class="ai-message hidden">
-                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <div class="chat-header">
+            <button id="backIcon" class="icon-btn" title="Back to Home">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <span class="chat-title">Novaria AI</span>
+            <div class="chat-header-model-selector">
+                <button id="customModelSelectorTrigger" class="custom-selector-trigger">
+                    <span id="selectedModelName">Gemini 1.5 Flash</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
             </div>
         </div>
+
+        <!-- Dipindahkan ke sini: thinkingIndicator -->
+        <div id="thinkingIndicator" class="ai-message thinking-indicator-fixed hidden">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+
+        <div id="chatHistory" class="chat-history">
+            <!-- Pesan chat akan ditambahkan di sini oleh JavaScript -->
+        </div>
+
+        <!-- Tombol "Scroll to Bottom" baru -->
+        <button id="scrollToBottomBtn" class="scroll-to-bottom-btn hidden" title="Scroll to latest messages">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="7 13 12 18 17 13"></polyline>
+                <polyline points="7 6 12 11 17 6"></polyline>
+            </svg>
+        </button>
     </section>
   </main>
 

@@ -140,8 +140,7 @@ export default async function handler(req, res) {
             history: historyForGemini,
             systemInstruction: { parts: systemInstructionParts }, // Terapkan system instruction
             safetySettings: [
-                // Set threshold BLOCK_NONE untuk pengujian atau jika Anda punya filter sendiri.
-                // Hati-hati dengan ini di produksi tanpa filter kuat.
+                // Ini adalah kategori standar yang didukung oleh Gemini API
                 {
                     category: HarmCategory.HARASSMENT,
                     threshold: HarmBlockThreshold.BLOCK_NONE, 
@@ -158,31 +157,9 @@ export default async function handler(req, res) {
                     category: HarmCategory.DANGEROUS_CONTENT,
                     threshold: HarmBlockThreshold.BLOCK_NONE, 
                 },
-                // --- PERBAIKAN DI SINI: MENGHAPUS KATEGORI YANG TIDAK VALID ---
-                // Kategori-kategori berikut tidak didukung oleh HarmCategory standar.
-                // Jika Anda ingin mengimplementasikan filtering untuk kategori ini,
-                // Anda perlu melakukannya secara manual di sisi server sebelum memanggil API.
-                // {
-                //     category: HarmCategory.DEROGATORY,
-                //     threshold: HarmBlockThreshold.BLOCK_NONE, 
-                // },
-                // {
-                //     category: HarmCategory.TOXICITY,
-                //     threshold: HarmBlockThreshold.BLOCK_NONE, 
-                // },
-                // {
-                //     category: HarmCategory.VIOLENCE,
-                //     threshold: HarmBlockThreshold.BLOCK_NONE, 
-                // },
-                // {
-                //     category: HarmCategory.MEDICAL, 
-                //     threshold: HarmBlockThreshold.BLOCK_NONE, 
-                // },
-                // {
-                //     category: HarmCategory.FINANCE, 
-                //     threshold: HarmBlockThreshold.BLOCK_NONE, 
-                // },
-                // --- AKHIR PERBAIKAN ---
+                // Kategori-kategori seperti DEROGATORY, TOXICITY, VIOLENCE, MEDICAL, FINANCE,
+                // dan CIVIC_INTEGRITY telah dihapus karena tidak didukung untuk konfigurasi pengguna
+                // melalui safetySettings pada umumnya.
             ],
             generationConfig: generationConfig, // Gunakan konfigurasi yang sudah disesuaikan
         });

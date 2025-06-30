@@ -92,10 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const fastButton = document.getElementById('fastButton');
     const smartButton = document.getElementById('smartButton');
 
+    // --- PERUBAHAN DI SINI: MENYESUAIKAN DAFTAR MODEL DAN DEFAULT ---
     const availableModels = [
-        { value: 'gemini-1.5-flash-latest', label: 'Gemini 1.5 Flash', type: 'fast' },
-        { value: 'gemini-1.5-pro-latest', label: 'Gemini 1.5 Pro', type: 'smart' },
-        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'other' } // Added as per generate.js
+        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (Fast)', type: 'fast' },
+        { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Smart)', type: 'smart' },
+        { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (Default)', type: 'default' } 
     ];
 
     let currentSelectedModelValue = '';
@@ -113,11 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     fastButton.classList.add('active');
                 } else if (selectedModel.type === 'smart') {
                     smartButton.classList.add('active');
+                } else if (selectedModel.type === 'default') {
+                    // Jika model default dipilih dari modal, pastikan tidak ada tombol Fast/Smart yang aktif
+                    fastButton.classList.remove('active');
+                    smartButton.classList.remove('active');
                 }
             }
         } else {
             // Default ke model pertama jika yang disimpan tidak ditemukan
-            setSelectedModel(availableModels[0].value, updateFastSmartToggle);
+            // Menggunakan default model (gemini-1.5-flash) jika yang tersimpan tidak valid
+            setSelectedModel('gemini-1.5-flash', updateFastSmartToggle); 
         }
     }
 
@@ -158,14 +164,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const savedModelValue = localStorage.getItem('selectedAiModel');
-    const defaultModel = availableModels.find(m => m.value === savedModelValue) || availableModels[0];
-    setSelectedModel(defaultModel.value, true);
+    // Cari model yang tersimpan, jika tidak ada atau tidak valid, gunakan gemini-1.5-flash sebagai default
+    const defaultModel = availableModels.find(m => m.value === savedModelValue) || availableModels.find(m => m.value === 'gemini-1.5-flash');
+    setSelectedModel(defaultModel ? defaultModel.value : availableModels[0].value, true); // Fallback jika gemini-1.5-flash juga tidak ada
 
     if (customModelSelectorTrigger) {
         customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
     }
     if (closeModelModalButton) {
-        closeModelModalButton.addEventListener('click', closeModelSelectModal);
+        closeModelModalButton.addEventListener('click', closeModelModalButton);
     }
     if (modelSelectModal) {
         modelSelectModal.addEventListener('click', (event) => {
@@ -177,18 +184,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (fastButton) {
         fastButton.addEventListener('click', () => {
-            setSelectedModel('gemini-1.5-flash-latest', false); // Hardcoded value for 'fast'
+            setSelectedModel('gemini-2.5-flash', false); // Hardcoded value for 'fast'
             fastButton.classList.add('active');
             smartButton.classList.remove('active');
         });
     }
     if (smartButton) {
         smartButton.addEventListener('click', () => {
-            setSelectedModel('gemini-1.5-pro-latest', false); // Hardcoded value for 'smart'
+            setSelectedModel('gemini-2.0-flash', false); // Hardcoded value for 'smart'
             smartButton.classList.add('active');
             fastButton.classList.remove('active');
         });
     }
+    // --- AKHIR PERUBAHAN ---
 
     const voiceInputButton = document.getElementById('voiceInputButtonBottom');
     let recognition;
@@ -715,7 +723,6 @@ document.addEventListener('DOMContentLoaded', () => {
     backIcon.addEventListener('click', () => {
         stopCurrentTypingAnimation(); // Stop typing when navigating back
 
-        showPage('welcome');
         if (chatHistory && thinkingIndicator) {
              chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
         } else if (chatHistory) {
@@ -726,6 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearAttachedFiles();
         updateInputAreaAppearance();
         conversationHistory = [];
+        showPage('welcome'); // Panggil showPage setelah membersihkan chatHistory
     });
 
     const savedTheme = localStorage.getItem('novaai_theme');

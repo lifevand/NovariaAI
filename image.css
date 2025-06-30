@@ -1,4 +1,4 @@
-/* image.css - Styling untuk halaman Generate Image */
+/* File: public/image.css - Styling untuk halaman Generate Image */
 :root {
     /* Variabel warna bisa Anda impor atau definisikan ulang di sini jika perlu */
     /* Menggunakan variabel dari login.css sebagai dasar */
@@ -7,12 +7,12 @@
     --background-color: #010409;
     --card-background-color: #0d1117;
     --card-border-color: #21262d;
-    --accent-gradient-start: #a855f7;
-    --accent-gradient-end: #f97316;
+    --accent-gradient-start: #a855f7; /* Ungu */
+    --accent-gradient-end: #f97316;   /* Oranye */
     --button-text-color: #ffffff;
     --font-sans: 'Inter', sans-serif;
-    --alt-gradient-start: #38bdf8; /* Biru terang untuk Google Search */
-    --alt-gradient-end: #0ea5e9;   /* Biru gelap untuk Google Search */
+    --alt-gradient-start: #38bdf8; /* Biru terang (tetap untuk DALL-E) */
+    --alt-gradient-end: #0ea5e9;   /* Biru gelap (tetap untuk DALL-E) */
 
     /* Light Mode */
     --lm-primary-text-color: #1f2937;
@@ -22,8 +22,8 @@
     --lm-card-border-color: #e5e7eb;
     --lm-slider-bg-light: #d1d5db; 
     --lm-slider-icon-light-moon: #4b5563; 
-    --lm-alt-gradient-start: #2563eb;
-    --lm-alt-gradient-end: #3b82f6;
+    --lm-alt-gradient-start: #2563eb; /* Biru gelap untuk LM (tetap) */
+    --lm-alt-gradient-end: #3b82f6;   /* Biru terang untuk LM (tetap) */
 }
 
 body {
@@ -48,7 +48,7 @@ body.light-mode {
 }
 
 .image-header {
-    background-color: var(--background-color); /* Latar header sama dengan body */
+    background-color: var(--background-color);
     border-bottom: 1px solid var(--card-border-color);
     padding: 0 20px;
     position: sticky;
@@ -134,14 +134,14 @@ body.light-mode input:not(:checked) + .slider .slider-icon { color: #4b5563; }
     font-size: 1.8rem;
     margin-bottom: 10px;
     text-align: center;
-    line-height: 1.2; /* Menjaga jarak antar baris */
+    line-height: 1.2;
 }
-.gradient-text-alt-image { /* Gaya untuk "Google Search" */
+.gradient-text-alt-image { /* Gaya untuk "DALL-E 3" */
     background: linear-gradient(90deg, var(--alt-gradient-start), var(--alt-gradient-end));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-size: 1.3rem; /* Ukuran lebih kecil dari h1 */
+    font-size: 1.3rem;
     font-weight: 700;
 }
 .prompt-container p {
@@ -157,7 +157,7 @@ body.light-mode input:not(:checked) + .slider .slider-icon { color: #4b5563; }
     padding: 12px;
     border-radius: 8px;
     border: 1px solid var(--card-border-color);
-    background-color: var(--background-color); /* Sedikit beda dari card */
+    background-color: var(--background-color);
     color: var(--primary-text-color);
     font-family: var(--font-sans);
     font-size: 1rem;
@@ -165,7 +165,7 @@ body.light-mode input:not(:checked) + .slider .slider-icon { color: #4b5563; }
     margin-bottom: 20px;
 }
 body.light-mode #imagePromptInput {
-    background-color: #eef2f7; /* Latar input di light mode */
+    background-color: #eef2f7;
 }
 
 
@@ -195,39 +195,40 @@ body.light-mode #imagePromptInput {
     padding: 20px;
     border-radius: 12px;
     border: 1px solid var(--card-border-color);
-    min-height: 300px; /* Agar ada ruang saat loading atau placeholder */
+    min-height: 300px;
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column; /* Untuk loading indicator dan tombol download */
-    position: relative; /* Untuk loading absolute */
-    gap: 15px; /* Jarak antara gambar dan tombol download */
+    flex-direction: column;
+    position: relative;
+    gap: 15px;
 }
 
 .image-placeholder {
     text-align: center;
     color: var(--secondary-text-color);
+    display: flex; /* Untuk menengahkan ikon dan teks vertikal */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%; /* Agar placeholder mengambil seluruh tinggi container */
 }
-.image-placeholder-icon-svg { /* Styling SVG ikon placeholder baru */
-    width: 80px; /* Ukuran ikon */
+.image-placeholder-icon-svg {
+    width: 80px;
     height: 80px;
     margin-bottom: 10px;
-    /* Memberi gradient pada stroke ikon */
-    stroke: url(#imageGradient); /* Menggunakan ID gradient dari SVG */
+    stroke: url(#imageGradient);
     fill: none;
 }
-/* Definisi gradient untuk SVG ikon placeholder */
-.image-result-container svg {
-    /* Ini akan ditambahkan secara dinamis di JS atau Anda bisa menaruhnya di HTML jika perlu */
-}
 .image-placeholder p {
-    font-size: 1.1rem; /* Ukuran teks placeholder sedikit lebih besar */
+    font-size: 1.1rem;
 }
 
 
 #generatedImage {
     max-width: 100%;
-    max-height: 512px; /* Batasi tinggi maksimum gambar */
+    max-height: 512px;
     height: auto;
     border-radius: 8px;
     object-fit: contain;
@@ -236,6 +237,12 @@ body.light-mode #imagePromptInput {
 .loading-indicator-image {
     text-align: center;
     color: var(--secondary-text-color);
+    display: flex; /* Untuk menengahkan spinner dan teks vertikal */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 .loading-indicator-image .spinner {
     border: 4px solid rgba(255, 255, 255, 0.2);
@@ -255,9 +262,28 @@ body.light-mode .loading-indicator-image .spinner {
     to { transform: rotate(360deg); }
 }
 
+/* Tombol Retry Manual */
+.manual-retry-button {
+    background: linear-gradient(90deg, #60a5fa, #3b82f6); /* Biru cerah */
+    color: var(--button-text-color);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+    margin-top: 15px; /* Jarak dari pesan error */
+}
+.manual-retry-button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+
 /* Download Button */
 .download-button {
-    background: linear-gradient(90deg, #28a745, #218838); /* Contoh gradient hijau */
+    background: linear-gradient(90deg, #28a745, #218838); /* Gradient hijau */
     color: var(--button-text-color);
     border: none;
     border-radius: 8px;
@@ -269,7 +295,7 @@ body.light-mode .loading-indicator-image .spinner {
     align-items: center;
     gap: 8px;
     transition: opacity 0.2s ease, transform 0.1s ease;
-    margin-top: 10px; /* Jarak dari gambar */
+    margin-top: 10px;
 }
 .download-button:hover {
     opacity: 0.9;

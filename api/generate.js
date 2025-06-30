@@ -80,7 +80,7 @@ export default async function handler(req, res) {
         };
     } else { // Default untuk gemini-1.5-flash dan gemini-2.5-flash (Fast)
         generationConfig = {
-            temperature: 0.8, // Lebih kreatif dan beragam untuk Flash/Fast
+            temperature: 0.8, // Lebih kreatif dan beragam untuk Flash
             topP: 0.9,
             topK: 40,
             maxOutputTokens: 2048,
@@ -158,27 +158,31 @@ export default async function handler(req, res) {
                     category: HarmCategory.DANGEROUS_CONTENT,
                     threshold: HarmBlockThreshold.BLOCK_NONE, 
                 },
-                // Tambahkan kategori lain jika diperlukan
-                {
-                    category: HarmCategory.DEROGATORY,
-                    threshold: HarmBlockThreshold.BLOCK_NONE, 
-                },
-                {
-                    category: HarmCategory.TOXICITY,
-                    threshold: HarmBlockThreshold.BLOCK_NONE, 
-                },
-                {
-                    category: HarmCategory.VIOLENCE,
-                    threshold: HarmBlockThreshold.BLOCK_NONE, 
-                },
-                {
-                    category: HarmCategory.MEDICAL, // Jika tidak ingin bahas kesehatan serius
-                    threshold: HarmBlockThreshold.BLOCK_NONE, 
-                },
-                {
-                    category: HarmCategory.FINANCE, // Jika tidak ingin bahas keuangan serius
-                    threshold: HarmBlockThreshold.BLOCK_NONE, 
-                },
+                // --- PERBAIKAN DI SINI: MENGHAPUS KATEGORI YANG TIDAK VALID ---
+                // Kategori-kategori berikut tidak didukung oleh HarmCategory standar.
+                // Jika Anda ingin mengimplementasikan filtering untuk kategori ini,
+                // Anda perlu melakukannya secara manual di sisi server sebelum memanggil API.
+                // {
+                //     category: HarmCategory.DEROGATORY,
+                //     threshold: HarmBlockThreshold.BLOCK_NONE, 
+                // },
+                // {
+                //     category: HarmCategory.TOXICITY,
+                //     threshold: HarmBlockThreshold.BLOCK_NONE, 
+                // },
+                // {
+                //     category: HarmCategory.VIOLENCE,
+                //     threshold: HarmBlockThreshold.BLOCK_NONE, 
+                // },
+                // {
+                //     category: HarmCategory.MEDICAL, 
+                //     threshold: HarmBlockThreshold.BLOCK_NONE, 
+                // },
+                // {
+                //     category: HarmCategory.FINANCE, 
+                //     threshold: HarmBlockThreshold.BLOCK_NONE, 
+                // },
+                // --- AKHIR PERBAIKAN ---
             ],
             generationConfig: generationConfig, // Gunakan konfigurasi yang sudah disesuaikan
         });

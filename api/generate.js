@@ -59,30 +59,34 @@ export default async function handler(req, res) {
     const genAI = new GoogleGenerativeAI(apiKey);
 
     // *** PENTING: Gunakan model yang dipilih dari frontend ***
-    // Default ke 'gemini-1.5-flash-latest' jika selectedModel tidak ada atau tidak valid
+    // Default ke 'gemini-1.5-flash' jika selectedModel tidak ada atau tidak valid
     // Kita cek dulu apakah selectedModel valid agar tidak crash jika ada nama model aneh dari frontend
-    const availableModels = ['gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-2.5-flash']; // Daftar model yang didukung
-    const apiModelName = availableModels.includes(selectedModel) ? selectedModel : 'gemini-1.5-flash-latest';
+    // --- PERUBAHAN DI SINI: MENYESUAIKAN DAFTAR MODEL DAN DEFAULT ---
+    const availableModels = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash']; // Daftar model yang didukung
+    const apiModelName = availableModels.includes(selectedModel) ? selectedModel : 'gemini-1.5-flash';
+    // --- AKHIR PERUBAHAN ---
 
     // Sesuaikan konfigurasi generasi berdasarkan model
-    // Model 'Pro' (Smart) biasanya butuh temperature lebih rendah untuk respons yang lebih faktual/konsisten.
-    // Model 'Flash' (Fast) bisa lebih tinggi untuk kreativitas atau tetap rendah untuk kecepatan.
+    // Model 'Smart' (gemini-2.0-flash) biasanya butuh temperature lebih rendah untuk respons yang lebih faktual/konsisten.
+    // Model 'Fast' (gemini-2.5-flash) dan 'Default' (gemini-1.5-flash) bisa lebih tinggi untuk kreativitas atau tetap rendah untuk kecepatan.
     let generationConfig = {};
-    if (apiModelName.includes('pro')) {
+    // --- PERUBAHAN DI SINI: MENYESUAIKAN LOGIKA GENERATION CONFIG BERDASARKAN NAMA MODEL BARU ---
+    if (apiModelName === 'gemini-2.0-flash') { // Untuk model "smart"
         generationConfig = {
-            temperature: 0.6, // Agak lebih konservatif untuk model Pro
+            temperature: 0.6, // Agak lebih konservatif untuk model Smart
             topP: 0.9,
             topK: 40,
             maxOutputTokens: 2048,
         };
-    } else { // Default for Flash or other models
+    } else { // Default untuk gemini-1.5-flash dan gemini-2.5-flash (Fast)
         generationConfig = {
-            temperature: 0.8, // Lebih kreatif dan beragam untuk Flash
+            temperature: 0.8, // Lebih kreatif dan beragam untuk Flash/Fast
             topP: 0.9,
             topK: 40,
             maxOutputTokens: 2048,
         };
     }
+    // --- AKHIR PERUBAHAN ---
     
     // *** System Instruction yang Ditingkatkan untuk "Maksimum Power" ***
     // Ini adalah kunci agar AI berperilaku sesuai keinginan.

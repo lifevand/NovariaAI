@@ -520,14 +520,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (fastButton) {
         fastButton.addEventListener('click', () => {
-            setSelectedModel('gemini-1.5-flash-latest', false);
+            setSelectedModel('gemini-2.5-flash', false);
             fastButton.classList.add('active');
             smartButton.classList.remove('active');
         });
     }
     if (smartButton) {
         smartButton.addEventListener('click', () => {
-            setSelectedModel('gemini-1.5-pro-latest', false);
+            setSelectedModel('gemini-2.0-flash', false);
             smartButton.classList.add('active');
             fastButton.classList.remove('active');
         });

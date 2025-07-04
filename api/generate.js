@@ -137,47 +137,69 @@ export default async function handler(req, res) {
             },
         });
 
+        // ... (bagian atas file tetap sama) ...
+
         const result = await chat.sendMessage(currentUserMessageParts);
         const response = await result.response;
 
         const functionCall = response.functionCall();
         if (functionCall && functionCall.name === "searchImage") {
-            const imageUrl = await searchImage(functionCall.args.query);
+            const queryForImage = functionCall.args.query;
+            const imageUrl = await searchImage(queryForImage);
             
             if (imageUrl) {
+                // Beri respons ke Gemini bahwa tool berhasil dan berikan URL gambar
                 const toolResponseResult = await chat.sendMessage([
                     {
                         functionResponse: {
                             name: "searchImage",
-                            response: { imageUrl: imageUrl, query: functionCall.args.query },
+                            response: { 
+                                imageUrl: imageUrl, 
+                                query: queryForImage,
+                                message: `Pencarian untuk "${queryForImage}" berhasil menemukan gambar. URL: ${imageUrl}` // Pesan eksplisit
+                            },
                         },
                     },
                 ]);
                 const toolResponse = await toolResponseResult.response;
-                const aiResponseText = toolResponse.text();
+                let aiResponseText = toolResponse.text();
+
+                // Tambahkan atau modifikasi teks respons AI jika Gemini tidak secara otomatis menyertakan URL.
+                // Ini adalah fallback untuk memastikan URL tetap dikirim dan disebut.
+                if (!aiResponseText || aiResponseText.includes("[Image of a") || !aiResponseText.includes(imageUrl)) {
+                     aiResponseText = `Tentu, ini dia gambar ${queryForImage} yang menggemaskan untukmu!`;
+                }
+
                 return res.status(200).json({ text: aiResponseText, imageUrl: imageUrl, modelUsed: geminiModelName });
             } else {
+                // Jika pencarian gambar gagal, beritahu Gemini
                 const toolResponseResult = await chat.sendMessage([
                     {
                         functionResponse: {
                             name: "searchImage",
-                            response: { error: "Gambar tidak ditemukan atau terjadi masalah saat pencarian." },
+                            response: { 
+                                error: "Gambar tidak ditemukan atau terjadi masalah saat pencarian.",
+                                query: queryForImage // Sertakan query asli agar Gemini bisa merespons lebih baik
+                            },
                         },
                     },
                 ]);
                 const toolResponse = await toolResponseResult.response;
                 const aiResponseText = toolResponse.text();
+                // Respons fallback jika gambar tidak ditemukan
                 return res.status(200).json({ 
-                    text: aiResponseText || "Maaf, saya tidak dapat menemukan gambar tersebut. Bisakah Anda coba dengan deskripsi yang berbeda?", 
+                    text: aiResponseText || `Maaf, saya tidak dapat menemukan gambar untuk "${queryForImage}". Bisakah Anda coba dengan deskripsi yang berbeda?`, 
                     modelUsed: geminiModelName 
                 });
             }
         }
 
+        // Jika tidak ada tool yang dipanggil, berikan respons teks biasa
         const aiResponseText = response.text();
         res.status(200).json({ text: aiResponseText, modelUsed: geminiModelName });
 
     } catch (error) {
+// ... (bagian bawah file tetap sama) ...
         console.error('Error in /api/generate:', error);
         let errorMessage = 'Terjadi kesalahan internal server saat menghubungi model AI.';
 

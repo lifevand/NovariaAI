@@ -1,10 +1,57 @@
-// --- START OF FILE api/generate.js (REVISED for your image search endpoint) ---
+// --- START OF FILE api/generate.js ---
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
-// Kita tidak lagi mendefinisikan fungsi searchImage di sini,
-// melainkan akan memanggil endpoint /api/google-image-search.
-// Karena kita memanggil endpoint lokal, kita tidak perlu mengimpor 'node-fetch' di sini.
-// fetch() global sudah tersedia di lingkungan Vercel.
+async function searchImage(query) {
+    const apiKey = process.env.GOOGLE_SEARCH_API_KEY;
+    const cx = process.env.GOOGLE_CSE_ID;
+
+    if (!apiKey || !cx) {
+        console.error("GOOGLE_SEARCH_API_KEY or GOOGLE_CSE_ID is not configured.");
+        return null;
+    }
+
+    const searchParams = new URLSearchParams({
+        key: apiKey,
+        cx: cx,
+        q: query,
+        searchType: 'image',
+        num: 5, // Ambil beberapa hasil untuk mencari yang valid
+        safe: 'active',
+    });
+
+    const API_URL = `https://www.googleapis.com/customsearch/v1?${searchParams.toString()}`;
+
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        if (!response.ok) {
+            const errorMessage = data.error?.message || `Google API Error (${response.status})`;
+            console.error(`Google Search API Error: ${errorMessage}`, data.error?.errors);
+            return null;
+        }
+
+        if (data.items && data.items.length > 0) {
+            const firstValidImage = data.items.find(item =>
+                item.link &&
+                item.mime &&
+                (item.mime.startsWith('image/jpeg') || item.mime.startsWith('image/png') || item.mime.startsWith('image/gif') || item.mime.startsWith('image/webp'))
+            );
+            if (firstValidImage) {
+                return firstValidImage.link;
+            } else {
+                console.log('No valid image link (JPEG, PNG, GIF, WEBP) found in Google results.');
+                return null;
+            }
+        } else {
+            console.log('No items found in Google results.');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching image from Google Search API:', error);
+        return null;
+    }
+}
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -43,13 +90,12 @@ export default async function handler(req, res) {
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);
 
-    const geminiModelName = selectedModel || 'gemini-1.5-flash-latest'; 
+    const geminiModelName = selectedModel || 'gemini-2.5-flash'; 
 
-    // Definisi Tool untuk pencarian gambar - ini memberitahu Gemini tentang fungsi yang ada
     const tool = {
         functionDeclarations: [
             {
-                name: "searchImage", // Nama fungsi yang akan dipanggil oleh Gemini
+                name: "searchImage",
                 description: "Mencari gambar di Google berdasarkan query yang diberikan. Gunakan ini ketika pengguna secara eksplisit meminta untuk mencari, menampilkan, atau menunjukkan gambar dari suatu objek, orang, tempat, atau konsep (misalnya: 'tampilkan gambar kucing', 'cari foto pemandangan', 'bisakah kamu menunjukkan gambar mobil Tesla').",
                 parameters: {
                     type: "object",
@@ -73,7 +119,7 @@ export default async function handler(req, res) {
     try {
         const geminiModel = genAI.getGenerativeModel({ 
             model: geminiModelName,
-            tools: [tool], 
+            tools: [tool],
             systemInstruction: { parts: systemInstructionParts }, 
         });
 
@@ -102,10 +148,10 @@ export default async function handler(req, res) {
         const chat = geminiModel.startChat({
             history: historyForGemini,
             safetySettings: [
-                { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: HarmCategory.HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: HarmCategory.HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: HarmCategory.SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: HarmCategory.DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
             ],
             generationConfig: {
               temperature: 0.8,
@@ -121,30 +167,7 @@ export default async function handler(req, res) {
         const functionCall = response.functionCall();
         if (functionCall && functionCall.name === "searchImage") {
             const queryForImage = functionCall.args.query;
-            let imageUrl = null;
-            let imageSearchErrorMessage = null;
-
-            try {
-                // PANGGIL ENDPOINT PENCARIAN GAMBAR ANDA DI SINI
-                const imageSearchRes = await fetch(`${req.headers.origin}/api/google-image-search`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: queryForImage })
-                });
-
-                const imageData = await imageSearchRes.json();
-
-                if (imageSearchRes.ok && imageData.imageUrl) {
-                    imageUrl = imageData.imageUrl;
-                    console.log(`[api/generate] Found image: ${imageUrl}`);
-                } else {
-                    imageSearchErrorMessage = imageData.message || "Gagal mencari gambar dari API.";
-                    console.error(`[api/generate] Error from google-image-search endpoint: ${imageSearchErrorMessage}`);
-                }
-            } catch (imageFetchError) {
-                imageSearchErrorMessage = `Kesalahan saat menghubungi API pencarian gambar: ${imageFetchError.message}`;
-                console.error(`[api/generate] Failed to fetch from google-image-search endpoint:`, imageFetchError);
-            }
+            const imageUrl = await searchImage(queryForImage);
             
             if (imageUrl) {
                 const toolResponseResult = await chat.sendMessage([
@@ -154,7 +177,7 @@ export default async function handler(req, res) {
                             response: { 
                                 imageUrl: imageUrl, 
                                 query: queryForImage,
-                                message: `Pencarian untuk "${queryForImage}" berhasil menemukan gambar. URL: ${imageUrl}` 
+                                message: `Pencarian untuk "${queryForImage}" berhasil menemukan gambar. URL: ${imageUrl}`
                             },
                         },
                     },
@@ -163,7 +186,7 @@ export default async function handler(req, res) {
                 let aiResponseText = toolResponse.text();
 
                 if (!aiResponseText || aiResponseText.includes("[Image of a") || !aiResponseText.includes(imageUrl)) {
-                     aiResponseText = `Tentu, ini dia gambar ${queryForImage} yang saya temukan untukmu!`;
+                     aiResponseText = `Tentu, ini dia gambar ${queryForImage} yang menggemaskan untukmu!`;
                 }
 
                 return res.status(200).json({ text: aiResponseText, imageUrl: imageUrl, modelUsed: geminiModelName });
@@ -173,17 +196,16 @@ export default async function handler(req, res) {
                         functionResponse: {
                             name: "searchImage",
                             response: { 
-                                error: imageSearchErrorMessage || "Gambar tidak ditemukan atau terjadi masalah saat pencarian.",
-                                query: queryForImage 
+                                error: "Gambar tidak ditemukan atau terjadi masalah saat pencarian.",
+                                query: queryForImage
                             },
                         },
                     },
                 ]);
                 const toolResponse = await toolResponseResult.response;
                 const aiResponseText = toolResponse.text();
-                
                 return res.status(200).json({ 
-                    text: aiResponseText || `Maaf, saya tidak dapat menemukan gambar untuk "${queryForImage}". Detail error: ${imageSearchErrorMessage || 'Tidak diketahui'}. Bisakah Anda coba dengan deskripsi yang berbeda?`, 
+                    text: aiResponseText || `Maaf, saya tidak dapat menemukan gambar untuk "${queryForImage}". Bisakah Anda coba dengan deskripsi yang berbeda?`, 
                     modelUsed: geminiModelName 
                 });
             }
@@ -202,12 +224,13 @@ export default async function handler(req, res) {
                 errorDetails = await error.response.json();
             } catch (jsonParseError) {
                 errorDetails = await error.response.text();
-                console.error("Respon error API bukan JSON:", errorDetails);
             }
             console.error('Detail Error API:', errorDetails);
 
             if (typeof errorDetails === 'object' && errorDetails.error && errorDetails.error.message) {
                 errorMessage = errorDetails.error.message;
+            } else if (typeof errorDetails === 'string' && errorDetails.includes("API key not valid")) {
+                errorMessage = "API Key Gemini tidak valid. Harap periksa konfigurasi Anda.";
             }
 
             if (typeof errorDetails === 'object' && errorDetails.candidates && errorDetails.candidates[0] && errorDetails.candidates[0].finishReason) {

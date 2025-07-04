@@ -1,8 +1,5 @@
 // --- START OF FILE script.js ---
-// === GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI ===
-
 document.addEventListener('DOMContentLoaded', () => {
-    // === AWAL: PENGECEKAN LOGIN ===
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const storedUser = localStorage.getItem('novaUser');
     let currentUser = null;
@@ -10,13 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isLoggedIn === 'true' && storedUser) {
         try {
             currentUser = JSON.parse(storedUser);
-            if (!currentUser || !currentUser.name) { // Validasi sederhana
+            if (!currentUser || !currentUser.name) {
                 throw new Error("Invalid user data in storage.");
             }
             document.body.classList.remove('app-hidden');
             document.body.classList.add('app-loaded');
 
-            // === AWAL: DISPLAY PROFIL PENGGUNA DI SIDEBAR ===
             const profilePicture = document.getElementById('profilePicture');
             const profileName = document.getElementById('profileName');
             const profileEmail = document.getElementById('profileEmail');
@@ -28,26 +24,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (profileName) profileName.textContent = currentUser.name || 'User';
                 if (profileEmail) profileEmail.textContent = currentUser.email || 'user@example.com';
                 if (sidebarUserProfile) sidebarUserProfile.style.display = 'flex';
-                if (sidebarLoginSignup) sidebarLoginSignup.style.display = 'none'; // Sembunyikan Login/Signup jika sudah login
+                if (sidebarLoginSignup) sidebarLoginSignup.style.display = 'none';
             } else {
                 if (sidebarUserProfile) sidebarUserProfile.style.display = 'none';
                 if (sidebarLoginSignup) sidebarLoginSignup.style.display = 'flex';
             }
-            // === AKHIR: DISPLAY PROFIL PENGGUNA DI SIDEBAR ===
 
         } catch (e) {
             console.error("Error parsing user data or invalid data:", e);
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('novaUser');
-            window.location.href = 'login.html'; // Redirect jika data user tidak valid
-            return; // Hentikan eksekusi script
+            window.location.href = 'login.html';
+            return;
         }
     } else {
-        window.location.href = 'login.html'; // Redirect ke halaman login jika belum login
-        return; // Hentikan eksekusi script
+        window.location.href = 'login.html';
+        return;
     }
-    // === AKHIR: PENGECEKAN LOGIN ===
-
 
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendButtonBottom');
@@ -66,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.querySelector('main');
 
     let currentActivePage = 'welcome';
-    let currentTypingAnimation = null; // Variable to hold the current typing animation interval
+    let currentTypingAnimation = null;
 
     const plusButton = document.getElementById('plusButtonTop');
     const fileInput = document.getElementById('fileInput');
@@ -92,11 +85,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const fastButton = document.getElementById('fastButton');
     const smartButton = document.getElementById('smartButton');
 
-    // --- PERUBAHAN DI SINI: MENYESUAIKAN DAFTAR MODEL DAN DEFAULT ---
     const availableModels = [
-        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (Fast)', type: 'fast' },
-        { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Smart)', type: 'smart' },
-        { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash (Default)', type: 'default' } 
+        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'fast' },
+        { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash, type: 'smart' },
+        { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', type: 'other' }
     ];
 
     let currentSelectedModelValue = '';
@@ -114,16 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     fastButton.classList.add('active');
                 } else if (selectedModel.type === 'smart') {
                     smartButton.classList.add('active');
-                } else if (selectedModel.type === 'default') {
-                    // Jika model default dipilih dari modal, pastikan tidak ada tombol Fast/Smart yang aktif
-                    fastButton.classList.remove('active');
-                    smartButton.classList.remove('active');
                 }
             }
         } else {
-            // Default ke model pertama jika yang disimpan tidak ditemukan
-            // Menggunakan default model (gemini-1.5-flash) jika yang tersimpan tidak valid
-            setSelectedModel('gemini-1.5-flash', updateFastSmartToggle); 
+            setSelectedModel(availableModels[0].value, updateFastSmartToggle);
         }
     }
 
@@ -164,15 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const savedModelValue = localStorage.getItem('selectedAiModel');
-    // Cari model yang tersimpan, jika tidak ada atau tidak valid, gunakan gemini-1.5-flash sebagai default
-    const defaultModel = availableModels.find(m => m.value === savedModelValue) || availableModels.find(m => m.value === 'gemini-1.5-flash');
-    setSelectedModel(defaultModel ? defaultModel.value : availableModels[0].value, true); // Fallback jika gemini-1.5-flash juga tidak ada
+    const defaultModel = availableModels.find(m => m.value === savedModelValue) || availableModels[0];
+    setSelectedModel(defaultModel.value, true);
 
     if (customModelSelectorTrigger) {
         customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
     }
     if (closeModelModalButton) {
-        closeModelModalButton.addEventListener('click', closeModelModalButton);
+        closeModelModalButton.addEventListener('click', closeModelSelectModal);
     }
     if (modelSelectModal) {
         modelSelectModal.addEventListener('click', (event) => {
@@ -184,19 +169,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (fastButton) {
         fastButton.addEventListener('click', () => {
-            setSelectedModel('gemini-2.5-flash', false); // Hardcoded value for 'fast'
+            setSelectedModel('gemini-1.5-flash-latest', false);
             fastButton.classList.add('active');
             smartButton.classList.remove('active');
         });
     }
     if (smartButton) {
         smartButton.addEventListener('click', () => {
-            setSelectedModel('gemini-2.0-flash', false); // Hardcoded value for 'smart'
+            setSelectedModel('gemini-1.5-pro-latest', false);
             smartButton.classList.add('active');
             fastButton.classList.remove('active');
         });
     }
-    // --- AKHIR PERUBAHAN ---
 
     const voiceInputButton = document.getElementById('voiceInputButtonBottom');
     let recognition;
@@ -219,7 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
         clearChatHistoryButton.addEventListener('click', () => {
             if (confirm('Are you sure you want to delete all chat history? This action cannot be undone.')) {
                 if (chatHistory) {
-                    // Clear previous typing animations if any
                     if (currentTypingAnimation) {
                         clearTimeout(currentTypingAnimation);
                         currentTypingAnimation = null;
@@ -312,26 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
     messageInput.addEventListener('input', autoResizeTextarea);
     autoResizeTextarea();
 
-    // === Pembersihan Teks AI dari Markdown (menghilangkan bintang dan format lain) ===
-    // Fungsi ini tidak lagi digunakan secara langsung untuk teks AI yang akan di-type out,
-    // karena kita ingin mempertahankan markdown untuk code block dan formatting lainnya.
-    // Namun, bisa berguna jika ada kebutuhan untuk menampilkan plain text tanpa format.
-    function cleanAiTextFromMarkdown(text) {
-        let cleanedText = text.replace(/(\*\*|__)(.*?)\1/g, '$2');
-        cleanedText = cleanedText.replace(/(\*|_)(.*?)\1/g, '$2');
-        cleanedText = cleanedText.replace(/~~(.*?)~~/g, '$1');
-        cleanedText = cleanedText.replace(/`([^`]+)`/g, '$1');
-        cleanedText = cleanedText.replace(/^#+\s*(.*)$/gm, '$1');
-        cleanedText = cleanedText.replace(/^-+\s*(.*)$/gm, '$1');
-        cleanedText = cleanedText.replace(/^\d+\.\s*(.*)$/gm, '$1');
-        cleanedText = cleanedText.replace(/\[(.*?)\]\(.*?\)/g, '$1');
-        
-        cleanedText = cleanedText.replace(/\s+/g, ' ').trim();
-        return cleanedText;
-    }
-    // ======================================================================
-
-    // Function to stop any ongoing typing animation
     function stopCurrentTypingAnimation() {
         if (currentTypingAnimation) {
             clearTimeout(currentTypingAnimation);
@@ -339,10 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // New: Function to type out message content
-    function typeMessage(element, textContent, delay = 5) { // Faster typing delay
+    function typeMessage(element, textContent, delay = 5) {
         let i = 0;
-        element.textContent = ''; // Clear content before typing
+        element.textContent = '';
         
         function typeChar() {
             if (i < textContent.length) {
@@ -350,14 +312,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 i++;
                 currentTypingAnimation = setTimeout(typeChar, delay);
             } else {
-                currentTypingAnimation = null; // Animation finished
+                currentTypingAnimation = null;
             }
-            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; // Keep scrolling
+            if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
         }
         typeChar();
     }
 
-    // === Fungsi addChatMessage yang diperbarui untuk Multi-modal Output dan Typing Effect ===
     function addChatMessage(content, sender = 'user', imageUrl = null, modelTag = "Novaria", aiResponseRawText = null) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', sender === 'user' ? 'user-message' : 'ai-message');
@@ -368,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messageElement.textContent = content;
             conversationHistory.push({ role: 'user', content: content });
         } else {
-            stopCurrentTypingAnimation(); // Stop any previous typing when a new AI response starts
+            stopCurrentTypingAnimation();
 
             const aiHeader = document.createElement('div');
             aiHeader.classList.add('ai-message-header');
@@ -396,69 +357,60 @@ document.addEventListener('DOMContentLoaded', () => {
             aiContentContainer.classList.add('ai-message-content');
             messageElement.appendChild(aiContentContainer);
 
-            // Add image if available
             if (imageUrl) {
                 const imgElement = document.createElement('img');
                 imgElement.src = imageUrl;
                 imgElement.alt = "Generated image";
                 imgElement.classList.add('ai-generated-image');
                 aiContentContainer.appendChild(imgElement);
-                if (content.trim()) { // Add spacer only if there's text content after the image
+                if (content.trim()) { 
                     const spacer = document.createElement('div');
                     spacer.style.height = '10px';
                     aiContentContainer.appendChild(spacer);
                 }
             }
 
-            // If it's an error message or not a raw AI response, just set text content directly.
-            // This prevents typing animation on error messages.
-            if (content.startsWith('<span>') || !aiResponseRawText) {
-                aiContentContainer.innerHTML = content; // Assuming content is already formatted HTML for errors
-                // Add actions directly for non-typing messages
+            if (content.startsWith('<span>')) {
+                aiContentContainer.innerHTML = content;
                 addAiMessageActions(messageElement);
                 clearAttachedFiles();
                 checkScrollable();
             } else {
-                // Process text content for typing animation and code blocks
                 const segments = [];
                 const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
                 let lastIndex = 0;
 
-                // Use the raw AI response text provided as an argument
-                const textToProcess = aiResponseRawText;
+                const textToProcess = aiResponseRawText || content;
 
                 textToProcess.replace(codeBlockRegex, (match, language, code, offset) => {
-                    // Add preceding plain text segment
                     if (offset > lastIndex) {
                         segments.push({ type: 'text', content: textToProcess.substring(lastIndex, offset) });
                     }
-                    // Add code block segment
                     segments.push({ type: 'code', language: language || 'text', content: code.trim(), raw: match });
                     lastIndex = offset + match.length;
                 });
 
-                // Add any remaining plain text
                 if (lastIndex < textToProcess.length) {
                     segments.push({ type: 'text', content: textToProcess.substring(lastIndex) });
                 }
 
                 let segmentIndex = 0;
-                const typingSpeed = 5; // Adjust for faster/slower typing
+                const typingSpeed = 5;
 
                 function processNextSegment() {
                     if (segmentIndex < segments.length) {
                         const segment = segments[segmentIndex];
                         if (segment.type === 'text') {
                             const spanElement = document.createElement('span');
+                            spanElement.style.whiteSpace = 'pre-wrap';
                             aiContentContainer.appendChild(spanElement);
                             typeMessage(spanElement, segment.content, typingSpeed);
-                            // Schedule next segment processing after this text segment is done typing
+                            
                             currentTypingAnimation = setTimeout(() => {
                                 segmentIndex++;
                                 processNextSegment();
-                            }, segment.content.length * typingSpeed); // Delay based on text length
+                            }, segment.content.length * typingSpeed + 50);
                         } else if (segment.type === 'code') {
-                            // Directly append code block HTML, no typing animation for code
                             const codeHtml = `
                                 <div class="code-block">
                                     <div class="code-header">
@@ -473,24 +425,22 @@ document.addEventListener('DOMContentLoaded', () => {
                             aiContentContainer.insertAdjacentHTML('beforeend', codeHtml);
                             const newCodeBlock = aiContentContainer.lastElementChild;
                             if (newCodeBlock && newCodeBlock.querySelector('code')) {
-                                // Highlight the newly added code block
                                 hljs.highlightElement(newCodeBlock.querySelector('code'));
                             }
 
                             segmentIndex++;
-                            processNextSegment(); // Immediately process next segment after code block
+                            processNextSegment();
                         }
                     } else {
-                        currentTypingAnimation = null; // All segments processed
-                        // Add actions once all content is rendered
+                        currentTypingAnimation = null;
                         addAiMessageActions(messageElement);
                         clearAttachedFiles();
                         checkScrollable();
                     }
-                    if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; // Keep scrolling during process
+                    if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight;
                 }
-                processNextSegment(); // Start processing segments
-                conversationHistory.push({ role: 'assistant', content: textToProcess }); // Store the full raw text in history
+                processNextSegment();
+                conversationHistory.push({ role: 'assistant', content: textToProcess });
             }
         }
 
@@ -517,8 +467,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return messageElement;
     }
 
-    // Function to get the full raw text from an AI message element
-    // Used by copy and speak buttons
     function getFullRawContent(messageEl) {
         let fullContent = '';
         const contentContainer = messageEl.querySelector('.ai-message-content');
@@ -529,11 +477,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 fullContent += node.textContent;
             } else if (node.nodeType === Node.ELEMENT_NODE) {
                 if (node.tagName === 'IMG') {
-                    fullContent += `\n[Gambar: ${node.alt} - URL: ${node.src}]\n`;
+                    fullContent += `\n[Gambar: ${node.alt || 'Gambar yang dihasilkan AI'} - URL: ${node.src}]\n`;
                 } else if (node.classList.contains('code-block')) {
                     const langTag = node.querySelector('.language-tag');
                     const lang = langTag ? langTag.textContent.toLowerCase() : 'text';
-                    const code = node.querySelector('code').textContent; // Get the raw code from the code tag
+                    const code = node.querySelector('code').textContent;
                     fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
                 }
             }
@@ -547,10 +495,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const buttons = [
             { name: 'copy', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #66bb6a;"><polyline points="20 6 9 17 4 12"></polyline></svg>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
+            { name: 'speak', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US';
+             const originalIcon = buttonEl.innerHTML; buttonEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pulsing"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>'; utterance.onend = () => { buttonEl.innerHTML = originalIcon; }; speechApi.speak(utterance); } } },
             { name: 'like', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h3"></path></svg>', title: 'Like', action: (buttonEl) => { buttonEl.classList.toggle('liked'); } },
             { name: 'regenerate', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.65 6.35A7.95 7.95 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>', title: 'Regenerate', action: (buttonEl, msgEl) => {
-                stopCurrentTypingAnimation(); // Stop any typing before regenerating
+                stopCurrentTypingAnimation();
                 const svg = buttonEl.querySelector('svg');
                 svg.classList.add('rotating');
                 buttonEl.disabled = true;
@@ -559,9 +508,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lastUserMessageObj = conversationHistory.slice().reverse().find(msg => msg.role === 'user');
                 if (lastUserMessageObj) {
                     msgEl.remove();
-                    // Remove the last AI response from history
-                    // We need to find and remove the exact message to avoid issues with regenerating a regenerated message.
-                    // This is simplified by just removing the very last message in history, assuming it's the one being regenerated.
                     if (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'assistant') {
                         conversationHistory.pop();
                     }
@@ -584,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
             button.addEventListener('click', () => btnInfo.action(button, aiMessageElement));
             actionsContainer.appendChild(button);
         });
-        aiMessageElement.appendChild(actionsContainer); // Append actions to the message element, not content container
+        aiMessageElement.appendChild(actionsContainer);
         setTimeout(() => { if (chatHistory) chatHistory.scrollTop = chatHistory.scrollHeight; }, 0);
     }
 
@@ -640,16 +586,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Server returned non-JSON error:", plainTextError);
                 }
                 
-                // === START MODIFIKASI UNTUK ERROR HANDLING SPESIFIK ===
-                // Sembunyikan indikator berpikir segera saat error
                 if (thinkingIndicator) {
                     thinkingIndicator.style.opacity = '0';
                     setTimeout(() => thinkingIndicator.classList.add('hidden'), 300);
                 }
-                // Tampilkan pesan error kustom yang didapat dari backend
                 addChatMessage(`<span>${errorMessageToDisplay}</span>`, 'ai');
-                return; // Hentikan eksekusi lebih lanjut
-                // === END MODIFIKASI UNTUK ERROR HANDLING SPESIFIK ===
+                return;
             }
 
             const data = await response.json();
@@ -663,16 +605,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let personalizedResponseText = rawAiResponseText;
                 if (currentUser && currentUser.name) {
-                    // Hanya tambahkan sapaan jika pesan bukan error dari backend
-                    if (!rawAiResponseText.startsWith('<span>Maaf, terjadi kesalahan:')) { // Check if it's not an error message
+                    if (!rawAiResponseText.startsWith('<span>Maaf, terjadi kesalahan:')) {
                         const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`;
                         personalizedResponseText = greeting + rawAiResponseText;
                     }
                 }
 
-                // Pass the raw AI response text for proper typing and highlighting
                 addChatMessage(personalizedResponseText, 'ai', generatedImageUrl, modelUsed, rawAiResponseText);
-                // Actions and file clearing are now handled inside addChatMessage for AI responses
             }, 300);
 
         } catch (error) {
@@ -680,18 +619,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
-                // Pesan error umum untuk masalah jaringan atau yang tidak tertangkap oleh filter backend
                 const genericErrorMessage = `Maaf, terjadi masalah koneksi atau server: ${error.message || 'Silakan coba lagi.'}`;
                 addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai');
             }, 300);
         }
     }
 
-
     sendButton.addEventListener('click', () => {
         const message = messageInput.value.trim();
         if (message !== '' || attachedFiles.length > 0) {
-            stopCurrentTypingAnimation(); // Stop any ongoing typing animation
+            stopCurrentTypingAnimation();
 
             let finalPrompt = message;
             if (attachedFiles.length > 0 && message === '') {
@@ -721,8 +658,9 @@ document.addEventListener('DOMContentLoaded', () => {
     menuIcon.addEventListener('click', () => { sidebar.classList.add('active'); sidebarOverlay.classList.add('active'); });
     sidebarOverlay.addEventListener('click', () => { sidebar.classList.remove('active'); sidebarOverlay.classList.remove('active'); });
     backIcon.addEventListener('click', () => {
-        stopCurrentTypingAnimation(); // Stop typing when navigating back
+        stopCurrentTypingAnimation();
 
+        showPage('welcome');
         if (chatHistory && thinkingIndicator) {
              chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
         } else if (chatHistory) {
@@ -733,12 +671,10 @@ document.addEventListener('DOMContentLoaded', () => {
         clearAttachedFiles();
         updateInputAreaAppearance();
         conversationHistory = [];
-        showPage('welcome'); // Panggil showPage setelah membersihkan chatHistory
     });
 
     const savedTheme = localStorage.getItem('novaai_theme');
     const hljsDarkTheme = document.querySelector('link[href*="atom-one-dark.min.css"]');
-    // const hljsLightTheme = document.querySelector('.hljs-light-theme'); // No longer needed if we swap href
 
     function applyTheme(isLightMode) {
         if (isLightMode) {
@@ -751,13 +687,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (hljsDarkTheme) hljsDarkTheme.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css";
         }
         themeToggleLanding.checked = isLightMode;
-        // Re-highlight all code blocks on theme change
         document.querySelectorAll('pre code').forEach((block) => {
             hljs.highlightElement(block);
         });
     }
 
-    // Apply theme on load and re-apply highlight.js if body class is updated
     if (savedTheme === 'light-mode') {
         applyTheme(true);
     } else {
@@ -959,7 +893,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = 'en-US'; // Sesuaikan jika perlu bahasa Indonesia 'id-ID'
+        recognition.lang = 'en-US';
         recognition.continuous = false;
         recognition.interimResults = true;
         let finalTranscript = '';
@@ -973,10 +907,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Fungsi global untuk copy code tetap ada
 function copyCode(buttonElement) {
-    const pre = buttonElement.closest('.code-block').querySelector('code'); // Target the <code> tag
-    if (!pre) return; // Guard against missing element
+    const pre = buttonElement.closest('.code-block').querySelector('code');
+    if (!pre) return;
     navigator.clipboard.writeText(pre.textContent).then(() => {
         const span = buttonElement.querySelector('span');
         const originalText = span.textContent;

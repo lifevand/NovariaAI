@@ -1,5 +1,4 @@
-/* GANTI SELURUH ISI STYLE.CSS ANDA DENGAN KODE INI */
-
+/* --- START OF FILE style.css --- */
 /* CSS Variables for Themes */
 :root {
   /* Dark Mode Defaults */
@@ -14,7 +13,7 @@
   --sidebar-item-hover: #3a3a3a;
   --ripple-color: rgba(255, 255, 255, 0.4);
   --border-color: rgba(255, 255, 255, 0.1);
-  --modal-bg: #2a2a2a; /* Warna background modal */
+  --modal-bg: #2a2a2a;
   --modal-text: #ffffff;
   --modal-close-button: #999999;
   --modal-close-button-hover: #ffffff;
@@ -24,7 +23,7 @@
   --user-message-color: #ffffff;
   --ai-message-color: rgba(255, 255, 255, 0.8);
   --ai-thinking-color: rgba(255, 255, 255, 0.6);
-  --file-chip-bg: var(--button-hover-bg); /* Latar chip file */
+  --file-chip-bg: var(--button-hover-bg);
   --file-chip-text: var(--text-color);
   --file-chip-remove-hover-color: #ff6666;
   --ai-model-tag-bg: var(--button-bg);
@@ -43,22 +42,20 @@
   --glass-bg: rgba(25, 25, 25, 0.6);
   --glass-border-color: rgba(255, 255, 255, 0.1);
 
-  /* New Model Selector / File Chip positioning */
   --model-selector-bg: #222222;
   --model-selector-border: #444444;
   --model-selector-text: #ffffff;
   --model-selector-hover-bg: #3a3a3a;
-  --file-chip-area-bg: rgba(25, 25, 25, 0.4); /* background transparan untuk area chips */
+  --file-chip-area-bg: rgba(25, 25, 25, 0.4);
 
-  /* New input area specific colors */
-  --new-input-container-bg: #1c1c1c; /* Background for the main input rectangle */
-  --new-input-container-border: rgba(255, 255, 255, 0.08); /* Border for the main input rectangle */
-  --toggle-group-bg: #333333; /* Background for Fast/Smart toggle group */
-  --toggle-button-bg: transparent; /* Default button background in toggle */
-  --toggle-button-text: rgba(255, 255, 255, 0.6); /* Default button text in toggle */
-  --toggle-button-active-bg: #555555; /* Active button background in toggle */
-  --toggle-button-active-text: #ffffff; /* Active button text in toggle */
-  --button-plus-top-bg: #333333; /* Background for the top plus button */
+  --new-input-container-bg: #1c1c1c;
+  --new-input-container-border: rgba(255, 255, 255, 0.08);
+  --toggle-group-bg: #333333;
+  --toggle-button-bg: transparent;
+  --toggle-button-text: rgba(255, 255, 255, 0.6);
+  --toggle-button-active-bg: #555555;
+  --toggle-button-active-text: #ffffff;
+  --button-plus-top-bg: #333333;
 }
 
 body.light-mode {
@@ -73,7 +70,7 @@ body.light-mode {
   --sidebar-item-hover: #f0f0f0;
   --ripple-color: rgba(0, 0, 0, 0.2);
   --border-color: rgba(0, 0, 0, 0.1);
-  --modal-bg: #ffffff; /* Warna background modal */
+  --modal-bg: #ffffff;
   --modal-text: #333333;
   --modal-close-button: #bbbbbb;
   --modal-close-button-hover: #999999;
@@ -102,14 +99,12 @@ body.light-mode {
   --glass-bg: rgba(255, 255, 255, 0.5);
   --glass-border-color: rgba(0, 0, 0, 0.1);
 
-  /* New Model Selector / File Chip positioning for Light Mode */
   --model-selector-bg: #eeeeee;
   --model-selector-border: #dddddd;
   --model-selector-text: #333333;
   --model-selector-hover-bg: #cccccc;
   --file-chip-area-bg: rgba(255, 255, 255, 0.4);
 
-  /* New input area specific colors - Light Mode */
   --new-input-container-bg: #ffffff;
   --new-input-container-border: rgba(0, 0, 0, 0.08);
   --toggle-group-bg: #e0e0e0;
@@ -130,22 +125,20 @@ body {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out; /* Tambahkan transisi opacity */
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Sembunyikan body secara default, tampilkan setelah login diverifikasi */
 body.app-hidden {
     opacity: 0;
-    pointer-events: none; /* Cegah interaksi saat tersembunyi */
+    pointer-events: none;
 }
 
 body.app-loaded {
     opacity: 1;
     pointer-events: auto;
 }
-
 
 *:focus {
   outline: none;
@@ -187,7 +180,6 @@ main {
   display: flex;
   position: relative;
   overflow: hidden;
-  /* padding-bottom akan diatur oleh JavaScript */
 }
 
 /* Page Sections (Welcome and Chat) */
@@ -234,8 +226,7 @@ main {
     max-width: 700px;
     height: 100%;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch; /* Biar scroll lebih mulus di iOS */
-    scroll-behavior: smooth; /* Untuk animasi scroll JavaScript jadi lebih halus */
+    -webkit-overflow-scrolling: touch;
     padding-top: 90px;
     padding-bottom: 20px;
     padding-left: 20px;
@@ -244,29 +235,6 @@ main {
     position: relative;
     display: flex;
     flex-direction: column;
-
-    /* Custom Scrollbar Styles (untuk browser berbasis Webkit seperti Chrome, Edge, Safari) */
-    &::-webkit-scrollbar {
-        width: 8px; /* Lebar scrollbar */
-    }
-
-    &::-webkit-scrollbar-track {
-        background: transparent; /* Track (jalur) scrollbar transparan */
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background-color: var(--button-hover-bg); /* Warna thumb (pegangan) scrollbar */
-        border-radius: 4px; /* Sudut membulat pada thumb */
-        border: 2px solid var(--bg-color); /* Border tipis agar terlihat "mengambang" */
-    }
-
-    &::-webkit-scrollbar-thumb:hover {
-        background-color: var(--button-bg); /* Warna thumb saat di-hover */
-    }
-
-    /* Custom Scrollbar Styles (untuk Firefox) */
-    scrollbar-width: thin; /* Ukuran scrollbar: 'auto' atau 'thin' */
-    scrollbar-color: var(--button-hover-bg) transparent; /* Warna thumb dan track */
 }
 
 #chatHistory.has-scroll-fade::after {
@@ -344,23 +312,18 @@ main {
   white-space: nowrap;
 }
 
-.ai-message-content {
-    /* Styling jika perlu */
-}
-/* This span will now hold the typed out content */
 .ai-message-content > span {
-    white-space: pre-wrap; /* Agar \n di teks biasa juga berfungsi */
+    white-space: pre-wrap;
 }
 
-/* Gambar yang dihasilkan AI */
 .ai-generated-image {
     max-width: 100%;
     height: auto;
-    border-radius: 8px; /* Sudut membulat */
-    margin-bottom: 5px; /* Sedikit jarak dari teks di bawahnya */
-    object-fit: contain; /* Memastikan gambar pas tanpa terpotong */
-    border: 1px solid var(--border-color); /* Garis tipis untuk membedakan */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Sedikit bayangan */
+    border-radius: 8px;
+    margin-bottom: 5px;
+    object-fit: contain;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 body.light-mode .ai-generated-image {
     border: 1px solid var(--lm-card-border-color);
@@ -372,28 +335,27 @@ body.light-mode .ai-generated-image {
 .ai-action-btn:hover { background-color: var(--action-button-hover-bg); }
 .ai-action-btn svg { width: 18px; height: 18px; stroke: var(--action-button-icon-color); fill: none; stroke-width: 2; }
 
-/* Thinking Indicator - New Style */
 #thinkingIndicator {
   color: var(--ai-thinking-color);
   font-style: italic;
   font-size: 1em;
   display: flex;
   align-items: center;
-  gap: 6px; /* Jarak antar titik */
+  gap: 6px;
   padding: 4px 0;
   opacity: 0;
   transition: opacity 0.3s ease;
   align-self: flex-start;
-  height: 20px; /* Cukup tinggi untuk titik-titik */
+  height: 20px;
 }
 #thinkingIndicator .dot {
   display: inline-block;
-  width: 8px; /* Ukuran titik */
+  width: 8px;
   height: 8px;
-  background-color: var(--ai-thinking-color); /* Warna titik */
+  background-color: var(--ai-thinking-color);
   border-radius: 50%;
-  opacity: 0; /* Mulai tersembunyi */
-  animation: bouncing-dots 1.4s infinite ease-in-out both; /* Animasi baru */
+  opacity: 0;
+  animation: bouncing-dots 1.4s infinite ease-in-out both;
 }
 #thinkingIndicator .dot:nth-child(1) { animation-delay: 0s; }
 #thinkingIndicator .dot:nth-child(2) { animation-delay: 0.2s; }
@@ -405,20 +367,15 @@ body.light-mode .ai-generated-image {
     opacity: 0;
   }
   40% {
-    transform: translateY(-8px); /* Menggeser ke atas */
+    transform: translateY(-8px);
     opacity: 1;
   }
 }
 
-
 .quick-complete-container {
-  display: none !important; /* Hide quick complete buttons as per new design */
+  display: none !important;
 }
-.quick-complete-container.active { /* This class won't be applied due to display: none */ }
-.quick-complete-btn { /* No longer relevant due to display: none */ }
 
-
-/* === START: New Input Wrapper and File Chip Positioning === */
 .bottom-chat-area {
     position: fixed;
     bottom: 15px;
@@ -427,35 +384,34 @@ body.light-mode .ai-generated-image {
     width: calc(100% - 40px);
     max-width: 900px;
     display: flex;
-    flex-direction: column; /* Stack children vertically */
-    gap: 8px; /* Space between file chips area and input wrapper */
+    flex-direction: column;
+    gap: 8px;
     z-index: 95;
     box-sizing: border-box;
-    align-items: center; /* Center horizontally */
+    align-items: center;
 }
 
 .file-chips-area {
     width: 100%;
-    min-height: 0; /* Allow it to collapse when empty */
-    max-height: 100px; /* Batasi tinggi area chips */
-    overflow-y: hidden; /* Sembunyikan scroll vertikal */
-    padding: 0 12px; /* Padding agar chip tidak mentok ke samping */
+    min-height: 0;
+    max-height: 100px;
+    overflow-y: hidden;
+    padding: 0 12px;
     box-sizing: border-box;
-    opacity: 1; /* Default visible, JS akan mengatur hidden */
+    opacity: 1;
     transition: opacity 0.3s ease;
-    display: flex; /* Dipakai untuk justify-content: flex-start */
-    justify-content: flex-start; /* Chips dimulai dari kiri */
+    display: flex;
+    justify-content: flex-start;
 }
 
 .file-chip-container {
-  display: flex; /* Item chip akan berbaris horizontal */
-  align-items: center; /* Tengah secara vertikal */
-  gap: 6px; /* Jarak antar chip */
-  overflow-x: auto; /* Scroll horizontal jika chip melebihi ruang */
-  overflow-y: hidden; /* Penting agar scrollbar horizontal saja */
-  flex-shrink: 1; /* Biarkan menyusut jika textarea membesar */
-  min-width: 0; /* Penting untuk flexbox */
-  /* Remove fixed height, let chips determine height */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-shrink: 1;
+  min-width: 0;
 
   scrollbar-width: thin;
   scrollbar-color: var(--button-hover-bg) transparent;
@@ -465,37 +421,34 @@ body.light-mode .ai-generated-image {
 .file-chip-container::-webkit-scrollbar-thumb { background-color: var(--button-hover-bg); border-radius: 2px; }
 .file-chip-container::-webkit-scrollbar-thumb:hover { background-color: var(--button-bg); }
 
-
-/* New input wrapper container for the two rows */
 .new-input-wrapper-container {
     background-color: var(--new-input-container-bg);
     border: 1px solid var(--new-input-container-border);
     border-radius: 28px;
-    padding: 12px; /* Adjusted padding */
+    padding: 12px;
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px; /* Gap between top and bottom rows */
+    gap: 10px;
     box-sizing: border-box;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Subtle shadow */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 .input-top-row {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Distribute items */
-    gap: 10px; /* Gap between elements in the top row */
+    justify-content: space-between;
+    gap: 10px;
 }
 
 .input-bottom-row {
     display: flex;
-    align-items: flex-end; /* Align buttons with textarea baseline */
+    align-items: flex-end;
     gap: 8px;
-    background-color: var(--input-bg); /* Inner input background */
-    border-radius: 20px; /* Rounded corners for the inner input field */
-    padding: 8px 12px; /* Inner padding for the input elements */
+    background-color: var(--input-bg);
+    border-radius: 20px;
+    padding: 8px 12px;
 }
-
 
 .file-chip-item {
   display: flex;
@@ -528,37 +481,34 @@ body.light-mode .ai-generated-image {
 }
 .file-chip-item .remove-chip-btn:hover { opacity: 1; color: var(--file-chip-remove-hover-color); transform: scale(1.1); }
 
-/* Input field (textarea) */
 .input-bottom-row textarea {
-  flex-grow: 1; /* Agar mengambil ruang yang tersedia */
+  flex-grow: 1;
   background: none;
   border: none;
   color: var(--text-color);
   font-family: 'Inter', sans-serif;
-  font-size: 1em; /* Smaller font size to match image */
+  font-size: 1em;
   outline: none;
   resize: none;
   overflow-y: auto;
-  padding: 8px 0; /* Vertical padding */
+  padding: 8px 0;
   line-height: 1.4;
-  min-height: 20px; /* Adjusted min-height */
+  min-height: 20px;
   max-height: 120px;
   box-sizing: border-box;
   white-space: pre-wrap;
   word-wrap: break-word;
   margin-bottom: 0;
-  text-align: left; /* Pastikan placeholder dan teks rata kiri */
+  text-align: left;
 }
 .input-bottom-row textarea::placeholder {
   color: var(--placeholder-color);
-  /* No more morphing animation */
   font-weight: 400;
-  text-align: left; /* Pastikan placeholder rata kiri */
+  text-align: left;
 }
 
-/* Button circles (general style) */
 .btn-circle {
-  background-color: var(--button-bg); /* Default button-bg */
+  background-color: var(--button-bg);
   border: none;
   border-radius: 50%;
   width: 40px;
@@ -575,19 +525,18 @@ body.light-mode .ai-generated-image {
 .btn-circle:hover { background-color: var(--button-hover-bg); }
 .btn-circle svg { stroke: var(--text-color); width: 20px; height: 20px; transition: stroke 0.3s ease; }
 
-/* Specific button styles for the new layout */
 .btn-plus-top {
-    background-color: var(--button-plus-top-bg); /* Use a specific variable if different */
-    width: 36px; /* Smaller plus button */
+    background-color: var(--button-plus-top-bg);
+    width: 36px;
     height: 36px;
 }
 .btn-plus-top svg {
-    width: 18px; /* Smaller icon */
+    width: 18px;
     height: 18px;
 }
 .btn-voice-bottom, .btn-send-bottom {
-    background-color: var(--button-bg); /* Use general button-bg */
-    width: 36px; /* Smaller than previous btn-circle */
+    background-color: var(--button-bg);
+    width: 36px;
     height: 36px;
 }
 .btn-voice-bottom svg, .btn-send-bottom svg {
@@ -595,39 +544,36 @@ body.light-mode .ai-generated-image {
     height: 18px;
 }
 .btn-send-bottom svg {
-    /* For send button, rotate up arrow */
     transform: rotate(-90deg);
 }
 
-
-/* Model Selector Styling (Updated for custom button) */
 .model-selector-container {
     display: flex;
     align-items: center;
-    flex-shrink: 0; /* Jangan biarkan mengecil */
+    flex-shrink: 0;
 }
 .custom-selector-trigger {
     background-color: var(--model-selector-bg);
     color: var(--model-selector-text);
     border: 1px solid var(--model-selector-border);
-    border-radius: 20px; /* Rounded pill shape */
+    border-radius: 20px;
     padding: 8px 12px;
     font-size: 0.9em;
     font-weight: 500;
     cursor: pointer;
     outline: none;
-    appearance: none; /* Hapus default arrow */
+    appearance: none;
     transition: background-color 0.2s ease, border-color 0.2s ease;
-    padding-right: 12px; /* Awalnya 30px untuk ikon internal, sekarang ikon ada di dalam */
-    max-width: 150px; /* Batasi lebar dropdown */
-    text-overflow: ellipsis; /* Tambahkan ellipsis jika teks terlalu panjang */
+    padding-right: 12px;
+    max-width: 150px;
+    text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
     display: flex;
     align-items: center;
     gap: 5px;
-    position: relative; /* For ripple effect */
-    height: 36px; /* Align height with other buttons in top row */
+    position: relative;
+    height: 36px;
     box-sizing: border-box;
 }
 body.light-mode .custom-selector-trigger {
@@ -646,24 +592,22 @@ body.light-mode .custom-selector-trigger {
 }
 .custom-selector-trigger svg {
     flex-shrink: 0;
-    width: 18px; /* Ukuran ikon panah */
+    width: 18px;
     height: 18px;
-    fill: var(--model-selector-text); /* Warna panah */
+    fill: var(--model-selector-text);
     transition: transform 0.2s ease;
 }
 .model-select-modal.active .custom-selector-trigger svg {
-    transform: rotate(180deg); /* Animasi panah saat modal aktif */
+    transform: rotate(180deg);
 }
 
-
-/* === START: Custom Model Select Modal Styling === */
 .model-select-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Overlay semi-transparan */
+    background-color: rgba(0, 0, 0, 0.7);
     z-index: 1000;
     display: flex;
     justify-content: center;
@@ -684,9 +628,9 @@ body.light-mode .custom-selector-trigger {
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
-    transform: scale(0.8); /* Animasi awal */
-    opacity: 0; /* Animasi awal */
-    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease; /* Bounce effect */
+    transform: scale(0.8);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease;
     position: relative;
     max-width: 350px;
     width: 90%;
@@ -711,9 +655,9 @@ body.light-mode .custom-selector-trigger {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 300px; /* Batasi tinggi daftar opsi jika banyak */
-    overflow-y: auto; /* Scroll jika opsi terlalu banyak */
-    padding-right: 5px; /* Untuk menghindari scrollbar menutupi teks */
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
 }
 
 .model-option-item {
@@ -728,7 +672,7 @@ body.light-mode .custom-selector-trigger {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: relative; /* For ripple effect */
+    position: relative;
     overflow: hidden;
 }
 
@@ -738,13 +682,13 @@ body.light-mode .custom-selector-trigger {
 }
 
 .model-option-item.selected {
-    background-color: #3b82f6; /* Warna biru untuk yang terpilih */
+    background-color: #3b82f6;
     color: white;
     font-weight: 600;
     transform: scale(1.02);
 }
 .model-option-item.selected svg {
-    stroke: white; /* Warna centang putih */
+    stroke: white;
 }
 
 .model-option-item span {
@@ -785,22 +729,20 @@ body.light-mode .custom-selector-trigger {
     color: var(--modal-close-button-hover);
     transform: scale(1.1);
 }
-/* === END: Custom Model Select Modal Styling === */
 
-/* === START: Fast/Smart Toggle Styling === */
 .speed-smart-toggle-container {
-    flex-grow: 1; /* Allow it to take available space */
+    flex-grow: 1;
     display: flex;
-    justify-content: center; /* Center the toggle group */
+    justify-content: center;
 }
 
 .toggle-switch-group {
     display: flex;
     background-color: var(--toggle-group-bg);
-    border-radius: 20px; /* Pill shape */
-    overflow: hidden; /* Ensure inner buttons respect border-radius */
-    padding: 3px; /* Small padding inside the group */
-    height: 36px; /* Match height of other elements in top row */
+    border-radius: 20px;
+    overflow: hidden;
+    padding: 3px;
+    height: 36px;
     box-sizing: border-box;
 }
 
@@ -808,8 +750,8 @@ body.light-mode .custom-selector-trigger {
     background-color: var(--toggle-button-bg);
     color: var(--toggle-button-text);
     border: none;
-    padding: 6px 15px; /* Padding for text inside button */
-    border-radius: 17px; /* Slightly less than half of height to make it rounded */
+    padding: 6px 15px;
+    border-radius: 17px;
     font-size: 0.9em;
     font-weight: 500;
     cursor: pointer;
@@ -822,15 +764,13 @@ body.light-mode .custom-selector-trigger {
 .toggle-button.active {
     background-color: var(--toggle-button-active-bg);
     color: var(--toggle-button-active-text);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15); /* Subtle shadow for active state */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 .toggle-button:hover:not(.active) {
-    background-color: var(--toggle-button-bg); /* Still transparent, maybe slightly lighter text */
-    color: var(--toggle-button-active-text); /* Hover color for text */
+    background-color: var(--toggle-button-bg);
+    color: var(--toggle-button-active-text);
 }
-/* === END: Fast/Smart Toggle Styling === */
-
 
 .ripple { position: absolute; border-radius: 50%; opacity: 0; background-color: var(--ripple-color); animation: ripple-animation 0.6s linear; transform: scale(0); pointer-events: none; }
 @keyframes ripple-animation { from { transform: scale(0); opacity: 0.6; } to { transform: scale(2.5); opacity: 0; } }
@@ -911,14 +851,14 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
     font-weight: 500;
     position: relative;
     overflow: hidden;
-    white-space: nowrap; /* Prevent text wrapping */
+    white-space: nowrap;
 }
 .sidebar-item:hover { background-color: var(--sidebar-item-hover); }
 .sidebar-item a { text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px; width: 100%; }
 .sidebar-item svg { width: 22px; height: 22px; stroke: var(--sidebar-text); fill: none; stroke-width: 2; }
-.sidebar-item [fill="currentColor"] { /* For sidebar icons that use fill */
+.sidebar-item [fill="currentColor"] {
     fill: var(--sidebar-text);
-    stroke: none; /* remove stroke if fill is used */
+    stroke: none;
 }
 
 /* User Profile in Sidebar */
@@ -928,11 +868,11 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
     gap: 12px;
     padding: 12px 15px;
     border-radius: 8px;
-    background-color: var(--sidebar-item-hover); /* Background yang sedikit berbeda */
+    background-color: var(--sidebar-item-hover);
     margin-bottom: 15px;
     cursor: default;
     transition: background-color 0.2s ease;
-    flex-direction: row; /* Pastikan selalu baris */
+    flex-direction: row;
 }
 .sidebar-user-profile .profile-pic {
     width: 45px;
@@ -946,7 +886,7 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    overflow: hidden; /* Penting untuk ellipsis */
+    overflow: hidden;
 }
 .sidebar-user-profile .profile-name {
     font-weight: 700;
@@ -958,7 +898,7 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 }
 .sidebar-user-profile .profile-email {
     font-size: 0.85em;
-    color: var(--ai-message-color); /* Sedikit lebih redup */
+    color: var(--ai-message-color);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -968,7 +908,7 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 .code-block {
   background-color: var(--code-block-bg);
   color: var(--code-block-text);
-  padding: 15px; /* Adjust padding if needed after hljs */
+  padding: 15px;
   border-radius: 8px;
   margin-top: 15px;
   margin-bottom: 10px;
@@ -979,35 +919,34 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
   line-height: 1.5;
   border: 1px solid var(--code-block-border);
   text-align: left;
-  white-space: pre-wrap; /* Ensure pre-wrap for code blocks */
+  white-space: pre-wrap;
   word-break: break-all;
 }
 
 .code-block pre code {
-    display: block; /* Important for hljs */
-    padding: 0 !important; /* hljs adds padding, reset it here */
-    background: none !important; /* hljs adds background, reset */
-    color: inherit !important; /* Inherit color from --code-block-text */
+    display: block;
+    padding: 0 !important;
+    background: none !important;
+    color: inherit !important;
     font-family: inherit !important;
 }
 
 .code-block .code-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--code-block-border); }
 .code-block .language-tag { background-color: var(--code-language-tag-bg); color: var(--code-language-tag-text); padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: 500; text-transform: uppercase; }
-.code-block .copy-code-btn { background-color: var(--copy-button-bg); color: var(--copy-button-text, #ffffff); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 5px; position: relative; overflow: hidden; } /* Added position relative and overflow hidden for ripple */
+.code-block .copy-code-btn { background-color: var(--copy-button-bg); color: var(--copy-button-text, #ffffff); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 500; transition: background-color 0.2s ease, transform 0.1s ease; display: flex; align-items: center; gap: 5px; position: relative; overflow: hidden; }
 .code-block .copy-code-btn:hover { background-color: var(--copy-button-hover-bg); transform: translateY(-1px); }
 .code-block .copy-code-btn svg { width: 16px; height: 16px; stroke: var(--copy-button-text, #ffffff); fill: none; stroke-width: 2; }
-body.light-mode .code-block .copy-code-btn svg { stroke: var(--text-color); } /* Ensure icon color for light mode */
+body.light-mode .code-block .copy-code-btn svg { stroke: var(--text-color); }
 
-/* Animasi Tombol */
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .rotating { animation: spin 1.2s linear infinite; }
 @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 .pulsing svg { animation: pulse 1.5s ease-in-out infinite; }
 .ai-action-btn.liked svg { stroke: #3b82f6; fill: rgba(59, 130, 246, 0.3); }
 
-/* Sticky bottom for control data section in sidebar */
 .sidebar-bottom-section {
-    margin-top: auto; /* Push this section to the bottom */
-    padding-top: 15px; /* Add some space above it */
-    border-top: 1px solid var(--border-color); /* Separator */
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
 }
+/* --- END OF FILE style.css --- */

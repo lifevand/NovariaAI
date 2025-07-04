@@ -1,33 +1,10 @@
-// --- START OF FILE api/generate.js ---
+// --- START OF FILE api/generate.js (REVISED for your image search endpoint) ---
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
-async function searchImage(query) {
-    const apiKey = process.env.GOOGLE_SEARCH_API_KEY;
-    const cx = process.env.GOOGLE_CSE_ID;
-
-    if (!apiKey || !cx) {
-        console.error("GOOGLE_SEARCH_API_KEY or GOOGLE_CSE_ID is not configured.");
-        return null; 
-    }
-
-    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(query)}&searchType=image&num=1`; 
-
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            console.error(`Google Search API error: ${response.status} - ${await response.text()}`);
-            return null;
-        }
-        const data = await response.json();
-        if (data.items && data.items.length > 0 && data.items[0].link) {
-            return data.items[0].link;
-        }
-        return null;
-    } catch (error) {
-        console.error('Error fetching image from Google Search API:', error);
-        return null;
-    }
-}
+// Kita tidak lagi mendefinisikan fungsi searchImage di sini,
+// melainkan akan memanggil endpoint /api/google-image-search.
+// Karena kita memanggil endpoint lokal, kita tidak perlu mengimpor 'node-fetch' di sini.
+// fetch() global sudah tersedia di lingkungan Vercel.
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -66,12 +43,13 @@ export default async function handler(req, res) {
 
     const genAI = new GoogleGenerativeAI(geminiApiKey);
 
-    const geminiModelName = selectedModel || 'gemini-2.5-flash'; 
+    const geminiModelName = selectedModel || 'gemini-1.5-flash-latest'; 
 
+    // Definisi Tool untuk pencarian gambar - ini memberitahu Gemini tentang fungsi yang ada
     const tool = {
         functionDeclarations: [
             {
-                name: "searchImage",
+                name: "searchImage", // Nama fungsi yang akan dipanggil oleh Gemini
                 description: "Mencari gambar di Google berdasarkan query yang diberikan. Gunakan ini ketika pengguna secara eksplisit meminta untuk mencari, menampilkan, atau menunjukkan gambar dari suatu objek, orang, tempat, atau konsep (misalnya: 'tampilkan gambar kucing', 'cari foto pemandangan', 'bisakah kamu menunjukkan gambar mobil Tesla').",
                 parameters: {
                     type: "object",
@@ -95,7 +73,7 @@ export default async function handler(req, res) {
     try {
         const geminiModel = genAI.getGenerativeModel({ 
             model: geminiModelName,
-            tools: [tool],
+            tools: [tool], 
             systemInstruction: { parts: systemInstructionParts }, 
         });
 
@@ -137,18 +115,38 @@ export default async function handler(req, res) {
             },
         });
 
-        // ... (bagian atas file tetap sama) ...
-
         const result = await chat.sendMessage(currentUserMessageParts);
         const response = await result.response;
 
         const functionCall = response.functionCall();
         if (functionCall && functionCall.name === "searchImage") {
             const queryForImage = functionCall.args.query;
-            const imageUrl = await searchImage(queryForImage);
+            let imageUrl = null;
+            let imageSearchErrorMessage = null;
+
+            try {
+                // PANGGIL ENDPOINT PENCARIAN GAMBAR ANDA DI SINI
+                const imageSearchRes = await fetch(`${req.headers.origin}/api/google-image-search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: queryForImage })
+                });
+
+                const imageData = await imageSearchRes.json();
+
+                if (imageSearchRes.ok && imageData.imageUrl) {
+                    imageUrl = imageData.imageUrl;
+                    console.log(`[api/generate] Found image: ${imageUrl}`);
+                } else {
+                    imageSearchErrorMessage = imageData.message || "Gagal mencari gambar dari API.";
+                    console.error(`[api/generate] Error from google-image-search endpoint: ${imageSearchErrorMessage}`);
+                }
+            } catch (imageFetchError) {
+                imageSearchErrorMessage = `Kesalahan saat menghubungi API pencarian gambar: ${imageFetchError.message}`;
+                console.error(`[api/generate] Failed to fetch from google-image-search endpoint:`, imageFetchError);
+            }
             
             if (imageUrl) {
-                // Beri respons ke Gemini bahwa tool berhasil dan berikan URL gambar
                 const toolResponseResult = await chat.sendMessage([
                     {
                         functionResponse: {
@@ -156,7 +154,7 @@ export default async function handler(req, res) {
                             response: { 
                                 imageUrl: imageUrl, 
                                 query: queryForImage,
-                                message: `Pencarian untuk "${queryForImage}" berhasil menemukan gambar. URL: ${imageUrl}` // Pesan eksplisit
+                                message: `Pencarian untuk "${queryForImage}" berhasil menemukan gambar. URL: ${imageUrl}` 
                             },
                         },
                     },
@@ -164,42 +162,37 @@ export default async function handler(req, res) {
                 const toolResponse = await toolResponseResult.response;
                 let aiResponseText = toolResponse.text();
 
-                // Tambahkan atau modifikasi teks respons AI jika Gemini tidak secara otomatis menyertakan URL.
-                // Ini adalah fallback untuk memastikan URL tetap dikirim dan disebut.
                 if (!aiResponseText || aiResponseText.includes("[Image of a") || !aiResponseText.includes(imageUrl)) {
-                     aiResponseText = `Tentu, ini dia gambar ${queryForImage} yang menggemaskan untukmu!`;
+                     aiResponseText = `Tentu, ini dia gambar ${queryForImage} yang saya temukan untukmu!`;
                 }
 
                 return res.status(200).json({ text: aiResponseText, imageUrl: imageUrl, modelUsed: geminiModelName });
             } else {
-                // Jika pencarian gambar gagal, beritahu Gemini
                 const toolResponseResult = await chat.sendMessage([
                     {
                         functionResponse: {
                             name: "searchImage",
                             response: { 
-                                error: "Gambar tidak ditemukan atau terjadi masalah saat pencarian.",
-                                query: queryForImage // Sertakan query asli agar Gemini bisa merespons lebih baik
+                                error: imageSearchErrorMessage || "Gambar tidak ditemukan atau terjadi masalah saat pencarian.",
+                                query: queryForImage 
                             },
                         },
                     },
                 ]);
                 const toolResponse = await toolResponseResult.response;
                 const aiResponseText = toolResponse.text();
-                // Respons fallback jika gambar tidak ditemukan
+                
                 return res.status(200).json({ 
-                    text: aiResponseText || `Maaf, saya tidak dapat menemukan gambar untuk "${queryForImage}". Bisakah Anda coba dengan deskripsi yang berbeda?`, 
+                    text: aiResponseText || `Maaf, saya tidak dapat menemukan gambar untuk "${queryForImage}". Detail error: ${imageSearchErrorMessage || 'Tidak diketahui'}. Bisakah Anda coba dengan deskripsi yang berbeda?`, 
                     modelUsed: geminiModelName 
                 });
             }
         }
 
-        // Jika tidak ada tool yang dipanggil, berikan respons teks biasa
         const aiResponseText = response.text();
         res.status(200).json({ text: aiResponseText, modelUsed: geminiModelName });
 
     } catch (error) {
-// ... (bagian bawah file tetap sama) ...
         console.error('Error in /api/generate:', error);
         let errorMessage = 'Terjadi kesalahan internal server saat menghubungi model AI.';
 

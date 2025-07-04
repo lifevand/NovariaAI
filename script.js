@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const quickCompleteContainer = document.getElementById('quickCompleteContainer');
     const chatHistory = document.getElementById('chatHistory');
     const thinkingIndicator = document.getElementById('thinkingIndicator');
+    const thinkingText = document.getElementById('thinkingText');
 
     const welcomeSection = document.getElementById('welcomeSection');
     const chatSection = document.getElementById('chatSection');
@@ -87,8 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const availableModels = [
         { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'fast' },
-        { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash, type: 'smart' },
-        { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', type: 'other' }
+        { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash', type: 'smart' },
+        { value: 'gemini-1.5-flash', label: 'Gemini 1.0 Flash', type: 'other' }
     ];
 
     let currentSelectedModelValue = '';
@@ -175,11 +176,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     if (smartButton) {
-        smartButton.addEventListener('click', () => {
-            setSelectedModel('gemini-1.5-pro-latest', false);
-            smartButton.classList.add('active');
-            fastButton.classList.remove('active');
-        });
+        const smartModelValue = availableModels.find(m => m.type === 'smart')?.value;
+        if (smartModelValue) {
+            smartButton.addEventListener('click', () => {
+                setSelectedModel(smartModelValue, false);
+                smartButton.classList.add('active');
+                fastButton.classList.remove('active');
+            });
+        } else {
+            smartButton.style.display = 'none';
+        }
     }
 
     const voiceInputButton = document.getElementById('voiceInputButtonBottom');
@@ -203,11 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
         clearChatHistoryButton.addEventListener('click', () => {
             if (confirm('Are you sure you want to delete all chat history? This action cannot be undone.')) {
                 if (chatHistory) {
-                    if (currentTypingAnimation) {
-                        clearTimeout(currentTypingAnimation);
-                        currentTypingAnimation = null;
-                    }
-                    chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+                    stopCurrentTypingAnimation();
+                    chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><div class="spinner"></div><span id="thinkingText">Thinking</span></div>`;
                     const reAddedThinkingIndicator = document.getElementById('thinkingIndicator');
                     if(reAddedThinkingIndicator) thinkingIndicator.style.opacity = '0';
                 }
@@ -662,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showPage('welcome');
         if (chatHistory && thinkingIndicator) {
-             chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+             chatHistory.innerHTML = `<div id="thinkingIndicator" class="ai-message hidden"><div class="spinner"></div><span id="thinkingText">Thinking</span></div>`;
         } else if (chatHistory) {
             chatHistory.innerHTML = '';
         }

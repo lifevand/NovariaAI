@@ -1,4 +1,3 @@
-<!-- START OF FILE index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,178 +7,160 @@
   <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com">
   <title>Novaria - AI Assistant</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome for new icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css">
+  <!-- HIGHLIGHT.JS STYLES FOR CODE BLOCKS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body class="app-hidden">
 
-  <header>
-    <div class="header-left-group">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-btn" id="menuIcon">
-        <path d="M17 12H7"/><path d="M19 18H5"/><path d="M21 6H3"/>
-      </svg>
-      <svg viewBox="0 0 24 24" id="backIcon" class="icon-btn hidden">
-        <polyline points="15 18 9 12 15 6" />
-      </svg>
-      <div class="app-brand">
-          <img src="logo.png" alt="NovaAI Logo" class="app-logo"> <div class="app-name">NovaAI</div>
-      </div>
-    </div>
-    <div class="header-right-group">
-        <div id="landingThemeToggleContainer" class="theme-toggle-landing">
-            <label class="switch">
-                <input type="checkbox" id="themeToggleLanding">
-                <span class="slider">
-                    <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path class="moon-shape" d="M12 8a2.83 2.83 0 0 0 4 4 4 4 0 1 1-4-4"/>
-                        <g class="sun-rays">
-                            <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.67 17.67 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.33 17.67-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
-                        </g>
-                    </svg>
-                </span>
-            </label>
+  <div class="app-container">
+    <!-- =============== SIDEBAR =============== -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Novaria</h3>
+            <button class="new-chat-btn" id="sidebarNewChatBtn">
+                <i class="fas fa-plus"></i> New Chat
+            </button>
         </div>
-    </div>
-  </header>
-
-  <main>
-    <section id="welcomeSection" class="page-section active">
-        <h1>Welcome</h1>
-        <p>Hii, I Can Help You?</p>
-    </section>
-
-    <section id="chatSection" class="page-section hidden">
-        <div id="chatHistory">
-            <div id="thinkingIndicator" class="ai-message hidden">
-                <div class="spinner"></div><span id="thinkingText">Thinking</span>
+        <div class="chat-history-container">
+            <h4>History Chat</h4>
+            <ul id="chat-history-list">
+                <!-- Chat history items will be dynamically added here by JavaScript -->
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-info" id="sidebarUserProfile">
+                <img id="profilePicture" src="placeholder-user.png" alt="User Avatar" class="user-avatar">
+                <div class="profile-details">
+                    <span id="profileName" class="profile-name">User Name</span>
+                    <span id="profileEmail" class="profile-email">user@example.com</span>
+                </div>
             </div>
+            <button class="logout-btn" id="logoutButtonSidebar">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
-    </section>
-  </main>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <div class="quick-complete-container" id="quickCompleteContainer"></div>
-
-  <div class="bottom-chat-area" id="bottomChatArea">
-    <div class="file-chips-area" id="fileChipsArea">
-        <div id="fileChipContainer" class="file-chip-container"></div>
-    </div>
-
-    <div class="new-input-wrapper-container">
-        <div class="input-top-row">
-            <div class="model-selector-container">
-                <button id="customModelSelectorTrigger" class="custom-selector-trigger">
-                    <span id="selectedModelName"></span>
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>
+    <!-- =============== MAIN CONTENT =============== -->
+    <main class="main-content">
+        <header class="main-header">
+            <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="novaria-title-dropdown" id="novariaTitleDropdown">
+                <span id="novaria-main-title">Novaria <i class="fas fa-angle-down"></i></span>
+                <div class="dropdown-menu" id="novariaDropdownMenu">
+                    <a href="#" class="dropdown-item" id="exportChatBtn"><i class="fas fa-file-export"></i> Export Chat</a>
+                    <a href="#" class="dropdown-item" id="shareChatBtn"><i class="fas fa-share-alt"></i> Share Chat</a>
+                    <a href="#" class="dropdown-item" id="clearCurrentChatBtn"><i class="fas fa-trash-alt"></i> Clear Current Chat</a>
+                    <a href="#" class="dropdown-item" id="clearAllHistoryBtn"><i class="fas fa-history"></i> Clear All History</a>
+                </div>
+            </div>
+            <div class="header-actions-right">
+                <button class="favorite-toggle-btn" id="currentChatFavoriteBtn">
+                    <i class="far fa-star"></i> <!-- Initial non-favorited state -->
                 </button>
+                <button class="new-chat-btn-header" id="headerNewChatBtn">
+                    <i class="fas fa-plus-circle"></i>
+                </button>
+                <!-- Theme Toggle -->
+                <div id="mainThemeToggleContainer" class="theme-toggle-main">
+                    <label class="switch">
+                        <input type="checkbox" id="themeToggleMain">
+                        <span class="slider">
+                            <svg class="slider-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path class="moon-shape" d="M12 8a2.83 2.83 0 0 0 4 4 4 4 0 1 1-4-4"/>
+                                <g class="sun-rays">
+                                    <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.67 17.67 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.33 17.67-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+                                </g>
+                            </svg>
+                        </span>
+                    </label>
+                </div>
             </div>
+        </header>
 
-            <div class="speed-smart-toggle-container">
-                <div class="toggle-switch-group">
-                    <button id="fastButton" class="toggle-button active">Fast</button>
-                    <button id="smartButton" class="toggle-button">Smart</button>
+        <section id="chatSection" class="page-section chat-active">
+            <div id="chatHistory" class="chat-display">
+                <!-- Initial greeting or chat messages will appear here -->
+                <div class="initial-greeting">Hi Fariz, I Can Help You?</div>
+                <div id="thinkingIndicator" class="ai-message thinking-indicator hidden">
+                    <div class="spinner"></div>
+                    <span class="thinking-text">Thinking...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Wrapper for the bottom chat area -->
+        <div class="bottom-chat-area" id="bottomChatArea">
+            <div class="file-chips-area" id="fileChipsArea">
+                <div id="fileChipContainer" class="file-chip-container">
+                    <!-- File chips will be added here -->
                 </div>
             </div>
 
-            <button class="btn-circle btn-plus-top" id="plusButtonTop">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-            </button>
+            <div class="new-input-wrapper-container">
+                <div class="input-top-row">
+                    <!-- Model Selector Trigger -->
+                    <div class="model-selector-container">
+                        <button id="customModelSelectorTrigger" class="custom-selector-trigger">
+                            <span id="selectedModelName"></span>
+                            <i class="fas fa-angle-down"></i>
+                        </button>
+                    </div>
+
+                    <!-- Fast/Smart Toggle -->
+                    <div class="speed-smart-toggle-container">
+                        <div class="toggle-switch-group">
+                            <button id="fastButton" class="toggle-button active">Fast</button>
+                            <button id="smartButton" class="toggle-button">Smart</button>
+                        </div>
+                    </div>
+
+                    <!-- Plus button (Attachment) -->
+                    <button class="btn-circle btn-plus-top" id="plusButtonTop">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+
+                <div class="input-bottom-row">
+                    <!-- Message Input -->
+                    <textarea id="messageInput" placeholder="Ask me anything..." rows="1"></textarea>
+
+                    <!-- Voice Input Button -->
+                    <button class="btn-circle btn-voice-bottom" id="voiceInputButtonBottom">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <!-- Send Button -->
+                    <button class="btn-circle btn-send-bottom" id="sendButtonBottom">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <div class="input-bottom-row">
-            <textarea id="messageInput" placeholder="Ask me anything..." rows="1"></textarea>
-
-            <button class="btn-circle btn-voice-bottom" id="voiceInputButtonBottom">
-                <svg fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/>
-                </svg>
-            </button>
-            <button class="btn-circle btn-send-bottom" id="sendButtonBottom">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                    <path d="m5 12 7-7 7 7"/><path d="M12 19V5"/>
-                </svg>
-            </button>
-        </div>
-    </div>
+        <footer class="disclaimer-footer">
+            Novaria dapat melakukan kesalahan mohon perhatikan.
+        </footer>
+    </main>
   </div>
 
+  <!-- Hidden file input -->
   <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
 
-  <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-section">
-      <h2>Account</h2>
-      <div class="sidebar-item sidebar-user-profile" id="sidebarUserProfile">
-        <img id="profilePicture" src="placeholder-user.png" alt="Profile Picture" class="profile-pic">
-        <div class="profile-info">
-          <span id="profileName" class="profile-name">User Name</span>
-          <span id="profileEmail" class="profile-email">user@example.com</span>
-        </div>
-      </div>
-      <div class="sidebar-item" id="sidebarLoginSignup">
-        <a href="login.html">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-in"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
-          <span>Login/Signup</span>
-        </a>
-      </div>
-    </div>
-
-    <div class="sidebar-section">
-      <h2>Tools</h2>
-      <div class="sidebar-item" id="sidebarHome">
-        <a href="login.html">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-          <span>Home</span>
-        </a>
-      </div>
-      <div class="sidebar-item" id="sidebarChatNova">
-        <a href="index.html">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-          <span>Chat with Nova</span>
-        </a>
-      </div>
-      <div class="sidebar-item" id="sidebarGenerateImage">
-        <a href="image.html">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-image"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-          <span>Generate Image</span>
-        </a>
-      </div>
-      <div class="sidebar-item" id="sidebarCodexGenerator">
-        <a href="index.html">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-code"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-          <span>Codex Generator</span>
-        </a>
-      </div>
-      <div class="sidebar-item" id="sidebarLandingPageLink">
-        <a href="page.html">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-          <span>About Novaria</span>
-        </a>
-      </div>
-    </div>
-
-    <div class="sidebar-section sidebar-bottom-section">
-      <h2>Control Data</h2>
-      <div class="sidebar-item" id="clearChatHistoryButton">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-        <span>Hapus Percakapan</span>
-      </div>
-      <div class="sidebar-item" id="logoutButton">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="17 17 22 12 17 7"></polyline><line x1="22" y1="12" x2="12" y2="12"></line></svg>
-        <span>Logout</span>
-      </div>
-    </div>
-  </aside>
-
+  <!-- Custom Model Select Modal -->
   <div id="modelSelectModal" class="model-select-modal">
       <div class="model-select-modal-content">
           <h3>Choose AI Model</h3>
-          <div id="modelOptions" class="model-options-list"></div>
-          <button id="closeModelModal" class="close-modal-btn">×</button>
+          <div id="modelOptions" class="model-options-list">
+              <!-- Options will be populated by JS -->
+          </div>
+          <button id="closeModelModal" class="close-modal-btn">&times;</button>
       </div>
   </div>
 
@@ -187,4 +168,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-<!-- END OF FILE index.html -->

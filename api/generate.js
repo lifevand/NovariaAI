@@ -1,78 +1,42 @@
-// --- START OF FILE api/generate.js ---
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+// File: /api/generate.js
 
-async function searchImage(query) {
-    const apiKey = process.env.GOOGLE_SEARCH_API_KEY;
-    const cx = process.env.GOOGLE_CSE_ID;
-
-    if (!apiKey || !cx) {
-        console.error("GOOGLE_SEARCH_API_KEY or GOOGLE_CSE_ID is not configured.");
-        return null;
-    }
-
-    const searchParams = new URLSearchParams({
-        key: apiKey,
-        cx: cx,
-        q: query,
-        searchType: 'image',
-        num: 5, // Ambil beberapa hasil untuk mencari yang valid
-        safe: 'active',
-    });
-
-    const API_URL = `https://www.googleapis.com/customsearch/v1?${searchParams.toString()}`;
-
-    try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
-
-        if (!response.ok) {
-            const errorMessage = data.error?.message || `Google API Error (${response.status})`;
-            console.error(`Google Search API Error: ${errorMessage}`, data.error?.errors);
-            return null;
-        }
-
-        if (data.items && data.items.length > 0) {
-            const firstValidImage = data.items.find(item =>
-                item.link &&
-                item.mime &&
-                (item.mime.startsWith('image/jpeg') || item.mime.startsWith('image/png') || item.mime.startsWith('image/gif') || item.mime.startsWith('image/webp'))
-            );
-            if (firstValidImage) {
-                return firstValidImage.link;
-            } else {
-                console.log('No valid image link (JPEG, PNG, GIF, WEBP) found in Google results.');
-                return null;
-            }
-        } else {
-            console.log('No items found in Google results.');
-            return null;
-        }
-    } catch (error) {
-        console.error('Error fetching image from Google Search API:', error);
-        return null;
-    }
-}
+// Hapus HarmCategory dari import karena kita akan menggunakan string literal
+import { GoogleGenerativeAI, HarmBlockThreshold } from '@google/generative-ai';
+import 'dotenv/config'; 
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method Not Allowed' });
     }
 
-    const { userMessage, conversationHistory, attachedFiles, selectedModel } = req.body;
+    const { userMessage, conversationHistory, attachedFiles, selectedModel } = req.body; // Ambil selectedModel dari frontend
 
-    if (!userMessage) {
-        return res.status(400).json({ message: 'Missing userMessage' });
+    if (!userMessage && attachedFiles.length === 0) { // Ubah agar bisa kirim hanya file
+        return res.status(400).json({ message: 'User message or attached file is required.' });
     }
 
+    // --- BAGIAN BARU: FILTER KRITIK PEMERINTAH/NEGARA INDONESIA ---
     const lowerCaseUserMessage = userMessage.toLowerCase();
+
     const sensitiveKeywords = [
         "kritik pemerintah indonesia", "kritik negara indonesia", "keburukan pemerintah indonesia",
         "sisi gelap indonesia", "masalah pemerintah indonesia", "kekurangan indonesia",
         "kejahatan pemerintah indonesia", "korupsi indonesia", "penindasan pemerintah indonesia",
         "pemerintahan indonesia buruk", "negara indonesia buruk", "aib indonesia",
-        "skandal pemerintah", "jeleknya indonesia", "pemerintah korup", "indonesia bangkrut",
-        "politik busuk", "pemerintah bobrok", "indonesia hancur", "negara gagal",
-        "kejahatan pejabat"
+        "skandal pemerintah", "jeleknya indonesia", "pemerintah korup", "indonesia rusak",
+        "penipuan pemerintah", "pemilu curang", "demo pemerintah", "kebijakan zalim",
+        "negara bangkrut", "kemiskinan di indonesia", "pengangguran di indonesia",
+        "utang negara", "kriminalitas di indonesia", "teroris di indonesia",
+        "perang saudara", "kekerasan militer", "otoriter indonesia", "diktator indonesia",
+        "ancaman teroris", "konflik agama", "separatisme", "diskriminasi etnis",
+        "pelanggaran ham", "genosida", "kudeta", "revolusi", "pemberontakan",
+        "kejahatan perang", "pembersihan etnis", "pembantaian", "penindasan sipil",
+        "militer brutal", "polisi kejam", "intelijen jahat", "rahasia negara",
+        "konspirasi pemerintah", "kebohongan pemerintah", "propaganda pemerintah",
+        "sensor pemerintah", "hak asasi manusia", "penjara politik", "penyiksaan",
+        "penculikan", "pembunuhan massal", "apartheid", "totaliter", "fasisme",
+        "komunisme", "anarki", "terorisme", "ekstremisme", "radikalisme",
+        // Tambahkan variasi lain yang mungkin digunakan pengguna
     ];
 
     const isSensitiveRequest = sensitiveKeywords.some(keyword => lowerCaseUserMessage.includes(keyword));
@@ -82,50 +46,81 @@ export default async function handler(req, res) {
             message: "Maaf, sebagai AI, saya diprogram untuk tetap netral dan tidak dapat memproses permintaan yang berkaitan dengan kritik atau hal negatif spesifik mengenai pemerintahan atau negara Indonesia. Fokus saya adalah memberikan informasi yang membantu, produktif, dan positif. Mohon ajukan pertanyaan lain." 
         });
     }
+    // --- AKHIR BAGIAN BARU ---
 
-    const geminiApiKey = process.env.GEMINI_API_KEY;
-    if (!geminiApiKey) {
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
         return res.status(500).json({ message: 'GEMINI_API_KEY is not configured on the server.' });
     }
 
-    const genAI = new GoogleGenerativeAI(geminiApiKey);
+    const genAI = new GoogleGenerativeAI(apiKey);
 
-    const geminiModelName = selectedModel || 'gemini-2.5-flash'; 
-
-    const tool = {
-        functionDeclarations: [
-            {
-                name: "searchImage",
-                description: "Mencari gambar di Google berdasarkan query yang diberikan. Gunakan ini ketika pengguna secara eksplisit meminta untuk mencari, menampilkan, atau menunjukkan gambar dari suatu objek, orang, tempat, atau konsep (misalnya: 'tampilkan gambar kucing', 'cari foto pemandangan', 'bisakah kamu menunjukkan gambar mobil Tesla').",
-                parameters: {
-                    type: "object",
-                    properties: {
-                        query: {
-                            type: "string",
-                            description: "Kata kunci pencarian untuk gambar.",
-                        },
-                    },
-                    required: ["query"],
-                },
-            },
-        ],
+    // ======================================================================
+    // MODIFIKASI PENTING: Penentuan Model Berdasarkan selectedModel dari Frontend
+    // Sesuaikan ini dengan MODELS_CONFIG dari script.js frontend Anda
+    // selectedModel akan berisi 'gemini-2.5-flash', 'gemini-2.0-flash', atau 'gemini-1.5-flash'
+    const MODELS_CONFIG_BACKEND = {
+        'gemini-2.5-flash': { // Ini adalah nama yang dikirim dari frontend
+            model: 'gemini-1.5-flash-latest', // Nama model yang sebenarnya di API Gemini
+            temperature: 0.9,
+            topP: 1,
+            topK: 1,
+            maxOutputTokens: 2048,
+        },
+        'gemini-2.0-flash': { // Nama yang dikirim dari frontend untuk Smart
+            model: 'gemini-1.5-pro-latest', // Nama model yang sebenarnya di API Gemini
+            temperature: 0.7,
+            topP: 1,
+            topK: 1,
+            maxOutputTokens: 2048,
+        },
+        'gemini-1.5-flash': { // Nama yang dikirim dari frontend untuk Other (jika ada)
+            model: 'gemini-1.5-flash-latest', // Contoh, bisa ganti ke model lain jika perlu
+            temperature: 0.8,
+            topP: 1,
+            topK: 1,
+            maxOutputTokens: 2048,
+        },
+        // Model default jika 'selectedModel' tidak cocok dengan yang di atas
+        'default': {
+            model: 'gemini-1.5-flash-latest',
+            temperature: 0.9,
+            topP: 1,
+            topK: 1,
+            maxOutputTokens: 2048,
+        }
     };
 
+    const currentModelConfig = MODELS_CONFIG_BACKEND[selectedModel] || MODELS_CONFIG_BACKEND.default;
+    const apiModelName = currentModelConfig.model; // Gunakan nama model yang sesuai dari config
+    // ======================================================================
+
+
+    // ======================================================================
+    // MODIFIKASI PENTING: Safety Settings dengan String Literal
+    // Hapus instruksi untuk TIDAK menggunakan Markdown jika Anda ingin code block tetap muncul
     const systemInstructionParts = [
-        { text: "Anda adalah Novaria, asisten AI yang membantu, empatik, dan proaktif. Tujuan Anda adalah memberikan respons yang komprehensif, mendorong, dan sesuai konteks. Selalu pertimbangkan untuk menggunakan alat pencarian gambar jika pengguna meminta gambar atau visual." },
-        { text: "Jangan gunakan format Markdown seperti bold (**), italic (*), atau bullet points (-) untuk teks biasa. Hanya gunakan blok kode (```) jika memang menampilkan contoh kode." }
+        { text: "You are Novaria, a helpful, empathetic, and slightly proactive AI assistant. Your goal is to provide comprehensive and encouraging responses." },
+        // { text: "Do NOT use Markdown formatting for bolding (**), italicizing (*), or other inline styles. Use plain text for all responses unless explicitly generating code blocks." }, // <= Hapus atau komentar baris ini
+        { text: "When responding, if it feels natural and appropriate, try to ask a follow-up question or suggest potential next steps to better understand the user's needs or to encourage further interaction." },
+        { text: "If the user seems to be facing a challenge or expressing uncertainty, offer a sense of encouragement or briefly suggest positive perspectives. Frame these as possibilities or general avenues." },
+        { text: "Maintain a friendly and supportive tone." },
+        { text: "For multimodal input (images), analyze the image and incorporate its context into your response." },
     ];
+    // ======================================================================
 
     try {
-        const geminiModel = genAI.getGenerativeModel({ 
-            model: geminiModelName,
-            tools: [tool],
-            systemInstruction: { parts: systemInstructionParts }, 
+        const geminiModel = genAI.getGenerativeModel({
+            model: apiModelName,
+            // GenerativeConfig dan SafetySettings dipindahkan ke dalam startChat
+            // agar bisa digabungkan dengan history dan systemInstruction
+            // Namun, bisa juga di sini jika tidak ingin ada yang spesifik ke chat
         });
 
         const historyForGemini = (conversationHistory || []).map(msg => ({
             role: msg.role === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.content }] 
+            parts: [{ text: msg.content }]
         }));
 
         const currentUserMessageParts = [{ text: userMessage }];
@@ -147,76 +142,37 @@ export default async function handler(req, res) {
 
         const chat = geminiModel.startChat({
             history: historyForGemini,
+            systemInstruction: { parts: systemInstructionParts }, 
             safetySettings: [
-                { category: HarmCategory.HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                // ======================================================================
+                // KOREKSI PENTING: Ganti HarmCategory.HARM_CATEGORY_... menjadi STRING LITERAL
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: HarmBlockThreshold.BLOCK_NONE },
+                // ======================================================================
             ],
             generationConfig: {
-              temperature: 0.8,
-              topP: 0.9,
-              topK: 40,
-              maxOutputTokens: 2048,
+              temperature: currentModelConfig.temperature, // Ambil dari config model yang dipilih
+              topP: currentModelConfig.topP,              // Ambil dari config model yang dipilih
+              topK: currentModelConfig.topK,              // Ambil dari config model yang dipilih
+              maxOutputTokens: currentModelConfig.maxOutputTokens, // Ambil dari config model yang dipilih
             },
         });
 
         const result = await chat.sendMessage(currentUserMessageParts);
         const response = await result.response;
-
-        const functionCall = response.functionCall();
-        if (functionCall && functionCall.name === "searchImage") {
-            const queryForImage = functionCall.args.query;
-            const imageUrl = await searchImage(queryForImage);
-            
-            if (imageUrl) {
-                const toolResponseResult = await chat.sendMessage([
-                    {
-                        functionResponse: {
-                            name: "searchImage",
-                            response: { 
-                                imageUrl: imageUrl, 
-                                query: queryForImage,
-                                message: `Pencarian untuk "${queryForImage}" berhasil menemukan gambar. URL: ${imageUrl}`
-                            },
-                        },
-                    },
-                ]);
-                const toolResponse = await toolResponseResult.response;
-                let aiResponseText = toolResponse.text();
-
-                if (!aiResponseText || aiResponseText.includes("[Image of a") || !aiResponseText.includes(imageUrl)) {
-                     aiResponseText = `Tentu, ini dia gambar ${queryForImage} yang menggemaskan untukmu!`;
-                }
-
-                return res.status(200).json({ text: aiResponseText, imageUrl: imageUrl, modelUsed: geminiModelName });
-            } else {
-                const toolResponseResult = await chat.sendMessage([
-                    {
-                        functionResponse: {
-                            name: "searchImage",
-                            response: { 
-                                error: "Gambar tidak ditemukan atau terjadi masalah saat pencarian.",
-                                query: queryForImage
-                            },
-                        },
-                    },
-                ]);
-                const toolResponse = await toolResponseResult.response;
-                const aiResponseText = toolResponse.text();
-                return res.status(200).json({ 
-                    text: aiResponseText || `Maaf, saya tidak dapat menemukan gambar untuk "${queryForImage}". Bisakah Anda coba dengan deskripsi yang berbeda?`, 
-                    modelUsed: geminiModelName 
-                });
-            }
-        }
-
         const aiResponseText = response.text();
-        res.status(200).json({ text: aiResponseText, modelUsed: geminiModelName });
+
+        res.status(200).json({
+            text: aiResponseText,
+            modelUsed: selectedModel // Kirim kembali nama model yang dikirim dari frontend
+        });
 
     } catch (error) {
         console.error('Error in /api/generate:', error);
-        let errorMessage = 'Terjadi kesalahan internal server saat menghubungi model AI.';
+        let errorMessage = 'An internal server error occurred while contacting the AI model.';
+        let statusCode = 500;
 
         if (error.response) {
             let errorDetails;
@@ -224,35 +180,42 @@ export default async function handler(req, res) {
                 errorDetails = await error.response.json();
             } catch (jsonParseError) {
                 errorDetails = await error.response.text();
+                console.error("API error response was not JSON:", errorDetails);
             }
-            console.error('Detail Error API:', errorDetails);
+            console.error('API Error Details:', errorDetails);
 
             if (typeof errorDetails === 'object' && errorDetails.error && errorDetails.error.message) {
                 errorMessage = errorDetails.error.message;
-            } else if (typeof errorDetails === 'string' && errorDetails.includes("API key not valid")) {
-                errorMessage = "API Key Gemini tidak valid. Harap periksa konfigurasi Anda.";
+                statusCode = errorDetails.error.code || 500;
             }
 
             if (typeof errorDetails === 'object' && errorDetails.candidates && errorDetails.candidates[0] && errorDetails.candidates[0].finishReason) {
                 const finishReason = errorDetails.candidates[0].finishReason;
                 if (finishReason === "SAFETY") {
                     errorMessage = "Maaf, respons ini diblokir karena tidak memenuhi pedoman keamanan.";
+                    statusCode = 403; // Forbidden
                 } else if (finishReason === "RECITATION") {
                     errorMessage = "Respons diblokir karena terdeteksi sebagai kutipan dari sumber yang dilindungi.";
+                    statusCode = 403;
                 } else if (finishReason === "OTHER") {
                     errorMessage = "Maaf, terjadi masalah saat menghasilkan respons karena alasan yang tidak spesifik.";
                 }
             } else if (typeof errorDetails === 'object' && errorDetails.promptFeedback && errorDetails.promptFeedback.blockReason) {
                 errorMessage = "Permintaan Anda diblokir sebelum diproses oleh model karena alasan keamanan. Harap sesuaikan permintaan Anda.";
+                statusCode = 403;
             } else if (typeof errorDetails === 'object' && errorDetails.error && errorDetails.error.code === 404 && errorDetails.error.message.toLowerCase().includes("model not found")) {
-                 errorMessage = `Model AI '${geminiModelName}' tidak ditemukan. Mohon periksa kembali nama model di backend Anda.`;
+                 errorMessage = `Model AI '${apiModelName}' (${selectedModel} dari frontend) tidak ditemukan di Gemini API. Mohon periksa kembali nama model di backend Anda.`;
+                 statusCode = 404;
             } else if (typeof errorDetails === 'object' && errorDetails.error && errorDetails.error.code === 400 && errorDetails.error.message.toLowerCase().includes("systeminstruction not supported")) {
-                errorMessage = `Model '${geminiModelName}' mungkin tidak mendukung 'systemInstruction' atau 'tools'. Coba ganti model atau hapus konfigurasi ini.`;
+                errorMessage = `Model '${apiModelName}' (${selectedModel} dari frontend) mungkin tidak mendukung 'systemInstruction'. Coba ganti model atau hapus systemInstruction.`;
+                statusCode = 400;
+            } else if (typeof errorDetails === 'object' && errorDetails.error && errorDetails.error.code === 429) {
+                errorMessage = "Maaf, kuota permintaan API telah habis atau terlalu banyak permintaan. Silakan coba lagi nanti.";
+                statusCode = 429;
             }
         } else {
             errorMessage = error.message || errorMessage;
         }
-        res.status(error.response?.status || 500).json({ message: errorMessage });
+        res.status(statusCode).json({ message: errorMessage });
     }
 }
-// --- END OF FILE api/generate.js ---

@@ -1,0 +1,314 @@
+/* GANTI SELURUH ISI LOGIN.CSS ANDA DENGAN KODE INI */
+
+/* CSS Variables for Themes (should mirror style.css for consistency) */
+:root {
+    /* Dark Mode Defaults */
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --input-bg: #2a2a2a;
+    --button-bg: #3a3a3a;
+    --button-hover-bg: #5a5a5a;
+    --placeholder-color: rgba(255, 255, 255, 0.5);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --login-box-bg: #222222;
+    --link-color: #3b82f6; /* Blue for links */
+    --google-button-bg: #4285F4; /* Google brand color */
+    --google-button-text: #ffffff;
+    --google-button-hover: #357ae8;
+    --separator-color: rgba(255, 255, 255, 0.2);
+    --disclaimer-color: rgba(255, 255, 255, 0.7);
+
+    /* Theme Toggle Specifics */
+    --toggle-slider-bg: rgba(100, 100, 100, 0.5);
+    --toggle-slider-border: rgba(255, 255, 255, 0.1);
+    --toggle-icon-color-dark: #ffffff; /* For moon/sun in dark mode */
+}
+
+body.light-mode {
+    --bg-color: #f0f2f5;
+    --text-color: #333333;
+    --input-bg: #e0e0e0;
+    --button-bg: #cccccc;
+    --button-hover-bg: #aaaaaa;
+    --placeholder-color: rgba(0, 0, 0, 0.5);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --login-box-bg: #ffffff;
+    --link-color: #1a73e8;
+    --google-button-bg: #4285F4;
+    --google-button-text: #ffffff;
+    --google-button-hover: #357ae8;
+    --separator-color: rgba(0, 0, 0, 0.2);
+    --disclaimer-color: rgba(0, 0, 0, 0.7);
+
+    /* Theme Toggle Specifics */
+    --toggle-slider-bg: rgba(200, 200, 200, 0.5);
+    --toggle-slider-border: rgba(0, 0, 0, 0.1);
+    --toggle-icon-color-light: #555555; /* For moon/sun in light mode */
+}
+
+/* General Styles */
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: relative; /* For theme toggle positioning */
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: var(--link-color); /* keep color consistent on hover */
+}
+
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.login-box {
+    background-color: var(--login-box-bg);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    padding: 40px 30px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.logo img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.logo h1 {
+    font-size: 2.5em;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.tagline {
+    font-size: 1.1em;
+    color: var(--placeholder-color);
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.login-message {
+    min-height: 20px;
+    font-size: 0.95em;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Google Sign-In Button Styling */
+/* The Google button is rendered by their JS, we can only influence it via data attributes */
+/* The .g_id_signin div itself will be replaced by Google's iframe or custom button */
+.g_id_signin {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    /* Ensure it takes full width of the login box for consistency */
+    width: 100% !important;
+    display: flex; /* For centering the button if it's smaller than 100% */
+    justify-content: center;
+}
+
+/* Fallback for other potential login buttons if you add them later */
+.login-button {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    width: 100%;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.login-button:hover {
+    background-color: var(--button-hover-bg);
+}
+
+.disclaimer {
+    font-size: 0.85em;
+    color: var(--disclaimer-color);
+    margin-top: 15px;
+    line-height: 1.5;
+}
+
+/* Theme Toggle on Login Page */
+.theme-toggle-login {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 30px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--toggle-slider-bg);
+    border: 1px solid var(--toggle-slider-border);
+    transition: .4s;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 4px;
+    box-sizing: border-box;
+}
+
+.slider-icon {
+    width: 22px;
+    height: 22px;
+    transition: transform 0.4s ease, color 0.4s ease;
+    stroke-width: 2;
+}
+
+.slider-icon .sun-rays {
+    opacity: 0;
+    transform-origin: center;
+    transform: scale(0.6) rotate(-45deg);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    stroke: currentColor;
+    fill: none;
+}
+
+.slider-icon .moon-shape {
+    opacity: 1;
+    transform-origin: center;
+    transform: scale(1) rotate(0deg);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    fill: currentColor;
+    stroke: none;
+}
+
+input:checked + .slider {
+    background-color: #66bb6a; /* Green for light mode toggle */
+    justify-content: flex-end;
+}
+
+input:checked + .slider .slider-icon {
+    color: white; /* Sun icon in white when active */
+}
+
+input:checked + .slider .slider-icon .sun-rays {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+input:checked + .slider .slider-icon .moon-shape {
+    opacity: 0;
+    transform: scale(0.6) rotate(45deg);
+}
+
+/* Color for icons when in dark mode (unchecked) */
+body:not(.light-mode) input:not(:checked) + .slider .slider-icon {
+    color: var(--toggle-icon-color-dark); /* Moon icon white in dark mode */
+}
+/* Color for icons when in light mode (unchecked) */
+body.light-mode input:not(:checked) + .slider .slider-icon {
+    color: var(--toggle-icon-color-light); /* Moon icon dark in light mode */
+}
+
+input:not(:checked) + .slider .slider-icon .sun-rays {
+    opacity: 0;
+    transform: scale(0.6) rotate(-45deg);
+}
+
+input:not(:checked) + .slider .slider-icon .moon-shape {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .login-box {
+        padding: 30px 20px;
+        margin: 15px; /* Add some margin on very small screens */
+    }
+
+    .logo img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .logo h1 {
+        font-size: 2em;
+    }
+
+    .tagline {
+        font-size: 1em;
+    }
+
+    .theme-toggle-login {
+        top: 15px;
+        right: 15px;
+    }
+
+    .switch {
+        width: 44px;
+        height: 26px;
+    }
+    .slider {
+        padding: 3px;
+    }
+    .slider-icon {
+        width: 18px;
+        height: 18px;
+    }
+}

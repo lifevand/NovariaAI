@@ -28,6 +28,7 @@
   /* Perubahan besar di sini: Warna teks pesan agar tidak ada bubble */
   --user-message-color: #ffffff; /* Warna teks untuk pesan pengguna */
   --ai-message-color: rgba(255, 255, 255, 0.9); /* Warna teks untuk pesan AI */
+  --user-avatar-bg: #9C27B0; /* Warna ungu untuk avatar user inisial */
 
   --ai-thinking-color: rgba(255, 255, 255, 0.7);
   --file-chip-bg: #3a3a3a;
@@ -102,6 +103,7 @@ body.light-mode {
   /* Perubahan besar di sini: Warna teks pesan agar tidak ada bubble */
   --user-message-color: #333333; /* Warna teks untuk pesan pengguna */
   --ai-message-color: rgba(51, 51, 51, 0.9); /* Warna teks untuk pesan AI */
+  --user-avatar-bg: #673AB7; /* Warna ungu lebih terang untuk avatar user inisial di light mode */
 
   --ai-thinking-color: rgba(51, 51, 51, 0.7);
   --file-chip-bg: #cccccc;
@@ -390,6 +392,13 @@ body.app-loaded {
     background-color: #555; /* Placeholder color */
     border: 2px solid var(--border-color);
     flex-shrink: 0;
+    display: flex; /* For centering initial text */
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5em;
+    color: white;
+    text-transform: uppercase;
 }
 
 .user-info .profile-details {
@@ -696,52 +705,75 @@ body.light-mode .novaria-title-dropdown:hover {
     opacity: 0.9;
 }
 
-/* === PERUBAHAN UTAMA UNTUK MENGHILANGKAN BUBBLE CHAT === */
+/* === PERUBAHAN UTAMA UNTUK MENGHILANGKAN BUBBLE CHAT DAN MENJAGA ALIGNMENT === */
 .chat-message {
-    max-width: 100%; /* Lebarkan agar teks tidak terlalu sempit */
+    max-width: 100%;
     word-wrap: break-word;
-    line-height: 1.7; /* Tingkatkan line-height untuk keterbacaan */
+    line-height: 1.7;
     font-size: 1em;
-    text-align: left;
-    margin-bottom: 20px; /* Tingkatkan jarak antar pesan */
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    opacity: 0;
-    transform: translateY(15px);
+    margin-bottom: 20px; /* Jarak antar pesan */
     padding: 0; /* Hapus padding bubble */
     border-radius: 0; /* Hapus border-radius bubble */
     background-color: transparent; /* Hapus background bubble */
     box-shadow: none; /* Hapus shadow bubble */
-    align-self: flex-start !important; /* Semua pesan rata kiri */
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0;
+    transform: translateY(15px);
     display: flex;
-    flex-direction: column; /* Tetap flex untuk header AI */
-    gap: 0; /* Hapus gap dalam bubble */
+    flex-direction: column;
+    position: relative; /* Untuk positioning avatar/header */
 }
 
+/* Wrapper untuk pesan pengguna */
 .user-message {
-  color: var(--user-message-color);
-  font-weight: 500;
-  /* align-self: flex-end; /* User message align right - DIHAPUS */
-  max-width: 100%; /* Full width */
-  /* background-color: #3b82f6; /* Blue background for user - DIHAPUS */
-  /* padding: 10px 15px; /* DIHAPUS */
-  /* border-radius: 18px 18px 2px 18px; /* Rounded corners with sharp bottom-left - DIHAPUS */
-  /* box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* DIHAPUS */
-}
-body.light-mode .user-message {
-    /* background-color: #55aaff; /* DIHAPUS */
+    align-self: flex-end; /* Pesan user rata kanan */
+    text-align: right; /* Teks di dalam pesan user rata kanan */
+    max-width: 80%; /* Batasi lebar pesan user agar tidak terlalu panjang */
+    color: var(--user-message-color);
+    margin-left: auto; /* Push to right */
 }
 
+/* Header untuk pesan user (nama dan avatar) */
+.user-message-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--text-color);
+    justify-content: flex-end; /* Rata kanan untuk header user */
+}
+
+.user-message-header .user-avatar-chat { /* Avatar di dalam chat */
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--user-avatar-bg); /* Warna avatar inisial */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.user-message-header .user-name-chat {
+    font-weight: 600;
+    font-size: 1.05em;
+    color: var(--text-color);
+}
+
+
+/* Wrapper untuk pesan AI */
 .ai-message {
-  color: var(--ai-message-color);
-  font-weight: 400;
-  /* display: flex; /* Tetap flex untuk header AI dan konten */
-  /* flex-direction: column; */
-  /* gap: 8px; /* DIHAPUS */
-  /* align-self: flex-start; */
-  /* background-color: var(--input-bg); /* Background for AI message bubble - DIHAPUS */
-  /* padding: 10px 15px; /* DIHAPUS */
-  /* border-radius: 18px 18px 18px 2px; /* Rounded corners with sharp bottom-right - DIHAPUS */
-  /* box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* DIHAPUS */
+    align-self: flex-start; /* Pesan AI rata kiri */
+    text-align: left; /* Teks di dalam pesan AI rata kiri */
+    max-width: 80%; /* Batasi lebar pesan AI agar tidak terlalu panjang */
+    color: var(--ai-message-color);
+    margin-right: auto; /* Push to left */
 }
 
 .ai-message-header {
@@ -749,7 +781,8 @@ body.light-mode .user-message {
   align-items: center;
   gap: 8px;
   margin-bottom: 10px; /* Jarak antara header AI dan konten pesan */
-  color: var(--text-color); /* Pastikan warna teks header terlihat */
+  color: var(--text-color);
+  justify-content: flex-start; /* Rata kiri untuk header AI */
 }
 
 .ai-message-header .ai-logo {
@@ -777,9 +810,9 @@ body.light-mode .user-message {
 }
 
 .ai-message-content {
-    padding-top: 0; /* Hapus padding-top */
+    padding-top: 0;
     font-size: 0.98em;
-    color: var(--ai-message-color); /* Pastikan warna teks konten sesuai */
+    color: var(--ai-message-color);
 }
 /* This span will now hold the typed out content */
 .ai-message-content > span {

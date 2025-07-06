@@ -1,3 +1,4 @@
+/* GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI */
 document.addEventListener('DOMContentLoaded', () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const storedUser = localStorage.getItem('novaUser');
@@ -18,7 +19,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const sidebarUserProfile = document.getElementById('sidebarUserProfile');
 
             if (currentUser) {
-                if (profilePicture) profilePicture.src = currentUser.picture || 'placeholder-user.png';
+                if (profilePicture) {
+                    if (currentUser.picture) {
+                        profilePicture.src = currentUser.picture;
+                        profilePicture.textContent = '';
+                    } else {
+                        profilePicture.src = '';
+                        profilePicture.style.backgroundColor = 'var(--user-avatar-bg)';
+                        profilePicture.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
+                    }
+                }
                 if (profileName) profileName.textContent = currentUser.name || 'User';
                 if (profileEmail) profileEmail.textContent = currentUser.email || 'user@example.com';
                 if (sidebarUserProfile) sidebarUserProfile.style.display = 'flex';
@@ -215,12 +225,33 @@ document.addEventListener('DOMContentLoaded', () => {
         conversationHistory.forEach(msg => {
             const msgEl = document.createElement('div');
             msgEl.classList.add('chat-message', msg.role === 'user' ? 'user-message' : 'ai-message');
-            if (msg.role === 'assistant') {
+
+            if (msg.role === 'user') {
+                const userContent = document.createElement('div');
+                userContent.classList.add('user-message-content');
+                userContent.textContent = msg.content;
+                msgEl.appendChild(userContent);
+            } else { // AI Message
                 const aiHeader = document.createElement('div');
                 aiHeader.classList.add('ai-message-header');
-                aiHeader.innerHTML = `<img src="logo.png" alt="Novaria Logo" class="ai-logo">
-                                      <span class="ai-name">Novaria</span>
-                                      <span class="ai-model-tag">${availableModels.find(m => m.value === (msg.modelUsed || 'default'))?.label || (msg.modelUsed || 'Novaria')}</span>`;
+
+                const aiLogoImg = document.createElement('img');
+                aiLogoImg.src = 'logo.png';
+                aiLogoImg.alt = 'Novaria Logo';
+                aiLogoImg.classList.add('ai-logo');
+                aiHeader.appendChild(aiLogoImg);
+
+                const aiNameSpan = document.createElement('span');
+                aiNameSpan.classList.add('ai-name');
+                aiNameSpan.textContent = 'Novaria';
+                aiHeader.appendChild(aiNameSpan);
+
+                const aiModelTagSpan = document.createElement('span');
+                aiModelTagSpan.classList.add('ai-model-tag');
+                const actualModelLabel = availableModels.find(m => m.value === (msg.modelUsed || 'default'))?.label || (msg.modelUsed || 'Novaria');
+                aiModelTagSpan.textContent = actualModelLabel;
+                aiHeader.appendChild(aiModelTagSpan);
+
                 msgEl.appendChild(aiHeader);
 
                 const aiContentContainer = document.createElement('div');
@@ -231,8 +262,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 aiContentContainer.querySelectorAll('pre code').forEach((block) => {
                     hljs.highlightElement(block);
                 });
-            } else {
-                msgEl.textContent = msg.content;
             }
             chatDisplay.appendChild(msgEl);
             setTimeout(() => {
@@ -481,7 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
     }
     if (closeModelModalButton) {
-        closeModelModalButton.addEventListener('click', closeModelSelectModal);
+        closeModelModalButton.addEventListener('click', closeModelModal);
     }
     if (modelSelectModal) {
         modelSelectModal.addEventListener('click', (event) => {
@@ -522,7 +551,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-
 
     function checkScrollable() {
         setTimeout(() => {
@@ -648,7 +676,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return finalHtml;
     }
 
-
     function typeMessage(element, textContent, delay = 5) {
         let i = 0;
         element.innerHTML = '';
@@ -679,32 +706,10 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElement.style.transform = 'translateY(15px)';
 
         if (sender === 'user') {
-            const userAvatarDiv = document.createElement('div');
-            userAvatarDiv.classList.add('user-message-header'); // Header untuk pesan user
-            userAvatarDiv.style.fontWeight = '600'; // Make username bold
-            userAvatarDiv.style.marginBottom = '10px'; // Add some spacing
-            userAvatarDiv.style.color = 'var(--text-color)';
-
-            const userAvatarImg = document.createElement('img');
-            userAvatarImg.src = currentUser.picture || 'placeholder-user.png';
-            userAvatarImg.alt = 'User Avatar';
-            userAvatarImg.classList.add('ai-logo'); // Re-use ai-logo for consistent sizing
-            userAvatarImg.style.width = '32px';
-            userAvatarImg.style.height = '32px';
-            userAvatarDiv.appendChild(userAvatarImg);
-
-            const userNameSpan = document.createElement('span');
-            userNameSpan.textContent = currentUser.name || 'You';
-            userNameSpan.style.marginLeft = '8px';
-            userAvatarDiv.appendChild(userNameSpan);
-
-            messageElement.appendChild(userAvatarDiv);
-
             const userContent = document.createElement('div');
-            userContent.textContent = content;
             userContent.classList.add('user-message-content');
+            userContent.textContent = content;
             messageElement.appendChild(userContent);
-
             conversationHistory.push({ role: 'user', content: content });
         } else {
             stopCurrentTypingAnimation();
@@ -725,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const aiModelTagSpan = document.createElement('span');
             aiModelTagSpan.classList.add('ai-model-tag');
-            const actualModelLabel = availableModels.find(m => m.value === modelTag)?.label || modelTag;
+            const actualModelLabel = availableModels.find(m => m.value === modelTag)?.label || (modelTag || 'Novaria');
             aiModelTagSpan.textContent = actualModelLabel;
             aiHeader.appendChild(aiModelTagSpan);
 
@@ -839,16 +844,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     function getFullRawContent(messageEl) {
-        let fullContent = '';
-        const contentContainer = messageEl.querySelector('.ai-message-content');
-        if (!contentContainer) {
-            // For user messages, the content is directly in the user-message-content div
-            const userContent = messageEl.querySelector('.user-message-content');
-            return userContent ? userContent.textContent.trim() : '';
+        if (messageEl.classList.contains('user-message')) {
+            const userContentDiv = messageEl.querySelector('.user-message-content');
+            return userContentDiv ? userContentDiv.textContent.trim() : '';
         }
 
+        let fullContent = '';
+        const contentContainer = messageEl.querySelector('.ai-message-content');
+        if (!contentContainer) return '';
 
         contentContainer.childNodes.forEach(node => {
             if (node.nodeType === Node.TEXT_NODE) {
@@ -1073,7 +1077,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     themeToggleMain.addEventListener('change', () => applyTheme(themeToggleMain.checked));
 
-
     function setupRippleEffects() {
         const clickableElements = document.querySelectorAll('.btn-circle, .sidebar .new-chat-btn, .sidebar-item, .chat-item, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item, .toggle-button, .dropdown-item, .favorite-toggle-btn, .new-chat-btn-header, .sidebar-toggle-btn, .logout-btn');
         clickableElements.forEach(element => {
@@ -1131,7 +1134,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const newInputWrapperContainer = document.querySelector('.new-input-wrapper-container');
     if (newInputWrapperContainer) observer.observe(newInputWrapperContainer, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
 
-
     function updateInputAreaAppearance() {
         if (!bottomChatArea) return;
 
@@ -1155,7 +1157,6 @@ document.addEventListener('DOMContentLoaded', () => {
     messageInput.addEventListener('input', updateInputAreaAppearance);
     messageInput.addEventListener('blur', updateInputAreaAppearance);
     messageInput.addEventListener('focus', updateInputAreaAppearance);
-
 
     plusButton.addEventListener('click', () => { fileInput.click(); });
 

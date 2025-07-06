@@ -24,8 +24,11 @@
   --quick-complete-bg: #222222; /* (Mungkin tidak digunakan lagi) */
   --quick-complete-text: #ffffff;
   --quick-complete-hover-bg: #3a3a3a;
-  --user-message-color: #ffffff;
-  --ai-message-color: rgba(255, 255, 255, 0.9);
+
+  /* Perubahan besar di sini: Warna teks pesan agar tidak ada bubble */
+  --user-message-color: #ffffff; /* Warna teks untuk pesan pengguna */
+  --ai-message-color: rgba(255, 255, 255, 0.9); /* Warna teks untuk pesan AI */
+
   --ai-thinking-color: rgba(255, 255, 255, 0.7);
   --file-chip-bg: #3a3a3a;
   --file-chip-text: #ffffff;
@@ -95,8 +98,11 @@ body.light-mode {
   --quick-complete-bg: #eeeeee;
   --quick-complete-text: #333333;
   --quick-complete-hover-bg: #dddddd;
-  --user-message-color: #333333;
-  --ai-message-color: rgba(51, 51, 51, 0.9);
+
+  /* Perubahan besar di sini: Warna teks pesan agar tidak ada bubble */
+  --user-message-color: #333333; /* Warna teks untuk pesan pengguna */
+  --ai-message-color: rgba(51, 51, 51, 0.9); /* Warna teks untuk pesan AI */
+
   --ai-thinking-color: rgba(51, 51, 51, 0.7);
   --file-chip-bg: #cccccc;
   --file-chip-text: #333333;
@@ -278,6 +284,7 @@ body.app-loaded {
     font-weight: 600;
 }
 
+/* Kustomisasi Scrollbar untuk chat history */
 #chat-history-list {
     list-style: none;
     padding: 0;
@@ -285,7 +292,25 @@ body.app-loaded {
     overflow-y: auto; /* Scrollable history list */
     -webkit-overflow-scrolling: touch;
     flex-grow: 1;
+    /* Custom scrollbar for WebKit */
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--button-bg);
+        border-radius: 3px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: var(--button-hover-bg);
+    }
+    /* Custom scrollbar for Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--button-bg) transparent;
 }
+
 
 .chat-item {
     display: flex;
@@ -623,8 +648,26 @@ body.light-mode .novaria-title-dropdown:hover {
     position: relative;
     display: flex;
     flex-direction: column;
+    /* Kustomisasi Scrollbar untuk chat display */
+    &::-webkit-scrollbar {
+        width: 8px; /* Lebar scrollbar */
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent; /* Track scrollbar transparan */
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--button-bg); /* Warna thumb scrollbar */
+        border-radius: 4px; /* Sudut melengkung thumb */
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: var(--button-hover-bg); /* Warna thumb saat hover */
+    }
+    /* Custom scrollbar for Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--button-bg) transparent;
 }
 
+/* Scroll fade effect - keep for smooth transition to bottom */
 .chat-display.has-scroll-fade::after {
   content: '';
   position: absolute;
@@ -653,55 +696,65 @@ body.light-mode .novaria-title-dropdown:hover {
     opacity: 0.9;
 }
 
+/* === PERUBAHAN UTAMA UNTUK MENGHILANGKAN BUBBLE CHAT === */
 .chat-message {
-    max-width: 95%;
+    max-width: 100%; /* Lebarkan agar teks tidak terlalu sempit */
     word-wrap: break-word;
-    line-height: 1.6;
+    line-height: 1.7; /* Tingkatkan line-height untuk keterbacaan */
     font-size: 1em;
     text-align: left;
-    margin-bottom: 16px;
+    margin-bottom: 20px; /* Tingkatkan jarak antar pesan */
     transition: opacity 0.5s ease, transform 0.5s ease;
     opacity: 0;
     transform: translateY(15px);
+    padding: 0; /* Hapus padding bubble */
+    border-radius: 0; /* Hapus border-radius bubble */
+    background-color: transparent; /* Hapus background bubble */
+    box-shadow: none; /* Hapus shadow bubble */
+    align-self: flex-start !important; /* Semua pesan rata kiri */
+    display: flex;
+    flex-direction: column; /* Tetap flex untuk header AI */
+    gap: 0; /* Hapus gap dalam bubble */
 }
 
 .user-message {
   color: var(--user-message-color);
   font-weight: 500;
-  align-self: flex-end; /* User message align right */
-  max-width: 80%;
-  background-color: #3b82f6; /* Blue background for user */
-  padding: 10px 15px;
-  border-radius: 18px 18px 2px 18px; /* Rounded corners with sharp bottom-left */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  /* align-self: flex-end; /* User message align right - DIHAPUS */
+  max-width: 100%; /* Full width */
+  /* background-color: #3b82f6; /* Blue background for user - DIHAPUS */
+  /* padding: 10px 15px; /* DIHAPUS */
+  /* border-radius: 18px 18px 2px 18px; /* Rounded corners with sharp bottom-left - DIHAPUS */
+  /* box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* DIHAPUS */
 }
 body.light-mode .user-message {
-    background-color: #55aaff;
+    /* background-color: #55aaff; /* DIHAPUS */
 }
 
 .ai-message {
   color: var(--ai-message-color);
   font-weight: 400;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-self: flex-start;
-  background-color: var(--input-bg); /* Background for AI message bubble */
-  padding: 10px 15px;
-  border-radius: 18px 18px 18px 2px; /* Rounded corners with sharp bottom-right */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  /* display: flex; /* Tetap flex untuk header AI dan konten */
+  /* flex-direction: column; */
+  /* gap: 8px; /* DIHAPUS */
+  /* align-self: flex-start; */
+  /* background-color: var(--input-bg); /* Background for AI message bubble - DIHAPUS */
+  /* padding: 10px 15px; /* DIHAPUS */
+  /* border-radius: 18px 18px 18px 2px; /* Rounded corners with sharp bottom-right - DIHAPUS */
+  /* box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* DIHAPUS */
 }
 
 .ai-message-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 5px; /* Adjust spacing */
+  margin-bottom: 10px; /* Jarak antara header AI dan konten pesan */
+  color: var(--text-color); /* Pastikan warna teks header terlihat */
 }
 
 .ai-message-header .ai-logo {
-  width: 28px; /* Larger logo */
-  height: 28px;
+  width: 32px; /* Ukuran logo AI */
+  height: 32px;
   object-fit: contain;
   flex-shrink: 0;
   border-radius: 50%;
@@ -709,7 +762,7 @@ body.light-mode .user-message {
 
 .ai-message-header .ai-name {
   font-weight: 600;
-  font-size: 1em; /* Slightly larger font */
+  font-size: 1.05em; /* Ukuran font nama AI */
   color: var(--text-color);
 }
 
@@ -724,8 +777,9 @@ body.light-mode .user-message {
 }
 
 .ai-message-content {
-    padding-top: 5px; /* Space between header and content */
+    padding-top: 0; /* Hapus padding-top */
     font-size: 0.98em;
+    color: var(--ai-message-color); /* Pastikan warna teks konten sesuai */
 }
 /* This span will now hold the typed out content */
 .ai-message-content > span {
@@ -749,8 +803,8 @@ body.light-mode .user-message {
 .ai-message-actions {
     display: flex;
     gap: 10px; /* Jarak antar tombol action */
-    margin-top: 10px;
-    justify-content: flex-end; /* Rata kanan */
+    margin-top: 15px; /* Jarak lebih besar dari konten */
+    justify-content: flex-start; /* Rata kiri */
     width: 100%;
 }
 .ai-action-btn {
@@ -783,10 +837,10 @@ body.light-mode .ai-action-btn svg { stroke: var(--action-button-icon-color); }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 15px; /* Padding mirip AI message */
-  background-color: var(--input-bg);
-  border-radius: 18px 18px 18px 2px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  padding: 0; /* Hapus padding agar tidak seperti bubble */
+  background-color: transparent; /* Hapus background */
+  border-radius: 0; /* Hapus border-radius */
+  box-shadow: none; /* Hapus shadow */
   opacity: 0;
   transition: opacity 0.3s ease;
   align-self: flex-start;

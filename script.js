@@ -1,6 +1,4 @@
-// --- START OF FILE script.js ---
 document.addEventListener('DOMContentLoaded', () => {
-    // === AWAL: PENGECEKAN LOGIN ===
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const storedUser = localStorage.getItem('novaUser');
     let currentUser = null;
@@ -14,25 +12,19 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.classList.remove('app-hidden');
             document.body.classList.add('app-loaded');
 
-            // === AWAL: DISPLAY PROFIL PENGGUNA DI SIDEBAR ===
             const profilePicture = document.getElementById('profilePicture');
             const profileName = document.getElementById('profileName');
             const profileEmail = document.getElementById('profileEmail');
             const sidebarUserProfile = document.getElementById('sidebarUserProfile');
-            // Element sidebarLoginSignup tidak relevan lagi dengan HTML baru
-            // const sidebarLoginSignup = document.getElementById('sidebarLoginSignup'); 
 
             if (currentUser) {
                 if (profilePicture) profilePicture.src = currentUser.picture || 'placeholder-user.png';
                 if (profileName) profileName.textContent = currentUser.name || 'User';
                 if (profileEmail) profileEmail.textContent = currentUser.email || 'user@example.com';
                 if (sidebarUserProfile) sidebarUserProfile.style.display = 'flex';
-                // if (sidebarLoginSignup) sidebarLoginSignup.style.display = 'none';
             } else {
                 if (sidebarUserProfile) sidebarUserProfile.style.display = 'none';
-                // if (sidebarLoginSignup) sidebarLoginSignup.style.display = 'flex';
             }
-            // === AKHIR: DISPLAY PROFIL PENGGUNA DI SIDEBAR ===
 
         } catch (e) {
             console.error("Error parsing user data or invalid data:", e);
@@ -45,9 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'login.html';
         return;
     }
-    // === AKHIR: PENGECEKAN LOGIN ===
 
-    // === ELEMEN UI BARU / YANG DIUBAH ===
     const appContainer = document.querySelector('.app-container');
     const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
     const sidebar = document.getElementById('sidebar');
@@ -64,11 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearAllHistoryBtn = document.getElementById('clearAllHistoryBtn');
 
     const currentChatFavoriteBtn = document.getElementById('currentChatFavoriteBtn');
-    const chatHistoryList = document.getElementById('chat-history-list'); // Untuk sidebar history
+    const chatHistoryList = document.getElementById('chat-history-list');
 
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendButtonBottom');
-    const chatDisplay = document.getElementById('chatHistory'); // Ini adalah div chat-display sekarang
+    const chatDisplay = document.getElementById('chatHistory');
     const initialGreeting = document.querySelector('.initial-greeting');
     const thinkingIndicator = document.getElementById('thinkingIndicator');
     const mainContent = document.querySelector('.main-content');
@@ -76,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const plusButton = document.getElementById('plusButtonTop');
     const fileInput = document.getElementById('fileInput');
     const bottomChatArea = document.getElementById('bottomChatArea');
-    // const newInputWrapperContainer = document.querySelector('.new-input-wrapper-container'); // Tidak perlu lagi sebagai const di sini, diambil oleh observer
 
     const MAX_FILE_SIZE_KB_NEW = 450;
     const MAX_FILE_SIZE_BYTES_NEW = MAX_FILE_SIZE_KB_NEW * 1024;
@@ -85,11 +74,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileChipsArea = document.getElementById('fileChipsArea');
     let attachedFiles = [];
 
-    let currentConversationId = null; // ID percakapan aktif
-    let conversationHistory = []; // Riwayat pesan untuk percakapan aktif saat ini
-    let allConversations = {}; // Menyimpan semua percakapan: { id: { messages: [], isFavorite: false, title: "" } }
+    let currentConversationId = null;
+    let conversationHistory = [];
+    let allConversations = {};
 
-    const MAX_HISTORY_DISPLAY_LENGTH = 10; // Jumlah pesan yang disimpan per percakapan (untuk tujuan tampilan/regen)
+    const MAX_HISTORY_DISPLAY_LENGTH = 10;
 
     const customModelSelectorTrigger = document.getElementById('customModelSelectorTrigger');
     const selectedModelName = document.getElementById('selectedModelName');
@@ -109,10 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     let currentSelectedModelValue = '';
-    let currentTypingAnimationInterval = null; // Gunakan ini untuk menyimpan ID interval typing
-    let currentTypingAnimationTimeout = null; // Gunakan ini untuk menyimpan ID timeout antar segmen
+    let currentTypingAnimationInterval = null;
+    let currentTypingAnimationTimeout = null;
 
-    // --- FUNGSI UTILITY ---
     function generateUniqueId() {
         return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
@@ -137,10 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderChatHistoryList() {
         chatHistoryList.innerHTML = '';
         const sortedConversations = Object.values(allConversations).sort((a, b) => {
-            // Favorit di atas
             if (a.isFavorite && !b.isFavorite) return -1;
             if (!a.isFavorite && b.isFavorite) return 1;
-            // Kemudian yang paling baru
             return b.timestamp - a.timestamp;
         });
 
@@ -162,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 favoriteIcon.classList.add('active');
             }
             favoriteIcon.addEventListener('click', (e) => {
-                e.stopPropagation(); // Mencegah klik item chat
+                e.stopPropagation();
                 toggleChatFavorite(conv.id);
             });
             listItem.appendChild(favoriteIcon);
@@ -173,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function createNewChat() {
-        // Simpan percakapan saat ini sebelum membuat yang baru
         if (currentConversationId && conversationHistory.length > 0) {
             allConversations[currentConversationId] = {
                 id: currentConversationId,
@@ -191,49 +176,45 @@ document.addEventListener('DOMContentLoaded', () => {
         messageInput.value = '';
         autoResizeTextarea();
         updateInputAreaAppearance();
-        initialGreeting.classList.remove('hidden'); // Tampilkan pesan awal
-        chatDisplay.innerHTML = ''; // Kosongkan chat display
+        initialGreeting.classList.remove('hidden');
+        chatDisplay.innerHTML = '';
         chatDisplay.appendChild(initialGreeting);
-        chatDisplay.appendChild(thinkingIndicator); // Pastikan thinking indicator ada
+        chatDisplay.appendChild(thinkingIndicator);
 
-        // Reset favorite button for new chat
         currentChatFavoriteBtn.querySelector('i').classList.remove('fas');
         currentChatFavoriteBtn.querySelector('i').classList.add('far');
 
-        renderChatHistoryList(); // Perbarui daftar history
+        renderChatHistoryList();
         closeSidebar();
     }
 
     function loadChat(chatId) {
-        stopCurrentTypingAnimation(); // Stop any ongoing typing animation
+        stopCurrentTypingAnimation();
 
         if (currentConversationId && currentConversationId !== chatId && conversationHistory.length > 0) {
-            // Simpan percakapan lama sebelum memuat yang baru
             allConversations[currentConversationId] = {
                 id: currentConversationId,
                 messages: conversationHistory,
                 isFavorite: allConversations[currentConversationId]?.isFavorite || false,
                 title: allConversations[currentConversationId]?.title || generateChatTitle(conversationHistory),
-                timestamp: Date.now() // Update timestamp to bring it to top
+                timestamp: Date.now()
             };
             saveConversations();
         }
 
         currentConversationId = chatId;
-        localStorage.setItem('lastActiveChatId', currentConversationId); // Simpan ID chat yang sedang aktif
+        localStorage.setItem('lastActiveChatId', currentConversationId);
         conversationHistory = allConversations[chatId].messages || [];
         clearAttachedFiles();
         messageInput.value = '';
         autoResizeTextarea();
         updateInputAreaAppearance();
 
-        // Kosongkan chat display dan tampilkan pesan dari history
         chatDisplay.innerHTML = '';
-        initialGreeting.classList.add('hidden'); // Sembunyikan pesan awal
+        initialGreeting.classList.add('hidden');
         conversationHistory.forEach(msg => {
             const msgEl = document.createElement('div');
             msgEl.classList.add('chat-message', msg.role === 'user' ? 'user-message' : 'ai-message');
-            // Untuk AI messages, kita perlu mem-parsing ulang content dan menambahkan actions
             if (msg.role === 'assistant') {
                 const aiHeader = document.createElement('div');
                 aiHeader.classList.add('ai-message-header');
@@ -244,11 +225,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const aiContentContainer = document.createElement('div');
                 aiContentContainer.classList.add('ai-message-content');
-                // Use innerHTML as content might contain HTML from highlight.js
                 aiContentContainer.innerHTML = parseMarkdownToHtml(msg.content);
                 msgEl.appendChild(aiContentContainer);
-                addAiMessageActions(msgEl); // Add action buttons
-                // Re-highlight code blocks
+                addAiMessageActions(msgEl);
                 aiContentContainer.querySelectorAll('pre code').forEach((block) => {
                     hljs.highlightElement(block);
                 });
@@ -256,14 +235,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 msgEl.textContent = msg.content;
             }
             chatDisplay.appendChild(msgEl);
-            setTimeout(() => { // Trigger animation
+            setTimeout(() => {
                 msgEl.style.opacity = '1';
                 msgEl.style.transform = 'translateY(0)';
             }, 10);
         });
-        chatDisplay.appendChild(thinkingIndicator); // Pastikan thinking indicator ada di akhir
+        chatDisplay.appendChild(thinkingIndicator);
 
-        // Set favorite button based on loaded chat
         if (allConversations[chatId]?.isFavorite) {
             currentChatFavoriteBtn.querySelector('i').classList.remove('far');
             currentChatFavoriteBtn.querySelector('i').classList.add('fas');
@@ -273,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         setTimeout(() => chatDisplay.scrollTop = chatDisplay.scrollHeight, 100);
-        renderChatHistoryList(); // Perbarui status active
+        renderChatHistoryList();
         closeSidebar();
     }
 
@@ -281,8 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (allConversations[chatId]) {
             allConversations[chatId].isFavorite = !allConversations[chatId].isFavorite;
             saveConversations();
-            renderChatHistoryList(); // Re-render to update icon and sorting
-            // Also update the main header favorite button if it's the current chat
+            renderChatHistoryList();
             if (chatId === currentConversationId) {
                 if (allConversations[chatId].isFavorite) {
                     currentChatFavoriteBtn.querySelector('i').classList.remove('far');
@@ -315,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm('Are you sure you want to clear the current chat? This cannot be undone.')) {
             delete allConversations[currentConversationId];
             saveConversations();
-            createNewChat(); // Start a fresh chat
+            createNewChat();
         }
     }
 
@@ -324,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allConversations = {};
             localStorage.removeItem('novariaConversations');
             localStorage.removeItem('lastActiveChatId');
-            createNewChat(); // Start a fresh chat
+            createNewChat();
         }
     }
 
@@ -338,7 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarOverlay.classList.remove('active');
     }
 
-    // --- FUNGSI MODEL SELECTION ---
     function setSelectedModel(modelValue, updateFastSmartToggle = true) {
         currentSelectedModelValue = modelValue;
         localStorage.setItem('selectedAiModel', currentSelectedModelValue);
@@ -397,7 +373,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultModel = availableModels.find(m => m.value === savedModelValue) || availableModels[0];
     setSelectedModel(defaultModel.value, true);
 
-    // --- Event Listeners untuk UI baru ---
     sidebarToggleBtn.addEventListener('click', openSidebar);
     sidebarOverlay.addEventListener('click', closeSidebar);
     sidebarNewChatBtn.addEventListener('click', createNewChat);
@@ -407,16 +382,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm('Are you sure you want to log out?')) {
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('novaUser');
-            localStorage.removeItem('novariaConversations'); // Clear all chat data on logout
-            localStorage.removeItem('lastActiveChatId'); // Clear last active chat ID
+            localStorage.removeItem('novariaConversations');
+            localStorage.removeItem('lastActiveChatId');
             window.location.href = 'login.html';
         }
     });
 
     novariaTitleDropdown.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent document click from closing immediately
+        e.stopPropagation();
         novariaDropdownMenu.classList.toggle('show');
-        novariaTitleDropdown.classList.toggle('active'); // Untuk rotasi panah
+        novariaTitleDropdown.classList.toggle('active');
     });
 
     document.addEventListener('click', (e) => {
@@ -437,9 +412,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const chatText = currentChat.messages.map(msg => {
             let content = msg.content;
-            // Decode HTML entities if present (from highlight.js)
             const doc = new DOMParser().parseFromString(content, 'text/html');
-            content = doc.documentElement.textContent; // Get plain text
+            content = doc.documentElement.textContent;
 
             return `${msg.role === 'user' ? 'You' : 'Novaria'}: ${content}`;
         }).join('\n\n');
@@ -464,9 +438,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const chatText = currentChat.messages.map(msg => {
             let content = msg.content;
-            // Decode HTML entities if present (from highlight.js)
             const doc = new DOMParser().parseFromString(content, 'text/html');
-            content = doc.documentElement.textContent; // Get plain text
+            content = doc.documentElement.textContent;
             return `${msg.role === 'user' ? 'You' : 'Novaria'}: ${content}`;
         }).join('\n\n');
 
@@ -474,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.share({
                 title: currentChat.title || 'Novaria Chat',
                 text: chatText,
-                url: window.location.href, // Or a permalink to the chat if available
+                url: window.location.href,
             }).catch((error) => console.log('Error sharing', error));
         } else {
             navigator.clipboard.writeText(chatText).then(() => {
@@ -533,18 +506,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- INITIAL LOAD ---
     loadConversations();
-    // If no active chat, create one
     if (Object.keys(allConversations).length === 0) {
         createNewChat();
     } else {
-        // Load the most recent chat if no specific one is set or the last one exists
         const lastChatId = localStorage.getItem('lastActiveChatId');
         if (lastChatId && allConversations[lastChatId]) {
             loadChat(lastChatId);
         } else {
-            // Find the most recent non-favorite chat, or any if none
             const sortedByTime = Object.values(allConversations).sort((a,b) => b.timestamp - a.timestamp);
             if (sortedByTime.length > 0) {
                 loadChat(sortedByTime[0].id);
@@ -555,7 +524,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- CHAT DISPLAY & SCROLLING ---
     function checkScrollable() {
         setTimeout(() => {
             if (!chatDisplay) return;
@@ -572,14 +540,11 @@ document.addEventListener('DOMContentLoaded', () => {
       chatDisplay.addEventListener('scroll', checkScrollable);
     }
 
-    // --- INPUT AREA FUNCTIONALITY ---
     messageInput.addEventListener('input', () => {
         autoResizeTextarea();
-        // Sembunyikan pesan awal jika user mulai mengetik
         if (messageInput.value.trim() !== '' || attachedFiles.length > 0) {
             initialGreeting.classList.add('hidden');
         } else {
-            // Tampilkan kembali initial greeting jika input kosong dan tidak ada file
             if (conversationHistory.length === 0) {
                 initialGreeting.classList.remove('hidden');
             }
@@ -596,7 +561,6 @@ document.addEventListener('DOMContentLoaded', () => {
     messageInput.addEventListener('input', autoResizeTextarea);
     autoResizeTextarea();
 
-    // Function to stop any ongoing typing animation
     function stopCurrentTypingAnimation() {
         if (currentTypingAnimationInterval) {
             clearInterval(currentTypingAnimationInterval);
@@ -609,11 +573,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function parseMarkdownToHtml(text) {
-        // Handle code blocks first
         const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
         let html = text.replace(codeBlockRegex, (match, language, code) => {
             const lang = language || 'text';
-            // Escape HTML in code content to prevent XSS and ensure proper display
             const escapedCode = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             return `<div class="code-block">
                         <div class="code-header">
@@ -627,50 +589,40 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
         });
 
-        // Handle other Markdown (bold, italic, strikethrough, links)
-        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold
-        html = html.replace(/__(.*?)__/g, '<strong>$1</strong>'); // Bold
-        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>'); // Italic
-        html = html.replace(/_(.*?)_/g, '<em>$1</em>'); // Italic
-        html = html.replace(/~~(.*?)~~/g, '<del>$1</del>'); // Strikethrough
-        html = html.replace(/`([^`]+)`/g, '<code>$1</code>'); // Inline code
-        html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>'); // Links
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+        html = html.replace(/~~(.*?)~~/g, '<del>$1</del>');
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
 
-        // Handle basic lists (unordered and ordered)
-        // This is a simple approach and might not handle complex nested lists perfectly
-        html = html.replace(/^\s*[\*\-]\s*(.*)$/gm, '<li>$1</li>'); // Unordered list items
-        html = html.replace(/^\s*\d+\.\s*(.*)$/gm, '<li>$1</li>'); // Ordered list items
+        html = html.replace(/^\s*[\*\-]\s*(.*)$/gm, '<li>$1</li>');
+        html = html.replace(/^\s*\d+\.\s*(.*)$/gm, '<li>$1</li>');
 
-        // Wrap list items in ul/ol tags
-        // This needs to be done carefully to avoid wrapping non-list items
         html = html.replace(/(<li>.*?<\/li>(\n<li>.*?<\/li>)*)/g, (match) => {
-            if (match.startsWith('<li>')) { // Simple check to ensure it's a list group
+            if (match.startsWith('<li>')) {
                 const firstChar = match.trim().charAt(0);
-                if (match.includes('&#x2022;') || match.includes('*') || match.includes('-')) { // Check for bullet points indicators
+                if (match.includes('&#x2022;') || match.includes('*') || match.includes('-')) {
                     return `<ul>${match}</ul>`;
-                } else if (match.match(/^\d+\./)) { // Check for ordered list indicators
+                } else if (match.match(/^\d+\./)) {
                     return `<ol>${match}</ol>`;
                 }
             }
             return match;
         });
 
-        // Handle headings (basic)
         html = html.replace(/^###\s*(.*)$/gm, '<h3>$1</h3>');
         html = html.replace(/^##\s*(.*)$/gm, '<h2>$1</h2>');
         html = html.replace(/^#\s*(.*)$/gm, '<h1>$1</h1>');
 
-        // Convert double newlines to <p> tags, single newlines to <br> for plain text
-        // This is a simplistic approach; a full markdown parser would be more robust.
-        // It should run after block-level elements are handled.
         const lines = html.split('\n');
         let finalHtml = '';
-        let inBlock = false; // To track if we are inside a code block or other specific block element
+        let inBlock = false;
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
 
-            // Detect start/end of block elements (simplified)
             if (line.includes('<pre>') || line.includes('<div class="code-block"')) {
                 inBlock = true;
             } else if (line.includes('</pre>') || line.includes('</div>')) {
@@ -678,23 +630,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (inBlock || line.match(/<\/?(h[1-6]|ul|ol|li|p|div|img|a|strong|em|del|button|code)/i)) {
-                // If inside a block element or the line itself is a block, just append it
                 finalHtml += line + '\n';
             } else if (line.trim() === '' && lines[i+1]?.trim() === '') {
-                // Double newline for paragraph break
                 finalHtml += '<p></p>';
-                i++; // Skip next empty line
+                i++;
             } else if (line.trim() !== '') {
-                // Single newline for line break in regular text
                 finalHtml += line + '<br>';
-            }
-            // If empty line but next is not empty, just append it (for proper paragraph spacing by CSS)
-            else {
+            } else {
                  finalHtml += '\n';
             }
         }
 
-        // Clean up any remaining extra <br> at the end of elements where they don't belong
         finalHtml = finalHtml.replace(/<br>\s*<\/(h[1-6]|ul|ol|li|p|div)>/g, '</$1>');
         finalHtml = finalHtml.replace(/<br>\s*<pre>/g, '<pre>');
 
@@ -703,16 +649,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // New: Function to type out message content
     function typeMessage(element, textContent, delay = 5) {
         let i = 0;
-        element.innerHTML = ''; // Clear content (use innerHTML for HTML-like content, not just text)
+        element.innerHTML = '';
 
-        stopCurrentTypingAnimation(); // Pastikan tidak ada typing lain yang berjalan
+        stopCurrentTypingAnimation();
 
         currentTypingAnimationInterval = setInterval(() => {
             if (i < textContent.length) {
-                // If it's a newline, add <br>
                 if (textContent.charAt(i) === '\n') {
                     element.innerHTML += '<br>';
                 } else {
@@ -720,15 +664,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 i++;
             } else {
-                stopCurrentTypingAnimation(); // Stop animation when done
+                stopCurrentTypingAnimation();
                 if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
-                checkScrollable(); // Final scroll and fade check
+                checkScrollable();
             }
-            if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight; // Keep scrolling during typing
+            if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
         }, delay);
     }
 
-    // === Fungsi addChatMessage yang diperbarui untuk Multi-modal Output dan Typing Effect ===
     function addChatMessage(content, sender = 'user', imageUrl = null, modelTag = "Novaria", aiResponseRawText = null) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', sender === 'user' ? 'user-message' : 'ai-message');
@@ -736,10 +679,35 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElement.style.transform = 'translateY(15px)';
 
         if (sender === 'user') {
-            messageElement.textContent = content;
+            const userAvatarDiv = document.createElement('div');
+            userAvatarDiv.classList.add('user-message-header'); // Header untuk pesan user
+            userAvatarDiv.style.fontWeight = '600'; // Make username bold
+            userAvatarDiv.style.marginBottom = '10px'; // Add some spacing
+            userAvatarDiv.style.color = 'var(--text-color)';
+
+            const userAvatarImg = document.createElement('img');
+            userAvatarImg.src = currentUser.picture || 'placeholder-user.png';
+            userAvatarImg.alt = 'User Avatar';
+            userAvatarImg.classList.add('ai-logo'); // Re-use ai-logo for consistent sizing
+            userAvatarImg.style.width = '32px';
+            userAvatarImg.style.height = '32px';
+            userAvatarDiv.appendChild(userAvatarImg);
+
+            const userNameSpan = document.createElement('span');
+            userNameSpan.textContent = currentUser.name || 'You';
+            userNameSpan.style.marginLeft = '8px';
+            userAvatarDiv.appendChild(userNameSpan);
+
+            messageElement.appendChild(userAvatarDiv);
+
+            const userContent = document.createElement('div');
+            userContent.textContent = content;
+            userContent.classList.add('user-message-content');
+            messageElement.appendChild(userContent);
+
             conversationHistory.push({ role: 'user', content: content });
         } else {
-            stopCurrentTypingAnimation(); // Stop any previous typing when a new AI response starts
+            stopCurrentTypingAnimation();
 
             const aiHeader = document.createElement('div');
             aiHeader.classList.add('ai-message-header');
@@ -767,44 +735,37 @@ document.addEventListener('DOMContentLoaded', () => {
             aiContentContainer.classList.add('ai-message-content');
             messageElement.appendChild(aiContentContainer);
 
-            // Add image if available
             if (imageUrl) {
                 const imgElement = document.createElement('img');
                 imgElement.src = imageUrl;
                 imgElement.alt = "Generated image";
                 imgElement.classList.add('ai-generated-image');
                 aiContentContainer.appendChild(imgElement);
-                if (content.trim()) { // Add spacer only if there's text content after the image
+                if (content.trim()) {
                     const spacer = document.createElement('div');
                     spacer.style.height = '10px';
                     aiContentContainer.appendChild(spacer);
                 }
             }
 
-            // If it's an error message or not a raw AI response, just set text content directly.
-            // This prevents typing animation on error messages.
-            if (content.startsWith('<span') || !aiResponseRawText) { // Check for span indicating formatted error
+            if (content.startsWith('<span') || !aiResponseRawText) {
                 aiContentContainer.innerHTML = content;
                 addAiMessageActions(messageElement);
                 clearAttachedFiles();
                 checkScrollable();
             } else {
-                // Process markdown for code blocks and other formatting BEFORE typing
                 const segments = [];
-                const codeBlockRegex = /(```(\w+)?\n([\s\S]*?)```)/g; // Capture full code block
+                const codeBlockRegex = /(```(\w+)?\n([\s\S]*?)```)/g;
                 let lastIndex = 0;
 
                 aiResponseRawText.replace(codeBlockRegex, (match, fullBlock, language, code, offset) => {
-                    // Add preceding plain text segment
                     if (offset > lastIndex) {
                         segments.push({ type: 'text', content: aiResponseRawText.substring(lastIndex, offset) });
                     }
-                    // Add code block segment
                     segments.push({ type: 'code', language: language || 'text', content: code.trim(), raw: fullBlock });
                     lastIndex = offset + match.length;
                 });
 
-                // Add any remaining plain text
                 if (lastIndex < aiResponseRawText.length) {
                     segments.push({ type: 'text', content: aiResponseRawText.substring(lastIndex) });
                 }
@@ -816,43 +777,39 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (segmentIndex < segments.length) {
                         const segment = segments[segmentIndex];
                         if (segment.type === 'text') {
-                            const tempSpan = document.createElement('span'); // Use a temporary span for typing
+                            const tempSpan = document.createElement('span');
                             aiContentContainer.appendChild(tempSpan);
                             typeMessage(tempSpan, segment.content, typingSpeed);
-                            currentTypingAnimationTimeout = setTimeout(() => { // Schedule next segment after current text is typed
+                            currentTypingAnimationTimeout = setTimeout(() => {
                                 segmentIndex++;
-                                processNextSegment(); // Move to next segment
+                                processNextSegment();
                             }, segment.content.length * typingSpeed);
                         } else if (segment.type === 'code') {
-                            // Directly append code block HTML
-                            const codeHtml = parseMarkdownToHtml(segment.raw); // Use parser for code blocks
+                            const codeHtml = parseMarkdownToHtml(segment.raw);
                             aiContentContainer.insertAdjacentHTML('beforeend', codeHtml);
                             const newCodeBlock = aiContentContainer.lastElementChild;
                             if (newCodeBlock && newCodeBlock.querySelector('code')) {
                                 hljs.highlightElement(newCodeBlock.querySelector('code'));
                             }
                             segmentIndex++;
-                            processNextSegment(); // Immediately process next segment after code block
+                            processNextSegment();
                         }
                     } else {
-                        // All segments processed, add actions
                         addAiMessageActions(messageElement);
                         clearAttachedFiles();
                         checkScrollable();
                     }
                     if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
                 };
-                processNextSegment(); // Start processing segments
-                conversationHistory.push({ role: 'assistant', content: aiResponseRawText, modelUsed: modelTag, imageUrl: imageUrl }); // Store the full raw text in history
+                processNextSegment();
+                conversationHistory.push({ role: 'assistant', content: aiResponseRawText, modelUsed: modelTag, imageUrl: imageUrl });
             }
         }
 
-        // Limit history length (for active conversation only)
         if (conversationHistory.length > MAX_HISTORY_DISPLAY_LENGTH * 2) {
             conversationHistory = conversationHistory.slice(conversationHistory.length - (MAX_HISTORY_DISPLAY_LENGTH * 2));
         }
 
-        // Append to chat display
         if (chatDisplay && thinkingIndicator) {
             chatDisplay.insertBefore(messageElement, thinkingIndicator);
         } else if (chatDisplay) {
@@ -869,7 +826,6 @@ document.addEventListener('DOMContentLoaded', () => {
             checkScrollable();
         }, 50);
 
-        // Update conversation in allConversations object
         if (currentConversationId) {
              allConversations[currentConversationId] = {
                 id: currentConversationId,
@@ -879,22 +835,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 timestamp: Date.now()
             };
             saveConversations();
-            renderChatHistoryList(); // Update sidebar list (e.g., title change)
+            renderChatHistoryList();
         }
     }
 
 
-    // Function to get the full raw text from an AI message element
     function getFullRawContent(messageEl) {
         let fullContent = '';
         const contentContainer = messageEl.querySelector('.ai-message-content');
-        if (!contentContainer) return '';
+        if (!contentContainer) {
+            // For user messages, the content is directly in the user-message-content div
+            const userContent = messageEl.querySelector('.user-message-content');
+            return userContent ? userContent.textContent.trim() : '';
+        }
+
 
         contentContainer.childNodes.forEach(node => {
             if (node.nodeType === Node.TEXT_NODE) {
                 fullContent += node.textContent;
             } else if (node.nodeType === Node.ELEMENT_NODE) {
-                if (node.tagName === 'SPAN') { // For typed out text
+                if (node.tagName === 'SPAN') {
                     fullContent += node.textContent;
                 }
                 else if (node.tagName === 'IMG') {
@@ -904,7 +864,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const lang = langTag ? langTag.textContent.toLowerCase() : 'text';
                     const code = node.querySelector('code').textContent;
                     fullContent += `\n\n\`\`\`${lang}\n${code}\n\`\`\``;
-                } else { // For other HTML elements (strong, em, a, etc.)
+                } else {
                     fullContent += node.textContent;
                 }
             }
@@ -918,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const buttons = [
             { name: 'copy', icon: '<i class="fas fa-copy"></i>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<i class="fas fa-check" style="color: #66bb6a;"></i>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US'; // Or 'id-ID' for Indonesian
+            { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US';
             utterance.onend = () => { buttonEl.classList.remove('pulsing'); buttonEl.innerHTML = buttons[1].icon; };
             buttonEl.classList.add('pulsing'); buttonEl.innerHTML = '<i class="fas fa-volume-up"></i>';
             speechApi.speak(utterance); } } },
@@ -929,15 +889,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 buttonEl.disabled = true;
                 buttonEl.style.cursor = 'wait';
 
-                // Find the last user message in the current conversation history
                 const lastUserMessageObj = conversationHistory.slice().reverse().find(msg => msg.role === 'user');
                 if (lastUserMessageObj) {
-                    msgEl.remove(); // Remove the AI message being regenerated
-                    // Remove the last AI response from history (it's the one being regenerated)
+                    msgEl.remove();
                     if (conversationHistory.length > 0 && conversationHistory[conversationHistory.length - 1].role === 'assistant') {
                         conversationHistory.pop();
                     }
-                    generateRealAIResponse(lastUserMessageObj.content, attachedFiles, true); // Pass true for regenerate
+                    generateRealAIResponse(lastUserMessageObj.content, attachedFiles, true);
                 } else {
                     buttonEl.classList.remove('rotating');
                     buttonEl.disabled = false;
@@ -989,7 +947,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const payload = {
                 userMessage: userMessage,
-                // Only send recent history to keep payload size down and focus conversation
                 conversationHistory: conversationHistory.slice(Math.max(0, conversationHistory.length - MAX_HISTORY_DISPLAY_LENGTH * 2)),
                 attachedFiles: filesAsBase64,
                 selectedModel: currentSelectedModelValue,
@@ -1032,14 +989,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let personalizedResponseText = rawAiResponseText;
                 if (currentUser && currentUser.name) {
-                    if (!rawAiResponseText.startsWith('<span')) { // Check if it's not an error message
+                    if (!rawAiResponseText.startsWith('<span')) {
                         const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`;
                         personalizedResponseText = greeting + rawAiResponseText;
                     }
                 }
                 addChatMessage(personalizedResponseText, 'ai', generatedImageUrl, modelUsed, rawAiResponseText);
 
-                // Re-enable regenerate button if it was disabled
                 const regenerateBtn = document.querySelector('.ai-action-btn.rotating');
                 if (regenerateBtn) {
                     regenerateBtn.classList.remove('rotating');
@@ -1057,7 +1013,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const genericErrorMessage = `Maaf, terjadi masalah koneksi atau server: ${error.message || 'Silakan coba lagi.'}`;
                 addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai');
 
-                // Re-enable regenerate button if it was disabled
                 const regenerateBtn = document.querySelector('.ai-action-btn.rotating');
                 if (regenerateBtn) {
                     regenerateBtn.classList.remove('rotating');
@@ -1074,18 +1029,16 @@ document.addEventListener('DOMContentLoaded', () => {
             stopCurrentTypingAnimation();
 
             let finalPrompt = message;
-            // Jika ada file dan pesan kosong, buat prompt default
             if (attachedFiles.length > 0 && message === '') {
                 const fileNames = attachedFiles.map(f => f.name).join(', ');
                 finalPrompt = `Harap menganalisis file-file ini: ${fileNames}`;
             } else if (attachedFiles.length > 0) {
-                // Jika ada file dan pesan, tambahkan info file ke prompt
                 const fileNames = attachedFiles.map(f => f.name).join(', ');
                 finalPrompt = `${message} (Dilampirkan: ${fileNames})`;
             }
 
-            initialGreeting.classList.add('hidden'); // Sembunyikan pesan awal setelah interaksi
-            addChatMessage(messageInput.value.trim() || finalPrompt, 'user'); // Tampilkan pesan user asli atau prompt olahan jika hanya file
+            initialGreeting.classList.add('hidden');
+            addChatMessage(messageInput.value.trim() || finalPrompt, 'user');
             generateRealAIResponse(finalPrompt, attachedFiles);
 
             messageInput.value = '';
@@ -1094,9 +1047,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     messageInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendButton.click(); } });
 
-    // --- THEME TOGGLE ---
     const savedTheme = localStorage.getItem('novaria_theme');
-    const hljsLink = document.querySelector('link[href*="highlight.js"]'); // Get the highlight.js stylesheet
+    const hljsLink = document.querySelector('link[href*="highlight.js"]');
 
     function applyTheme(isLightMode) {
         if (isLightMode) {
@@ -1109,7 +1061,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (hljsLink) hljsLink.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css";
         }
         themeToggleMain.checked = isLightMode;
-        // Re-highlight all code blocks on theme change
         document.querySelectorAll('pre code').forEach((block) => {
             hljs.highlightElement(block);
         });
@@ -1123,7 +1074,6 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggleMain.addEventListener('change', () => applyTheme(themeToggleMain.checked));
 
 
-    // --- RIPPLE EFFECTS ---
     function setupRippleEffects() {
         const clickableElements = document.querySelectorAll('.btn-circle, .sidebar .new-chat-btn, .sidebar-item, .chat-item, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item, .toggle-button, .dropdown-item, .favorite-toggle-btn, .new-chat-btn-header, .sidebar-toggle-btn, .logout-btn');
         clickableElements.forEach(element => {
@@ -1133,7 +1083,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const newHandler = function (e) {
                 if (e.target.tagName === 'A' || e.target.closest('a') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                    return; // Don't add ripple to links or inputs directly
+                    return;
                 }
                 const ripple = document.createElement('span');
                 ripple.classList.add('ripple');
@@ -1159,12 +1109,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
                 let needsRippleSetup = false;
                 mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === 1) { // Element node
-                        // Check if the added node itself is a clickable element
+                    if (node.nodeType === 1) {
                         if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item') || node.matches('.model-option-item') || node.matches('.toggle-button') || node.matches('.chat-item') || node.matches('.dropdown-item') || node.matches('.sidebar .new-chat-btn') || node.matches('.logout-btn'))) {
                             needsRippleSetup = true;
                         }
-                        // Check if the added node contains clickable elements
                         if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button') || node.querySelector('.chat-item') || node.querySelector('.dropdown-item') || node.querySelector('.sidebar .new-chat-btn') || node.querySelector('.logout-btn'))) {
                             needsRippleSetup = true;
                         }
@@ -1178,17 +1126,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (chatDisplay) observer.observe(chatDisplay, { childList: true, subtree: true });
     if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
-    if (chatHistoryList) observer.observe(chatHistoryList, { childList: true, subtree: true }); // Observe sidebar history list
+    if (chatHistoryList) observer.observe(chatHistoryList, { childList: true, subtree: true });
     if (modelOptionsContainer) observer.observe(modelOptionsContainer, { childList: true, subtree: true });
-    const newInputWrapperContainer = document.querySelector('.new-input-wrapper-container'); // Ambil di sini
+    const newInputWrapperContainer = document.querySelector('.new-input-wrapper-container');
     if (newInputWrapperContainer) observer.observe(newInputWrapperContainer, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
 
 
-    // --- INPUT AREA APPEARANCE MANAGEMENT ---
     function updateInputAreaAppearance() {
         if (!bottomChatArea) return;
 
-        const totalBottomSpace = bottomChatArea.offsetHeight + 15 + 30; // 15 for gap + 30 for disclaimer
+        const totalBottomSpace = bottomChatArea.offsetHeight + 15 + 30;
         mainContent.style.paddingBottom = `${totalBottomSpace}px`;
 
         if (chatDisplay) {
@@ -1210,14 +1157,13 @@ document.addEventListener('DOMContentLoaded', () => {
     messageInput.addEventListener('focus', updateInputAreaAppearance);
 
 
-    // --- FILE ATTACHMENT ---
     plusButton.addEventListener('click', () => { fileInput.click(); });
 
     function displayFileChipItem(file) {
         const chipItem = document.createElement('div');
         chipItem.classList.add('file-chip-item');
         chipItem.dataset.fileName = file.name;
-        chipItem.dataset.fileSize = file.size; // Use size for better uniqueness
+        chipItem.dataset.fileSize = file.size;
 
         const fileIcon = document.createElement('i');
         fileIcon.classList.add('file-icon');
@@ -1276,7 +1222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => chipItem.classList.add('visible'), 10);
 
         if (fileChipContainer.children.length > 0) {
-            fileChipsArea.classList.remove('hidden'); // Show the area
+            fileChipsArea.classList.remove('hidden');
             fileChipContainer.scrollLeft = fileChipContainer.scrollWidth;
         }
         updateInputAreaAppearance();
@@ -1292,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 fileItemToRemove.remove();
                 if (fileChipContainer.children.length === 0) {
-                    fileChipsArea.classList.add('hidden'); // Hide the area
+                    fileChipsArea.classList.add('hidden');
                 }
                 updateInputAreaAppearance();
             }, 300);
@@ -1302,7 +1248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function clearAttachedFiles() {
         attachedFiles = [];
         fileChipContainer.innerHTML = '';
-        fileChipsArea.classList.add('hidden'); // Hide the area by default
+        fileChipsArea.classList.add('hidden');
         updateInputAreaAppearance();
     }
 
@@ -1345,14 +1291,13 @@ document.addEventListener('DOMContentLoaded', () => {
         fileInput.value = '';
     });
 
-    // --- SPEECH RECOGNITION (Voice Input) ---
     const voiceInputButton = document.getElementById('voiceInputButtonBottom');
     let recognition;
 
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        recognition.lang = 'en-US'; // Adjust to 'id-ID' for Indonesian
+        recognition.lang = 'en-US';
         recognition.continuous = false;
         recognition.interimResults = true;
         let finalTranscript = '';
@@ -1362,11 +1307,9 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; messageInput.placeholder = "Ask me anything..."; finalTranscript = ''; console.error('Speech recognition error: ', event.error); alert('Speech recognition error: ' + event.error); };
         voiceInputButton.addEventListener('click', () => { try { if (recognition && typeof recognition.stop === 'function' && recognition.recording) { recognition.stop(); } else { recognition.start(); } } catch (e) { if (recognition && typeof recognition.stop === 'function') recognition.stop(); } });
     } else {
-        voiceInputButton.style.display = 'none'; // Hide if not supported
+        voiceInputButton.style.display = 'none';
     }
 
-    // --- GLOBAL UTILITY FUNCTIONS ---
-    // Function global untuk copy code tetap ada
     window.copyCode = function(buttonElement) {
         const pre = buttonElement.closest('.code-block').querySelector('code');
         if (!pre) return;
@@ -1379,7 +1322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             buttonElement.title = 'Copied!';
             setTimeout(() => {
                 icon.className = originalClass;
-                icon.style.color = ''; // Reset to default
+                icon.style.color = '';
                 buttonElement.title = originalTitle;
             }, 2000);
         }).catch(err => {
@@ -1407,4 +1350,3 @@ document.addEventListener('DOMContentLoaded', () => {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 });
-// --- END OF FILE script.js ---

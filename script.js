@@ -1,4 +1,3 @@
-/* GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI */
 document.addEventListener('DOMContentLoaded', () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const storedUser = localStorage.getItem('novaUser');
@@ -15,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const profilePicture = document.getElementById('profilePicture');
             const profileName = document.getElementById('profileName');
-            const profileEmail = document.getElementById('profileEmail');
             const sidebarUserProfile = document.getElementById('sidebarUserProfile');
 
             if (currentUser) {
@@ -30,14 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 if (profileName) profileName.textContent = currentUser.name || 'User';
-                if (profileEmail) profileEmail.textContent = currentUser.email || 'user@example.com';
                 if (sidebarUserProfile) sidebarUserProfile.style.display = 'flex';
             } else {
                 if (sidebarUserProfile) sidebarUserProfile.style.display = 'none';
             }
 
         } catch (e) {
-            console.error("Error parsing user data or invalid data:", e);
+            console.error(e);
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('novaUser');
             window.location.href = 'login.html';
@@ -54,7 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     const sidebarNewChatBtn = document.getElementById('sidebarNewChatBtn');
     const headerNewChatBtn = document.getElementById('headerNewChatBtn');
-    const logoutButtonSidebar = document.getElementById('logoutButtonSidebar');
+    const userMenuToggleBtn = document.getElementById('userMenuToggleBtn');
+    const userMenuDropdown = document.getElementById('userMenuDropdown');
+    const logoutButtonUserMenu = document.getElementById('logoutButtonUserMenu');
 
     const novariaTitleDropdown = document.getElementById('novariaTitleDropdown');
     const novariaDropdownMenu = document.getElementById('novariaDropdownMenu');
@@ -102,8 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggleMain = document.getElementById('themeToggleMain');
 
     const availableModels = [
-        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'fast' },
-        { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash', type: 'smart' },
+        { value: 'gemini-2.5-flash', label: 'Flash', type: 'flash' },
+        { value: 'gemini-2.0-flash', label: 'Smart', type: 'smart' },
         { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', type: 'other' }
     ];
 
@@ -152,8 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
             titleSpan.textContent = conv.title || "New Chat";
             listItem.appendChild(titleSpan);
 
-            const favoriteIcon = document.createElement('i');
-            favoriteIcon.classList.add('fas', 'fa-star', 'favorite-icon');
+            const favoriteIcon = document.createElement('svg');
+            favoriteIcon.classList.add('icon-svg', 'favorite-icon', 'icon-fav-header'); // Use icon-fav-header styling
+            favoriteIcon.setAttribute('viewBox', '0 0 24 24');
+            favoriteIcon.innerHTML = '<path fill="currentColor" d="M21.919 10.127a1 1 0 0 0-.845-1.136l-5.651-.826l-2.526-5.147a1.037 1.037 0 0 0-1.795.001L8.577 8.165l-5.651.826a1 1 0 0 0-.556 1.704l4.093 4.013l-.966 5.664a1.002 1.002 0 0 0 1.453 1.052l5.05-2.67l5.049 2.669a1 1 0 0 0 1.454-1.05l-.966-5.665l4.094-4.014a1 1 0 0 0 .288-.567zm-5.269 4.05a.502.502 0 0 0-.143.441l1.01 5.921l-5.284-2.793a.505.505 0 0 0-.466 0L6.483 20.54l1.01-5.922a.502.502 0 0 0-.143-.441L3.07 9.98l5.912-.864a.503.503 0 0 0 .377-.275L12 3.46l2.64 5.382a.503.503 0 0 0 .378.275l5.913.863l-4.28 4.197z"/>';
             if (conv.isFavorite) {
                 favoriteIcon.classList.add('active');
             }
@@ -191,8 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chatDisplay.appendChild(initialGreeting);
         chatDisplay.appendChild(thinkingIndicator);
 
-        currentChatFavoriteBtn.querySelector('i').classList.remove('fas');
-        currentChatFavoriteBtn.querySelector('i').classList.add('far');
+        if (currentChatFavoriteBtn.querySelector('.icon-svg')) {
+             currentChatFavoriteBtn.querySelector('.icon-svg').classList.remove('active');
+        }
 
         renderChatHistoryList();
         closeSidebar();
@@ -231,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 userContent.classList.add('user-message-content');
                 userContent.textContent = msg.content;
                 msgEl.appendChild(userContent);
-            } else { // AI Message
+            } else {
                 const aiHeader = document.createElement('div');
                 aiHeader.classList.add('ai-message-header');
 
@@ -272,11 +274,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chatDisplay.appendChild(thinkingIndicator);
 
         if (allConversations[chatId]?.isFavorite) {
-            currentChatFavoriteBtn.querySelector('i').classList.remove('far');
-            currentChatFavoriteBtn.querySelector('i').classList.add('fas');
+            currentChatFavoriteBtn.querySelector('.icon-svg').classList.add('active');
         } else {
-            currentChatFavoriteBtn.querySelector('i').classList.remove('fas');
-            currentChatFavoriteBtn.querySelector('i').classList.add('far');
+            currentChatFavoriteBtn.querySelector('.icon-svg').classList.remove('active');
         }
 
         setTimeout(() => chatDisplay.scrollTop = chatDisplay.scrollHeight, 100);
@@ -291,11 +291,9 @@ document.addEventListener('DOMContentLoaded', () => {
             renderChatHistoryList();
             if (chatId === currentConversationId) {
                 if (allConversations[chatId].isFavorite) {
-                    currentChatFavoriteBtn.querySelector('i').classList.remove('far');
-                    currentChatFavoriteBtn.querySelector('i').classList.add('fas');
+                    currentChatFavoriteBtn.querySelector('.icon-svg').classList.add('active');
                 } else {
-                    currentChatFavoriteBtn.querySelector('i').classList.remove('fas');
-                    currentChatFavoriteBtn.querySelector('i').classList.add('far');
+                    currentChatFavoriteBtn.querySelector('.icon-svg').classList.remove('active');
                 }
             }
         }
@@ -342,6 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeSidebar() {
         appContainer.classList.remove('sidebar-open');
         sidebarOverlay.classList.remove('active');
+        userMenuDropdown.classList.remove('show');
     }
 
     function setSelectedModel(modelValue, updateFastSmartToggle = true) {
@@ -353,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (updateFastSmartToggle) {
                 fastButton.classList.remove('active');
                 smartButton.classList.remove('active');
-                if (selectedModel.type === 'fast') {
+                if (selectedModel.type === 'flash') {
                     fastButton.classList.add('active');
                 } else if (selectedModel.type === 'smart') {
                     smartButton.classList.add('active');
@@ -406,7 +405,13 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarOverlay.addEventListener('click', closeSidebar);
     sidebarNewChatBtn.addEventListener('click', createNewChat);
     headerNewChatBtn.addEventListener('click', createNewChat);
-    logoutButtonSidebar.addEventListener('click', (event) => {
+
+    userMenuToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userMenuDropdown.classList.toggle('show');
+    });
+
+    logoutButtonUserMenu.addEventListener('click', (event) => {
         event.preventDefault();
         if (confirm('Are you sure you want to log out?')) {
             localStorage.removeItem('isLoggedIn');
@@ -427,6 +432,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!novariaTitleDropdown.contains(e.target) && !novariaDropdownMenu.contains(e.target)) {
             novariaDropdownMenu.classList.remove('show');
             novariaTitleDropdown.classList.remove('active');
+        }
+        if (!userMenuToggleBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+            userMenuDropdown.classList.remove('show');
         }
         if (!modelSelectModal.contains(e.target) && modelSelectModal.classList.contains('active')) {
              closeModelSelectModal();
@@ -510,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
         customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
     }
     if (closeModelModalButton) {
-        closeModelModalButton.addEventListener('click', closeModelModal);
+        closeModelModalButton.addEventListener('click', closeModelSelectModal);
     }
     if (modelSelectModal) {
         modelSelectModal.addEventListener('click', (event) => {
@@ -671,7 +679,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         finalHtml = finalHtml.replace(/<br>\s*<\/(h[1-6]|ul|ol|li|p|div)>/g, '</$1>');
         finalHtml = finalHtml.replace(/<br>\s*<pre>/g, '<pre>');
-
 
         return finalHtml;
     }
@@ -971,7 +978,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (jsonError) {
                     const plainTextError = await response.text();
                     errorMessageToDisplay = `Terjadi kesalahan server: ${response.status}. Detail: ${plainTextError.substring(0, 100)}... (bukan JSON)`;
-                    console.error("Server returned non-JSON error:", plainTextError);
+                    console.error(plainTextError);
                 }
 
                 if (thinkingIndicator) {
@@ -1010,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300);
 
         } catch (error) {
-            console.error('Error fetching from /api/generate (network or unexpected):', error);
+            console.error(error);
             if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
@@ -1078,14 +1085,14 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggleMain.addEventListener('change', () => applyTheme(themeToggleMain.checked));
 
     function setupRippleEffects() {
-        const clickableElements = document.querySelectorAll('.btn-circle, .sidebar .new-chat-btn, .sidebar-item, .chat-item, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item, .toggle-button, .dropdown-item, .favorite-toggle-btn, .new-chat-btn-header, .sidebar-toggle-btn, .logout-btn');
+        const clickableElements = document.querySelectorAll('.btn-circle, .sidebar .new-chat-btn, .chat-item, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item, .toggle-button, .dropdown-item, .favorite-toggle-btn, .new-chat-btn-header, .sidebar-toggle-btn, .user-menu-item, .user-menu-toggle-btn');
         clickableElements.forEach(element => {
             const oldHandler = element._rippleHandler;
             if (oldHandler) {
                 element.removeEventListener('click', oldHandler);
             }
             const newHandler = function (e) {
-                if (e.target.tagName === 'A' || e.target.closest('a') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                if (e.target.tagName === 'A' || e.target.closest('a') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('icon-svg')) {
                     return;
                 }
                 const ripple = document.createElement('span');
@@ -1113,10 +1120,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 let needsRippleSetup = false;
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType === 1) {
-                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item') || node.matches('.model-option-item') || node.matches('.toggle-button') || node.matches('.chat-item') || node.matches('.dropdown-item') || node.matches('.sidebar .new-chat-btn') || node.matches('.logout-btn'))) {
+                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.remove-chip-btn') || node.matches('.chat-item') || node.matches('.model-option-item') || node.matches('.toggle-button') || node.matches('.dropdown-item') || node.matches('.user-menu-item') || node.matches('.sidebar .new-chat-btn') || node.matches('.logout-btn'))) {
                             needsRippleSetup = true;
                         }
-                        if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button') || node.querySelector('.chat-item') || node.querySelector('.dropdown-item') || node.querySelector('.sidebar .new-chat-btn') || node.querySelector('.logout-btn'))) {
+                        if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.chat-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button') || node.querySelector('.dropdown-item') || node.querySelector('.user-menu-item') || node.querySelector('.sidebar .new-chat-btn') || node.querySelector('.logout-btn'))) {
                             needsRippleSetup = true;
                         }
                     }
@@ -1305,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
         recognition.onstart = () => { voiceInputButton.style.backgroundColor = 'red'; messageInput.placeholder = 'Listening...'; };
         recognition.onresult = (event) => { let interimTranscript = ''; for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) { finalTranscript += event.results[i][0].transcript; } else { interimTranscript += event.results[i][0].transcript; } } messageInput.value = finalTranscript + interimTranscript; autoResizeTextarea(); };
         recognition.onend = () => { voiceInputButton.style.backgroundColor = ''; if (finalTranscript.trim() !== '') { messageInput.value = finalTranscript.trim(); sendButton.click(); } if (messageInput.value.trim() === '') { messageInput.placeholder = "Ask me anything..."; } finalTranscript = ''; };
-        recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; messageInput.placeholder = "Ask me anything..."; finalTranscript = ''; console.error('Speech recognition error: ', event.error); alert('Speech recognition error: ' + event.error); };
+        recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; messageInput.placeholder = "Ask me anything..."; finalTranscript = ''; console.error(event.error); alert('Speech recognition error: ' + event.error); };
         voiceInputButton.addEventListener('click', () => { try { if (recognition && typeof recognition.stop === 'function' && recognition.recording) { recognition.stop(); } else { recognition.start(); } } catch (e) { if (recognition && typeof recognition.stop === 'function') recognition.stop(); } });
     } else {
         voiceInputButton.style.display = 'none';
@@ -1318,25 +1325,60 @@ document.addEventListener('DOMContentLoaded', () => {
             const icon = buttonElement.querySelector('i');
             const originalClass = icon.className;
             const originalTitle = buttonElement.title;
-            icon.className = 'fas fa-check';
-            icon.style.color = '#66bb6a';
+            if (icon) {
+                icon.className = 'fas fa-check'; // Fallback for Font Awesome if needed
+                icon.style.color = '#66bb6a';
+            } else { // For SVG icons
+                const svg = buttonElement.querySelector('svg');
+                if (svg) {
+                    const path = svg.querySelector('path');
+                    svg.dataset.originalSvg = svg.innerHTML; // Store original SVG for restoration
+                    svg.innerHTML = '<path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>'; // Checkmark SVG
+                    svg.style.fill = '#66bb6a';
+                }
+            }
             buttonElement.title = 'Copied!';
             setTimeout(() => {
-                icon.className = originalClass;
-                icon.style.color = '';
+                if (icon) {
+                    icon.className = originalClass;
+                    icon.style.color = '';
+                } else {
+                    const svg = buttonElement.querySelector('svg');
+                    if (svg && svg.dataset.originalSvg) {
+                         svg.innerHTML = svg.dataset.originalSvg;
+                         svg.style.fill = '';
+                    }
+                }
                 buttonElement.title = originalTitle;
             }, 2000);
         }).catch(err => {
-            console.error('Failed to copy code: ', err);
+            console.error(err);
             const icon = buttonElement.querySelector('i');
             const originalClass = icon.className;
             const originalTitle = buttonElement.title;
-            icon.className = 'fas fa-times';
-            icon.style.color = '#ff4444';
+            if (icon) {
+                icon.className = 'fas fa-times';
+                icon.style.color = '#ff4444';
+            } else {
+                const svg = buttonElement.querySelector('svg');
+                if (svg) {
+                    svg.dataset.originalSvg = svg.innerHTML;
+                    svg.innerHTML = '<path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17L12 13.41L8.41 17L7 15.59L10.59 12L7 8.41L8.41 7L12 10.59L15.59 7L17 8.41L13.41 12L17 15.59z"/>'; // X mark SVG
+                    svg.style.fill = '#ff4444';
+                }
+            }
             buttonElement.title = 'Error!';
             setTimeout(() => {
-                icon.className = originalClass;
-                icon.style.color = '';
+                if (icon) {
+                    icon.className = originalClass;
+                    icon.style.color = '';
+                } else {
+                    const svg = buttonElement.querySelector('svg');
+                    if (svg && svg.dataset.originalSvg) {
+                        svg.innerHTML = svg.dataset.originalSvg;
+                        svg.style.fill = '';
+                    }
+                }
                 buttonElement.title = originalTitle;
             }, 2000);
         });

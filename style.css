@@ -1,34 +1,28 @@
-/* GANTI SELURUH ISI STYLE.CSS ANDA DENGAN KODE INI */
-
-/* CSS Variables for Themes */
 :root {
-  /* Dark Mode Defaults */
-  --bg-color: #1a1a1a; /* Background utama aplikasi */
-  --text-color: #ffffff; /* Warna teks umum */
-  --input-bg: #2a2a2a; /* Background untuk area input teks */
-  --button-bg: #3a3a3a; /* Background tombol-tombol umum */
-  --button-hover-bg: #5a5a5a; /* Hover state untuk tombol */
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --input-bg: #2a2a2a;
+  --button-bg: #3a3a3a;
+  --button-hover-bg: #5a5a5a;
   --placeholder-color: rgba(255, 255, 255, 0.5);
-  --sidebar-bg: #111111; /* Background sidebar */
+  --sidebar-bg: #111111;
   --sidebar-text: #ffffff;
-  --sidebar-header-bg: #1a1a1a;
   --sidebar-header-border: rgba(255, 255, 255, 0.1);
   --sidebar-footer-border: rgba(255, 255, 255, 0.1);
   --sidebar-item-hover: #2a2a2a;
   --ripple-color: rgba(255, 255, 255, 0.4);
-  --border-color: rgba(255, 255, 255, 0.1); /* Border untuk elemen */
-  --modal-bg: #222222; /* Warna background modal */
+  --border-color: rgba(255, 255, 255, 0.1);
+  --modal-bg: #222222;
   --modal-text: #ffffff;
   --modal-close-button: #999999;
   --modal-close-button-hover: #ffffff;
-  --quick-complete-bg: #222222; /* (Mungkin tidak digunakan lagi) */
+  --quick-complete-bg: #222222;
   --quick-complete-text: #ffffff;
   --quick-complete-hover-bg: #3a3a3a;
 
-  /* Perubahan besar di sini: Warna teks pesan agar tidak ada bubble */
-  --user-message-color: #ffffff; /* Warna teks untuk pesan pengguna */
-  --ai-message-color: rgba(255, 255, 255, 0.9); /* Warna teks untuk pesan AI */
-  --user-avatar-bg: #9C27B0; /* Warna ungu untuk avatar user inisial */
+  --user-message-color: #ffffff;
+  --ai-message-color: rgba(255, 255, 255, 0.9);
+  --user-avatar-bg: #9C27B0;
 
   --ai-thinking-color: rgba(255, 255, 255, 0.7);
   --file-chip-bg: #3a3a3a;
@@ -47,11 +41,10 @@
   --copy-button-hover-bg: #6a707c;
   --code-language-tag-bg: #4a4f59;
   --code-language-tag-text: #ffffff;
-  --glass-bg: rgba(26, 26, 26, 0.8); /* Background header utama */
+  --glass-bg: rgba(26, 26, 26, 0.8);
   --glass-border-color: rgba(255, 255, 255, 0.1);
 
-  /* Input area specific colors */
-  --new-input-container-bg: #222222; /* Background untuk kontainer input utama */
+  --new-input-container-bg: #222222;
   --new-input-container-border: rgba(255, 255, 255, 0.08);
   --toggle-group-bg: #333333;
   --toggle-button-bg: transparent;
@@ -62,16 +55,14 @@
   --model-selector-border: #555555;
   --model-selector-text: #ffffff;
   --model-selector-hover-bg: #5a5a5a;
-  --file-chip-area-bg: rgba(26, 26, 26, 0.6); /* Background transparan untuk area chips */
+  --file-chip-area-bg: rgba(26, 26, 26, 0.6);
 
-  /* New chat history items */
   --chat-item-bg: #2a2a2a;
   --chat-item-hover-bg: #3a3a3a;
-  --chat-item-fav-color: #ffcc00; /* Gold for favorited icon */
+  --chat-item-fav-color: #ffcc00;
   --chat-item-text-color: #f0f0f0;
   --chat-item-meta-color: #aaaaaa;
 
-  /* Dropdown Menu (Novaria title) */
   --dropdown-bg: #2a2a2a;
   --dropdown-item-hover-bg: #3a3a3a;
   --dropdown-text: #f0f0f0;
@@ -100,10 +91,9 @@ body.light-mode {
   --quick-complete-text: #333333;
   --quick-complete-hover-bg: #dddddd;
 
-  /* Perubahan besar di sini: Warna teks pesan agar tidak ada bubble */
-  --user-message-color: #333333; /* Warna teks untuk pesan pengguna */
-  --ai-message-color: rgba(51, 51, 51, 0.9); /* Warna teks untuk pesan AI */
-  --user-avatar-bg: #673AB7; /* Warna ungu lebih terang untuk avatar user inisial di light mode */
+  --user-message-color: #333333;
+  --ai-message-color: rgba(51, 51, 51, 0.9);
+  --user-avatar-bg: #673AB7;
 
   --ai-thinking-color: rgba(51, 51, 51, 0.7);
   --file-chip-bg: #cccccc;
@@ -149,22 +139,20 @@ body.light-mode {
   --dropdown-text: #333333;
 }
 
-/* General Styles */
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
-  overflow: hidden; /* Mencegah scroll body secara keseluruhan */
+  overflow: hidden;
   transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Sembunyikan body secara default, tampilkan setelah login diverifikasi */
 body.app-hidden {
     opacity: 0;
-    pointer-events: none; /* Cegah interaksi saat tersembunyi */
+    pointer-events: none;
 }
 
 body.app-loaded {
@@ -177,19 +165,79 @@ body.app-loaded {
   box-shadow: none;
 }
 
-/* --- APP CONTAINER (Main Layout) --- */
+.icon-svg {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    fill: currentColor;
+    stroke: none;
+}
+
+.icon-svg path {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.icon-svg.icon-menu {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    fill: none;
+}
+.icon-svg.icon-fav-header {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+}
+.icon-svg.icon-new-chat-header, .icon-svg.icon-new-chat-sidebar {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
+}
+.icon-svg.icon-dropdown-arrow {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+.icon-svg.icon-voice {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    fill: none;
+}
+.icon-svg.icon-send {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+.icon-svg.icon-plus {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    fill: none;
+}
+.icon-svg.icon-logout, .icon-svg.icon-contact, .icon-svg.icon-settings {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    fill: none;
+}
+.icon-svg.icon-logout path, .icon-svg.icon-contact path, .icon-svg.icon-settings path {
+    stroke-width: 1.5;
+}
+
+
 .app-container {
     display: grid;
-    grid-template-columns: 0px 1fr; /* Default: sidebar tersembunyi */
+    grid-template-columns: 0px 1fr;
     height: 100vh;
-    transition: grid-template-columns 0.3s ease; /* Smooth transition for sidebar */
+    transition: grid-template-columns 0.3s ease;
 }
 
 .app-container.sidebar-open {
-    grid-template-columns: 280px 1fr; /* Lebar sidebar saat terbuka */
+    grid-template-columns: 280px 1fr;
 }
 
-/* --- SIDEBAR STYLES --- */
 .sidebar {
     background-color: var(--sidebar-bg);
     color: var(--sidebar-text);
@@ -197,17 +245,17 @@ body.app-loaded {
     display: flex;
     flex-direction: column;
     box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-    overflow-y: auto; /* Scroll jika history terlalu panjang */
-    transition: margin-left 0.3s ease; /* Animasi geser sidebar */
-    width: 280px; /* Lebar asli sidebar */
-    margin-left: -280px; /* Default: tersembunyi */
+    overflow-y: auto;
+    transition: margin-left 0.3s ease;
+    width: 280px;
+    margin-left: -280px;
     box-sizing: border-box;
     position: relative;
-    z-index: 1001; /* Pastikan di atas overlay */
+    z-index: 1001;
 }
 
 .app-container.sidebar-open .sidebar {
-    margin-left: 0; /* Sidebar terlihat */
+    margin-left: 0;
 }
 
 .sidebar-overlay {
@@ -217,7 +265,7 @@ body.app-loaded {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1000; /* Di antara sidebar dan main content */
+    z-index: 1000;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -258,7 +306,7 @@ body.app-loaded {
     width: 100%;
     justify-content: flex-start;
     transition: background-color 0.2s ease;
-    position: relative; /* For ripple */
+    position: relative;
     overflow: hidden;
 }
 
@@ -266,12 +314,8 @@ body.app-loaded {
     background-color: var(--button-hover-bg);
 }
 
-.sidebar .new-chat-btn i {
-    font-size: 1.2em;
-}
-
 .chat-history-container {
-    flex-grow: 1; /* Agar mengambil sisa ruang */
+    flex-grow: 1;
     padding-bottom: 20px;
     display: flex;
     flex-direction: column;
@@ -286,15 +330,13 @@ body.app-loaded {
     font-weight: 600;
 }
 
-/* Kustomisasi Scrollbar untuk chat history */
 #chat-history-list {
     list-style: none;
     padding: 0;
     margin: 0;
-    overflow-y: auto; /* Scrollable history list */
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     flex-grow: 1;
-    /* Custom scrollbar for WebKit */
     &::-webkit-scrollbar {
         width: 6px;
     }
@@ -308,7 +350,6 @@ body.app-loaded {
     &::-webkit-scrollbar-thumb:hover {
         background-color: var(--button-hover-bg);
     }
-    /* Custom scrollbar for Firefox */
     scrollbar-width: thin;
     scrollbar-color: var(--button-bg) transparent;
 }
@@ -324,7 +365,7 @@ body.app-loaded {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.1s ease;
-    position: relative; /* For ripple */
+    position: relative;
     overflow: hidden;
 }
 
@@ -334,7 +375,7 @@ body.app-loaded {
 }
 
 .chat-item.active-chat {
-    background-color: #3b82f6; /* Blue for active chat */
+    background-color: #3b82f6;
     color: white;
     font-weight: 600;
 }
@@ -353,24 +394,25 @@ body.app-loaded {
 }
 
 .chat-item .favorite-icon {
-    color: var(--chat-item-meta-color); /* Default non-favorited */
+    color: var(--chat-item-meta-color);
     margin-left: 10px;
     font-size: 0.9em;
     transition: color 0.2s ease;
 }
 
 .chat-item .favorite-icon.active {
-    color: var(--chat-item-fav-color); /* Gold for favorited */
+    color: var(--chat-item-fav-color);
 }
 
 .sidebar-footer {
     padding-top: 20px;
     border-top: 1px solid var(--sidebar-footer-border);
-    margin-top: auto; /* Push to bottom */
+    margin-top: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
+    position: relative;
 }
 
 .user-info {
@@ -389,10 +431,10 @@ body.app-loaded {
     height: 45px;
     border-radius: 50%;
     object-fit: cover;
-    background-color: #555; /* Placeholder color */
+    background-color: var(--user-avatar-bg);
     border: 2px solid var(--border-color);
     flex-shrink: 0;
-    display: flex; /* For centering initial text */
+    display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
@@ -414,47 +456,75 @@ body.app-loaded {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.user-info .profile-email {
-    font-size: 0.8em;
-    color: var(--chat-item-meta-color);
-    white-space: nowrap;
+.user-info .user-menu-toggle-btn {
+    background: none;
+    border: none;
+    color: var(--sidebar-text);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.2s ease;
+    position: relative;
     overflow: hidden;
-    text-overflow: ellipsis;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.user-info .user-menu-toggle-btn:hover {
+    color: #ccc;
 }
 
-.logout-btn {
-    background-color: #dc3545; /* Red logout button */
-    color: white;
-    border: none;
-    padding: 10px 15px;
+.user-menu-dropdown-content {
+    position: absolute;
+    bottom: calc(100% + 10px); /* Position above the user info */
+    left: 15px;
+    background-color: var(--dropdown-bg);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: 500;
+    min-width: 180px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    display: none; /* Controlled by JS */
+    z-index: 100;
+    overflow: hidden;
+    padding: 5px 0;
+    transform-origin: bottom left;
+}
+
+.user-menu-dropdown-content.show {
+    display: block;
+    animation: fadeInScaleUp 0.2s ease-out forwards;
+}
+
+@keyframes fadeInScaleUp {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.user-menu-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 100%;
-    justify-content: center;
+    padding: 10px 15px;
+    color: var(--dropdown-text);
+    text-decoration: none;
+    font-size: 0.95em;
     transition: background-color 0.2s ease;
-    position: relative; /* For ripple */
+    position: relative;
     overflow: hidden;
 }
 
-.logout-btn:hover {
-    background-color: #c82333;
+.user-menu-item:hover {
+    background-color: var(--dropdown-item-hover-bg);
 }
 
 
-/* --- MAIN CONTENT STYLES --- */
 .main-content {
     display: flex;
     flex-direction: column;
     height: 100vh;
     flex-grow: 1;
     position: relative;
-    padding-top: 70px; /* Space for header */
-    padding-bottom: 120px; /* Space for bottom chat area (initial, updated by JS) */
+    padding-top: 70px;
+    padding-bottom: 120px;
     box-sizing: border-box;
 }
 
@@ -470,16 +540,16 @@ body.app-loaded {
     position: fixed;
     top: 0;
     left: 0;
-    width: calc(100% - 280px); /* Adjust width when sidebar is open */
-    height: 70px; /* Fixed height */
+    width: calc(100% - 280px);
+    height: 70px;
     box-sizing: border-box;
     z-index: 100;
     transition: width 0.3s ease, left 0.3s ease;
 }
 
 .app-container.sidebar-open .main-header {
-    width: calc(100% - 280px); /* Adjust width when sidebar is open */
-    left: 280px; /* Shift header to the right */
+    width: calc(100% - 280px);
+    left: 280px;
 }
 
 .sidebar-toggle-btn {
@@ -502,13 +572,13 @@ body.app-loaded {
     position: relative;
     cursor: pointer;
     user-select: none;
-    font-size: 1.6em; /* Slightly larger */
+    font-size: 1.6em;
     font-weight: bold;
     color: var(--text-color);
     display: flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 10px; /* Make it clickable area larger */
+    padding: 5px 10px;
     border-radius: 8px;
     transition: background-color 0.2s ease;
 }
@@ -520,12 +590,12 @@ body.light-mode .novaria-title-dropdown:hover {
 }
 
 
-.novaria-title-dropdown i {
-    font-size: 0.6em;
+.novaria-title-dropdown .icon-svg {
+    transform: rotate(0deg);
     transition: transform 0.2s ease;
 }
 
-.novaria-title-dropdown.active i {
+.novaria-title-dropdown.active .icon-svg {
     transform: rotate(180deg);
 }
 
@@ -537,12 +607,12 @@ body.light-mode .novaria-title-dropdown:hover {
     background-color: var(--dropdown-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    min-width: 200px; /* Lebar menu dropdown */
+    min-width: 200px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     display: none;
     z-index: 1000;
     overflow: hidden;
-    padding: 5px 0; /* Padding vertikal untuk item */
+    padding: 5px 0;
 }
 
 .dropdown-menu.show {
@@ -588,7 +658,7 @@ body.light-mode .novaria-title-dropdown:hover {
     background: none;
     border: none;
     color: var(--text-color);
-    font-size: 1.5em; /* Ukuran ikon */
+    font-size: 1.5em;
     cursor: pointer;
     padding: 5px;
     transition: color 0.2s ease, transform 0.1s ease;
@@ -600,14 +670,13 @@ body.light-mode .novaria-title-dropdown:hover {
     color: #ccc;
 }
 
-.favorite-toggle-btn i.fas { /* Solid star for active/favorited */
-    color: var(--chat-item-fav-color);
+.favorite-toggle-btn .icon-svg.icon-fav-header {
+    fill: var(--chat-item-fav-color);
 }
-.favorite-toggle-btn i.far { /* Outline star for non-favorited */
-    color: var(--text-color);
+body.light-mode .favorite-toggle-btn .icon-svg.icon-fav-header {
+    fill: var(--chat-item-fav-color);
 }
 
-/* Theme Toggle in Header */
 .theme-toggle-main {
     position: relative;
     margin-left: 10px;
@@ -625,12 +694,11 @@ body.light-mode .novaria-title-dropdown:hover {
     height: 22px;
 }
 
-/* Page Sections (Chat) */
 .page-section {
   opacity: 1;
   transform: translateY(0);
   transition: opacity 0.5s ease, transform 0.5s ease;
-  position: relative; /* Make it flow normally */
+  position: relative;
   width: 100%;
   height: 100%;
   top: 0;
@@ -644,39 +712,35 @@ body.light-mode .novaria-title-dropdown:hover {
   display: none !important;
 }
 
-/* Chat History/Display */
 .chat-display {
     flex-grow: 1;
     width: 100%;
-    max-width: 800px; /* Lebar maksimal konten chat */
-    margin: 0 auto; /* Tengah secara horizontal */
+    max-width: 800px;
+    margin: 0 auto;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 20px 20px 20px; /* Initial padding, bottom will be adjusted by JS */
+    padding: 20px 20px 20px;
     box-sizing: border-box;
     position: relative;
     display: flex;
     flex-direction: column;
-    /* Kustomisasi Scrollbar untuk chat display */
     &::-webkit-scrollbar {
-        width: 8px; /* Lebar scrollbar */
+        width: 8px;
     }
     &::-webkit-scrollbar-track {
-        background: transparent; /* Track scrollbar transparan */
+        background: transparent;
     }
     &::-webkit-scrollbar-thumb {
-        background-color: var(--button-bg); /* Warna thumb scrollbar */
-        border-radius: 4px; /* Sudut melengkung thumb */
+        background-color: var(--button-bg);
+        border-radius: 4px;
     }
     &::-webkit-scrollbar-thumb:hover {
-        background-color: var(--button-hover-bg); /* Warna thumb saat hover */
+        background-color: var(--button-hover-bg);
     }
-    /* Custom scrollbar for Firefox */
     scrollbar-width: thin;
     scrollbar-color: var(--button-bg) transparent;
 }
 
-/* Scroll fade effect - keep for smooth transition to bottom */
 .chat-display.has-scroll-fade::after {
   content: '';
   position: absolute;
@@ -700,93 +764,57 @@ body.light-mode .novaria-title-dropdown:hover {
     font-size: 1.5em;
     font-weight: 500;
     color: var(--text-color);
-    margin-top: auto; /* Push to center vertically */
+    margin-top: auto;
     margin-bottom: 20px;
     opacity: 0.9;
 }
 
-/* === PERUBAHAN UTAMA UNTUK MENGHILANGKAN BUBBLE CHAT DAN MENJAGA ALIGNMENT === */
 .chat-message {
     max-width: 100%;
     word-wrap: break-word;
     line-height: 1.7;
     font-size: 1em;
-    margin-bottom: 20px; /* Jarak antar pesan */
-    padding: 0; /* Hapus padding bubble */
-    border-radius: 0; /* Hapus border-radius bubble */
-    background-color: transparent; /* Hapus background bubble */
-    box-shadow: none; /* Hapus shadow bubble */
+    margin-bottom: 20px;
+    padding: 0;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
     transition: opacity 0.5s ease, transform 0.5s ease;
     opacity: 0;
     transform: translateY(15px);
     display: flex;
     flex-direction: column;
-    position: relative; /* Untuk positioning avatar/header */
 }
 
-/* Wrapper untuk pesan pengguna */
 .user-message {
-    align-self: flex-end; /* Pesan user rata kanan */
-    text-align: right; /* Teks di dalam pesan user rata kanan */
-    max-width: 80%; /* Batasi lebar pesan user agar tidak terlalu panjang */
+    align-self: flex-end;
+    text-align: right;
+    max-width: 80%;
     color: var(--user-message-color);
-    margin-left: auto; /* Push to right */
+    margin-left: auto;
+    padding-left: 50px; /* Tambahkan padding agar teks tidak terlalu dekat ke tepi saat rata kanan */
 }
 
-/* Header untuk pesan user (nama dan avatar) */
-.user-message-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 10px;
-    font-weight: 600;
-    color: var(--text-color);
-    justify-content: flex-end; /* Rata kanan untuk header user */
-}
-
-.user-message-header .user-avatar-chat { /* Avatar di dalam chat */
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    background-color: var(--user-avatar-bg); /* Warna avatar inisial */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    text-transform: uppercase;
-    flex-shrink: 0;
-}
-
-.user-message-header .user-name-chat {
-    font-weight: 600;
-    font-size: 1.05em;
-    color: var(--text-color);
-}
-
-
-/* Wrapper untuk pesan AI */
 .ai-message {
-    align-self: flex-start; /* Pesan AI rata kiri */
-    text-align: left; /* Teks di dalam pesan AI rata kiri */
-    max-width: 80%; /* Batasi lebar pesan AI agar tidak terlalu panjang */
+    align-self: flex-start;
+    text-align: left;
+    max-width: 80%;
     color: var(--ai-message-color);
-    margin-right: auto; /* Push to left */
+    margin-right: auto;
+    padding-right: 50px; /* Tambahkan padding agar teks tidak terlalu dekat ke tepi saat rata kiri */
 }
 
 .ai-message-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px; /* Jarak antara header AI dan konten pesan */
+  margin-bottom: 10px;
   color: var(--text-color);
-  justify-content: flex-start; /* Rata kiri untuk header AI */
+  justify-content: flex-start;
 }
 
 .ai-message-header .ai-logo {
-  width: 32px; /* Ukuran logo AI */
+  width: 32px;
   height: 32px;
   object-fit: contain;
   flex-shrink: 0;
@@ -795,7 +823,7 @@ body.light-mode .novaria-title-dropdown:hover {
 
 .ai-message-header .ai-name {
   font-weight: 600;
-  font-size: 1.05em; /* Ukuran font nama AI */
+  font-size: 1.05em;
   color: var(--text-color);
 }
 
@@ -814,13 +842,11 @@ body.light-mode .novaria-title-dropdown:hover {
     font-size: 0.98em;
     color: var(--ai-message-color);
 }
-/* This span will now hold the typed out content */
 .ai-message-content > span {
     white-space: pre-wrap;
-    display: block; /* Ensure it takes full width for text flow */
+    display: block;
 }
 
-/* Gambar yang dihasilkan AI */
 .ai-generated-image {
     max-width: 100%;
     height: auto;
@@ -835,16 +861,16 @@ body.light-mode .novaria-title-dropdown:hover {
 
 .ai-message-actions {
     display: flex;
-    gap: 10px; /* Jarak antar tombol action */
-    margin-top: 15px; /* Jarak lebih besar dari konten */
-    justify-content: flex-start; /* Rata kiri */
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: flex-start;
     width: 100%;
 }
 .ai-action-btn {
     background-color: var(--action-button-bg);
     border: none;
     border-radius: 50%;
-    width: 36px; /* Ukuran tombol action */
+    width: 36px;
     height: 36px;
     display: flex;
     align-items: center;
@@ -862,7 +888,6 @@ body.light-mode .novaria-title-dropdown:hover {
 body.light-mode .ai-action-btn svg { stroke: var(--action-button-icon-color); }
 
 
-/* --- THINKING INDICATOR (New Style) --- */
 #thinkingIndicator {
   color: var(--ai-thinking-color);
   font-style: italic;
@@ -870,21 +895,21 @@ body.light-mode .ai-action-btn svg { stroke: var(--action-button-icon-color); }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0; /* Hapus padding agar tidak seperti bubble */
-  background-color: transparent; /* Hapus background */
-  border-radius: 0; /* Hapus border-radius */
-  box-shadow: none; /* Hapus shadow */
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
   opacity: 0;
   transition: opacity 0.3s ease;
   align-self: flex-start;
-  max-width: fit-content; /* Biar lebarnya sesuai konten */
-  height: auto; /* Biar kontennya pas */
+  max-width: fit-content;
+  height: auto;
 }
 
 #thinkingIndicator .spinner {
   width: 20px;
   height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3); /* Warna lebih terang dari --ai-thinking-color */
+  border: 3px solid rgba(255, 255, 255, 0.3);
   border-top: 3px solid var(--ai-thinking-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -893,7 +918,7 @@ body.light-mode .ai-action-btn svg { stroke: var(--action-button-icon-color); }
 
 #thinkingIndicator .thinking-text {
   font-weight: 500;
-  animation: fade-in-out 1.5s infinite alternate; /* Animasi berkedip */
+  animation: fade-in-out 1.5s infinite alternate;
 }
 
 @keyframes spin {
@@ -918,7 +943,7 @@ body.light-mode .ai-action-btn svg { stroke: var(--action-button-icon-color); }
     color: var(--placeholder-color);
     font-size: 0.85em;
     text-align: center;
-    z-index: 90; /* Di bawah bottom-chat-area */
+    z-index: 90;
     box-sizing: border-box;
     border-top: 1px solid var(--border-color);
 }
@@ -927,26 +952,25 @@ body.light-mode .disclaimer-footer {
     border-top: 1px solid var(--border-color);
 }
 
-/* --- BOTTOM CHAT AREA (File chips & Input) --- */
 .bottom-chat-area {
     position: fixed;
     bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 40px); /* 20px padding each side */
+    width: calc(100% - 40px);
     max-width: 900px;
     display: flex;
     flex-direction: column;
-    gap: 8px; /* Space between file chips area and input wrapper */
+    gap: 8px;
     z-index: 95;
     box-sizing: border-box;
-    align-items: center; /* Center horizontally */
-    transition: width 0.3s ease, left 0.3s ease, transform 0.3s ease; /* For sidebar open/close */
+    align-items: center;
+    transition: width 0.3s ease, left 0.3s ease, transform 0.3s ease;
 }
 
 .app-container.sidebar-open .bottom-chat-area {
-    width: calc(100% - 280px - 40px); /* Adjust width when sidebar is open */
-    left: calc(280px + (100% - 280px) / 2); /* Center relative to main content area */
+    width: calc(100% - 280px - 40px);
+    left: calc(280px + (100% - 280px) / 2);
     transform: translateX(-50%);
 }
 
@@ -962,16 +986,16 @@ body.light-mode .disclaimer-footer {
     display: flex;
     justify-content: flex-start;
     position: relative;
-    z-index: 1; /* Di atas main content footer */
-    background-color: var(--file-chip-area-bg); /* Background transparan */
-    backdrop-filter: blur(8px); /* Efek blur */
+    z-index: 1;
+    background-color: var(--file-chip-area-bg);
+    backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-radius: 12px;
     border: 1px solid var(--border-color);
     padding-top: 8px;
     padding-bottom: 8px;
 }
-.file-chips-area.hidden { /* Added by JS when no files */
+.file-chips-area.hidden {
     display: none;
     opacity: 0;
 }
@@ -979,14 +1003,14 @@ body.light-mode .disclaimer-footer {
 .file-chip-container {
   display: flex;
   align-items: center;
-  gap: 8px; /* Jarak antar chip */
+  gap: 8px;
   overflow-x: auto;
   overflow-y: hidden;
   flex-shrink: 1;
   min-width: 0;
   scrollbar-width: thin;
   scrollbar-color: var(--button-hover-bg) transparent;
-  padding-bottom: 5px; /* Agar scrollbar tidak menutupi chip */
+  padding-bottom: 5px;
 }
 .file-chip-container::-webkit-scrollbar { height: 4px; }
 .file-chip-container::-webkit-scrollbar-track { background: transparent; }
@@ -1021,7 +1045,7 @@ body.light-mode .disclaimer-footer {
     background-color: var(--input-bg);
     border-radius: 20px;
     padding: 8px 12px;
-    position: relative; /* For ripple on buttons */
+    position: relative;
 }
 
 
@@ -1039,7 +1063,7 @@ body.light-mode .disclaimer-footer {
   transition: background-color 0.2s ease, opacity 0.3s ease, transform 0.3s ease;
   white-space: nowrap;
   max-width: 150px;
-  height: 32px; /* Fixed height for consistency */
+  height: 32px;
   box-sizing: border-box;
   opacity: 0;
   transform: scale(0.9);
@@ -1058,7 +1082,6 @@ body.light-mode .disclaimer-footer {
 }
 .file-chip-item .remove-chip-btn:hover { opacity: 1; color: var(--file-chip-remove-hover-color); transform: scale(1.1); background-color: rgba(255, 255, 255, 0.1); }
 
-/* Input field (textarea) */
 .input-bottom-row textarea {
   flex-grow: 1;
   background: none;
@@ -1078,8 +1101,8 @@ body.light-mode .disclaimer-footer {
   word-wrap: break-word;
   margin-bottom: 0;
   text-align: left;
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: var(--button-hover-bg) transparent; /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--button-hover-bg) transparent;
 }
 .input-bottom-row textarea::-webkit-scrollbar { width: 4px; }
 .input-bottom-row textarea::-webkit-scrollbar-track { background: transparent; }
@@ -1091,7 +1114,6 @@ body.light-mode .disclaimer-footer {
   text-align: left;
 }
 
-/* Button circles (general style) */
 .btn-circle {
   background-color: var(--button-bg);
   border: none;
@@ -1109,31 +1131,31 @@ body.light-mode .disclaimer-footer {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 .btn-circle:hover { background-color: var(--button-hover-bg); }
-.btn-circle i { color: var(--text-color); font-size: 1.2em; transition: color 0.3s ease; }
+.btn-circle .icon-svg { color: var(--text-color); font-size: 1.2em; transition: color 0.3s ease; }
 
-/* Specific button styles for the new layout */
 .btn-plus-top {
     width: 36px;
     height: 36px;
     background-color: var(--button-bg);
 }
-.btn-plus-top i {
-    font-size: 1.1em;
+.btn-plus-top .icon-svg {
+    width: 20px;
+    height: 20px;
 }
 .btn-voice-bottom, .btn-send-bottom {
     width: 36px;
     height: 36px;
     background-color: var(--button-bg);
 }
-.btn-voice-bottom i, .btn-send-bottom i {
-    font-size: 1.1em;
+.btn-voice-bottom .icon-svg, .btn-send-bottom .icon-svg {
+    width: 20px;
+    height: 20px;
 }
-.btn-send-bottom i {
-    transform: rotate(90deg); /* Icon points right, make it point up */
+.btn-send-bottom .icon-svg {
+    transform: rotate(90deg);
 }
 
 
-/* Model Selector Styling */
 .model-selector-container {
     display: flex;
     align-items: center;
@@ -1151,7 +1173,7 @@ body.light-mode .disclaimer-footer {
     outline: none;
     appearance: none;
     transition: background-color 0.2s ease, border-color 0.2s ease;
-    max-width: 160px; /* Batasi lebar */
+    max-width: 160px;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -1172,18 +1194,18 @@ body.light-mode .disclaimer-footer {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.custom-selector-trigger i {
+.custom-selector-trigger .icon-svg {
     flex-shrink: 0;
-    font-size: 0.8em;
+    width: 14px;
+    height: 14px;
     color: var(--model-selector-text);
     transition: transform 0.2s ease;
 }
-.model-select-modal.active .custom-selector-trigger i {
+.model-select-modal.active .custom-selector-trigger .icon-svg {
     transform: rotate(180deg);
 }
 
 
-/* --- Custom Model Select Modal Styling --- */
 .model-select-modal {
     position: fixed;
     top: 0;
@@ -1279,7 +1301,7 @@ body.light-mode .disclaimer-footer {
     flex-grow: 1;
 }
 
-.model-option-item i.fas.fa-check { /* Checkmark icon */
+.model-option-item i.fas.fa-check {
     width: 20px;
     height: 20px;
     font-size: 1em;
@@ -1314,7 +1336,6 @@ body.light-mode .disclaimer-footer {
     transform: scale(1.1);
 }
 
-/* --- Fast/Smart Toggle Styling --- */
 .speed-smart-toggle-container {
     flex-grow: 1;
     display: flex;
@@ -1353,7 +1374,7 @@ body.light-mode .disclaimer-footer {
 }
 
 .toggle-button:hover:not(.active) {
-    background-color: var(--toggle-button-hover-bg, rgba(255,255,255,0.05)); /* Slightly visible hover */
+    background-color: var(--toggle-button-hover-bg, rgba(255,255,255,0.05));
     color: var(--toggle-button-active-text);
 }
 body.light-mode .toggle-button:hover:not(.active) {
@@ -1361,7 +1382,6 @@ body.light-mode .toggle-button:hover:not(.active) {
 }
 
 
-/* --- Ripple Effect --- */
 .ripple {
     position: absolute;
     border-radius: 50%;
@@ -1376,7 +1396,6 @@ body.light-mode .toggle-button:hover:not(.active) {
     to { transform: scale(2.5); opacity: 0; }
 }
 
-/* --- Theme Toggle Switch --- */
 .theme-toggle-main, .theme-toggle-container { display: flex; align-items: center; }
 .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -1434,7 +1453,6 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 
 .hidden { display: none !important; }
 
-/* Code Block */
 .code-block {
   background-color: var(--code-block-bg);
   color: var(--code-block-text);
@@ -1468,13 +1486,12 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 .code-block .copy-code-btn i { width: 16px; height: 16px; stroke: var(--copy-button-text, #ffffff); fill: none; stroke-width: 2; color: inherit; }
 body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
 
-/* Animasi Tombol (regenerate, speak) */
 @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.ai-action-btn.rotating i { animation: spin-slow 2s linear infinite; } /* Regenerate */
+.ai-action-btn.rotating i { animation: spin-slow 2s linear infinite; }
 
 @keyframes pulse-icon { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-.ai-action-btn.pulsing i { animation: pulse-icon 1.5s ease-in-out infinite; color: #3b82f6; } /* Speak */
-.ai-action-btn.liked i { color: #3b82f6; } /* Like */
+.ai-action-btn.pulsing i { animation: pulse-icon 1.5s ease-in-out infinite; color: #3b82f6; }
+.ai-action-btn.liked i { color: #3b82f6; }
 
 
 @media (max-width: 768px) {
@@ -1489,14 +1506,14 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
     }
 
     .sidebar {
-        width: 250px; /* Slightly smaller sidebar on mobile */
+        width: 250px;
         margin-left: -250px;
     }
     .app-container.sidebar-open {
         grid-template-columns: 250px 1fr;
     }
     .main-header {
-        width: 100%; /* Header always full width on mobile */
+        width: 100%;
         left: 0;
     }
 }
@@ -1528,7 +1545,7 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
     }
 
     .bottom-chat-area {
-        width: calc(100% - 30px); /* Smaller padding on mobile */
+        width: calc(100% - 30px);
         bottom: 10px;
     }
     .new-input-wrapper-container {
@@ -1545,15 +1562,16 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
         width: 32px;
         height: 32px;
     }
-    .btn-circle i {
+    .btn-circle .icon-svg {
         font-size: 1em;
     }
     .btn-plus-top, .btn-voice-bottom, .btn-send-bottom {
         width: 32px;
         height: 32px;
     }
-    .btn-plus-top i, .btn-voice-bottom i, .btn-send-bottom i {
-        font-size: 1em;
+    .btn-plus-top .icon-svg, .btn-voice-bottom .icon-svg, .btn-send-bottom .icon-svg {
+        width: 18px;
+        height: 18px;
     }
     .custom-selector-trigger {
         padding: 6px 10px;
@@ -1561,8 +1579,9 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
         border-radius: 18px;
         height: 32px;
     }
-    .custom-selector-trigger i {
-        font-size: 0.7em;
+    .custom-selector-trigger .icon-svg {
+        width: 12px;
+        height: 12px;
     }
     .toggle-switch-group {
         height: 32px;

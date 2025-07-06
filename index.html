@@ -7,7 +7,7 @@
   <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com">
   <title>Novaria - AI Assistant</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome for new icons -->
+  <!-- Font Awesome for any remaining standard icons, though we'll use SVGs -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css">
@@ -20,15 +20,23 @@
     <!-- =============== SIDEBAR =============== -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>Novaria</h3>
+            <!-- Sidebar header: Novaria title and new chat button -->
+            <div class="sidebar-header-top">
+                <h3>Novaria</h3>
+                <!-- Toggle button untuk sidebar di header sidebar (jika diperlukan) -->
+                <!-- Menghapus button ini karena sudah ada di main header -->
+            </div>
             <button class="new-chat-btn" id="sidebarNewChatBtn">
-                <i class="fas fa-plus"></i> New Chat
+                <!-- Icon new chat SVG -->
+                <svg class="icon-svg icon-new-chat-sidebar" viewBox="0 0 16 16"><path fill="currentColor" d="M7.5 4a.5.5 0 0 1 .5.5V7h2.5a.5.5 0 0 1 0 1H8v2.5a.5.5 0 0 1-1 0V8H4.5a.5.5 0 0 1 0-1H7V4.5a.5.5 0 0 1 .5-.5"/><path fill="currentColor" fill-rule="evenodd" d="M0 6.4c0-2.24 0-3.36.436-4.22A4.03 4.03 0 0 1 2.186.43c.856-.436 1.98-.436 4.22-.436h2.2c2.24 0 3.36 0 4.22.436c.753.383 1.36.995 1.75 1.75c.436.856.436 1.98.436 4.22v2.2c0 2.24 0 3.36-.436 4.22a4.03 4.03 0 0 1-1.75 1.75c-.856.436-1.98.436-4.22.436h-2.2c-2.24 0-3.36 0-4.22-.436a4.03 4.03 0 0 1-1.75-1.75C0 11.964 0 10.84 0 8.6zM6.4 1h2.2c1.14 0 1.93 0 2.55.051c.605.05.953.142 1.22.276a3.02 3.02 0 0 1 1.31 1.31c.134.263.226.611.276 1.22c.05.617.051 1.41.051 2.55v2.2c0 1.14 0 1.93-.051 2.55c-.05.605-.142.953-.276 1.22a3 3 0 0 1-1.31 1.31c-.263.134-.611.226-1.22.276c-.617.05-1.41.051-2.55.051H6.4c-1.14 0-1.93 0-2.55-.05c-.605-.05-.953-.143-1.22-.277a3 3 0 0 1-1.31-1.31c-.134-.263-.226-.61-.276-1.22c-.05-.617-.051-1.41-.051-2.55v-2.2c0-1.14 0-1.93.051-2.55c.05-.605.142-.953.276-1.22a3.02 3.02 0 0 1 1.31-1.31c.263-.134.611-.226 1.22-.276C4.467 1.001 5.26 1 6.4 1" clip-rule="evenodd"/></svg>
+                New Chat
             </button>
         </div>
         <div class="chat-history-container">
-            <h4>History Chat</h4>
+            <h4>History</h4>
             <ul id="chat-history-list">
                 <!-- Chat history items will be dynamically added here by JavaScript -->
+                <!-- Contoh: <li class="chat-item"><span>Contoh history 1</span><i class="fas fa-star favorite-icon"></i></li> -->
             </ul>
         </div>
         <div class="sidebar-footer">
@@ -36,12 +44,31 @@
                 <img id="profilePicture" src="placeholder-user.png" alt="User Avatar" class="user-avatar">
                 <div class="profile-details">
                     <span id="profileName" class="profile-name">User Name</span>
-                    <span id="profileEmail" class="profile-email">user@example.com</span>
+                    <!-- Email dihilangkan dari tampilan jika tidak dibutuhkan -->
                 </div>
+                <button class="user-menu-toggle-btn" id="userMenuToggleBtn">
+                    <!-- Icon tiga titik vertikal -->
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
             </div>
-            <button class="logout-btn" id="logoutButtonSidebar">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+            <!-- User Menu Dropdown -->
+            <div class="user-menu-dropdown-content" id="userMenuDropdown">
+                <a href="settings.html" class="dropdown-item user-menu-item" id="settingsBtn">
+                    <!-- Icon setting SVG -->
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7.05 6.462a2 2 0 0 0 2.63-1.519l.32-1.72a9 9 0 0 1 3.998 0l.322 1.72a2 2 0 0 0 2.63 1.519l1.649-.58a9 9 0 0 1 2.001 3.46l-1.33 1.14a2 2 0 0 0 0 3.037l1.33 1.139a9 9 0 0 1-2.001 3.46l-1.65-.58a2 2 0 0 0-2.63 1.519L14 20.777a9 9 0 0 1-3.998 0l-.322-1.72a2 2 0 0 0-2.63-1.519l-1.649.58a9 9 0 0 1-2.001-3.46l1.33-1.14a2 2 0 0 0 0-3.036L3.4 9.342a9 9 0 0 1 2-3.46zM12 9a3 3 0 1 1 0 6a3 3 0 0 1 0-6" clip-rule="evenodd"/></svg>
+                    Settings
+                </a>
+                <a href="contact.html" class="dropdown-item user-menu-item" id="contactBtn">
+                    <!-- Icon contact SVG -->
+                    <svg class="icon-svg" viewBox="0 0 512 512"><path fill="currentColor" fill-rule="evenodd" d="M422.401 217.174c-6.613-67.84-46.72-174.507-170.666-174.507c-123.947 0-164.054 106.667-170.667 174.507c-23.2 8.805-38.503 31.079-38.4 55.893v29.867c0 32.99 26.744 59.733 59.733 59.733c32.99 0 59.734-26.744 59.734-59.733v-29.867c-.108-24.279-14.848-46.095-37.334-55.253c4.267-39.254 25.174-132.48 126.934-132.48s122.453 93.226 126.72 132.48c-22.44 9.178-37.106 31.009-37.12 55.253v29.867a59.95 59.95 0 0 0 33.92 53.76c-8.96 16.853-31.787 39.68-87.894 46.506c-11.215-17.03-32.914-23.744-51.788-16.023c-18.873 7.72-29.646 27.717-25.71 47.725s21.48 34.432 41.872 34.432a42.67 42.67 0 0 0 37.973-23.68c91.52-10.454 120.747-57.6 129.92-85.334c24.817-8.039 41.508-31.301 41.173-57.386v-29.867c.103-24.814-15.2-47.088-38.4-55.893m-302.933 85.76c0 9.425-7.641 17.066-17.067 17.066s-17.066-7.64-17.066-17.066v-29.867a17.067 17.067 0 1 1 34.133 0zm264.533-29.867c0-9.426 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v29.867c0 9.425-7.641 17.066-17.067 17.066s-17.067-7.64-17.067-17.066z"/></svg>
+                    Contact
+                </a>
+                <a href="#" class="dropdown-item user-menu-item" id="logoutButtonUserMenu">
+                    <!-- Icon logout SVG -->
+                    <svg class="icon-svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"><path stroke-linejoin="round" d="M13.477 21.245H8.34a4.918 4.918 0 0 1-5.136-4.623V7.378A4.918 4.918 0 0 1 8.34 2.755h5.136"/><path stroke-miterlimit="10" d="M20.795 12H7.442"/><path stroke-linejoin="round" d="m16.083 17.136l4.404-4.404a1.04 1.04 0 0 0 0-1.464l-4.404-4.404"/></g></svg>
+                    Logout
+                </a>
+            </div>
         </div>
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -49,24 +76,33 @@
     <!-- =============== MAIN CONTENT =============== -->
     <main class="main-content">
         <header class="main-header">
+            <!-- Sidebar Toggle Button (Hamburger menu) -->
             <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
-                <i class="fas fa-bars"></i>
+                <svg class="icon-svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 17h8m-8-5h14M5 7h8"/></svg>
             </button>
+            <!-- Novaria Title Dropdown -->
             <div class="novaria-title-dropdown" id="novariaTitleDropdown">
-                <span id="novaria-main-title">Novaria <i class="fas fa-angle-down"></i></span>
+                <span id="novaria-main-title">Novaria
+                    <!-- Icon dropdown SVG -->
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="m7 10l5 5l5-5z"/></svg>
+                </span>
                 <div class="dropdown-menu" id="novariaDropdownMenu">
+                    <!-- Existing dropdown items -->
                     <a href="#" class="dropdown-item" id="exportChatBtn"><i class="fas fa-file-export"></i> Export Chat</a>
                     <a href="#" class="dropdown-item" id="shareChatBtn"><i class="fas fa-share-alt"></i> Share Chat</a>
                     <a href="#" class="dropdown-item" id="clearCurrentChatBtn"><i class="fas fa-trash-alt"></i> Clear Current Chat</a>
                     <a href="#" class="dropdown-item" id="clearAllHistoryBtn"><i class="fas fa-history"></i> Clear All History</a>
                 </div>
             </div>
+            <!-- Header Actions Right -->
             <div class="header-actions-right">
                 <button class="favorite-toggle-btn" id="currentChatFavoriteBtn">
-                    <i class="far fa-star"></i> <!-- Initial non-favorited state -->
+                    <!-- Icon favorite SVG -->
+                    <svg class="icon-svg icon-fav-header" viewBox="0 0 24 24"><path fill="currentColor" d="M21.919 10.127a1 1 0 0 0-.845-1.136l-5.651-.826l-2.526-5.147a1.037 1.037 0 0 0-1.795.001L8.577 8.165l-5.651.826a1 1 0 0 0-.556 1.704l4.093 4.013l-.966 5.664a1.002 1.002 0 0 0 1.453 1.052l5.05-2.67l5.049 2.669a1 1 0 0 0 1.454-1.05l-.966-5.665l4.094-4.014a1 1 0 0 0 .288-.567zm-5.269 4.05a.502.502 0 0 0-.143.441l1.01 5.921l-5.284-2.793a.505.505 0 0 0-.466 0L6.483 20.54l1.01-5.922a.502.502 0 0 0-.143-.441L3.07 9.98l5.912-.864a.503.503 0 0 0 .377-.275L12 3.46l2.64 5.382a.503.503 0 0 0 .378.275l5.913.863l-4.28 4.197z"/></svg>
                 </button>
                 <button class="new-chat-btn-header" id="headerNewChatBtn">
-                    <i class="fas fa-plus-circle"></i>
+                    <!-- Icon new chat SVG -->
+                    <svg class="icon-svg icon-new-chat-header" viewBox="0 0 16 16"><path fill="currentColor" d="M7.5 4a.5.5 0 0 1 .5.5V7h2.5a.5.5 0 0 1 0 1H8v2.5a.5.5 0 0 1-1 0V8H4.5a.5.5 0 0 1 0-1H7V4.5a.5.5 0 0 1 .5-.5"/><path fill="currentColor" fill-rule="evenodd" d="M0 6.4c0-2.24 0-3.36.436-4.22A4.03 4.03 0 0 1 2.186.43c.856-.436 1.98-.436 4.22-.436h2.2c2.24 0 3.36 0 4.22.436c.753.383 1.36.995 1.75 1.75c.436.856.436 1.98.436 4.22v2.2c0 2.24 0 3.36-.436 4.22a4.03 4.03 0 0 1-1.75 1.75c-.856.436-1.98.436-4.22.436h-2.2c-2.24 0-3.36 0-4.22-.436a4.03 4.03 0 0 1-1.75-1.75C0 11.964 0 10.84 0 8.6zM6.4 1h2.2c1.14 0 1.93 0 2.55.051c.605.05.953.142 1.22.276a3.02 3.02 0 0 1 1.31 1.31c.134.263.226.611.276 1.22c.05.617.051 1.41.051 2.55v2.2c0 1.14 0 1.93-.051 2.55c-.05.605-.142.953-.276 1.22a3 3 0 0 1-1.31 1.31c-.263.134-.611-.226-1.22-.276c-.617.05-1.41.051-2.55.051H6.4c-1.14 0-1.93 0-2.55-.05c-.605-.05-.953-.143-1.22-.277a3 3 0 0 1-1.31-1.31c-.134-.263-.226-.61-.276-1.22c-.05-.617-.051-1.41-.051-2.55v-2.2c0-1.14 0-1.93.051-2.55c.05-.605.142-.953.276-1.22a3.02 3.02 0 0 1 1.31-1.31c.263-.134.611-.226 1.22-.276C4.467 1.001 5.26 1 6.4 1" clip-rule="evenodd"/></svg>
                 </button>
                 <!-- Theme Toggle -->
                 <div id="mainThemeToggleContainer" class="theme-toggle-main">
@@ -88,7 +124,7 @@
         <section id="chatSection" class="page-section chat-active">
             <div id="chatHistory" class="chat-display">
                 <!-- Initial greeting or chat messages will appear here -->
-                <div class="initial-greeting">Hi Fariz, I Can Help You?</div>
+                <div class="initial-greeting">Hii Fariz, I Can Help You?</div>
                 <div id="thinkingIndicator" class="ai-message thinking-indicator hidden">
                     <div class="spinner"></div>
                     <span class="thinking-text">Thinking...</span>
@@ -109,22 +145,24 @@
                     <!-- Model Selector Trigger -->
                     <div class="model-selector-container">
                         <button id="customModelSelectorTrigger" class="custom-selector-trigger">
-                            <span id="selectedModelName"></span>
-                            <i class="fas fa-angle-down"></i>
+                            <span id="selectedModelName">gemini-2.5-flash</span>
+                            <!-- Icon dropdown SVG -->
+                            <svg class="icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="m7 10l5 5l5-5z"/></svg>
                         </button>
                     </div>
 
                     <!-- Fast/Smart Toggle -->
                     <div class="speed-smart-toggle-container">
                         <div class="toggle-switch-group">
-                            <button id="fastButton" class="toggle-button active">Fast</button>
+                            <button id="fastButton" class="toggle-button active">Flash</button>
                             <button id="smartButton" class="toggle-button">Smart</button>
                         </div>
                     </div>
 
                     <!-- Plus button (Attachment) -->
                     <button class="btn-circle btn-plus-top" id="plusButtonTop">
-                        <i class="fas fa-plus"></i>
+                        <!-- Icon plus SVG -->
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14m-7-7h14"/></svg>
                     </button>
                 </div>
 
@@ -134,11 +172,13 @@
 
                     <!-- Voice Input Button -->
                     <button class="btn-circle btn-voice-bottom" id="voiceInputButtonBottom">
-                        <i class="fas fa-microphone"></i>
+                        <!-- Icon voice SVG -->
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16M8 9v6m12-5v4M4 10v4m12-7v10"/></svg>
                     </button>
                     <!-- Send Button -->
                     <button class="btn-circle btn-send-bottom" id="sendButtonBottom">
-                        <i class="fas fa-arrow-up"></i>
+                        <!-- Icon send SVG -->
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path fill="currentColor" d="m17.71 11.29l-5-5a1 1 0 0 0-.33-.21a1 1 0 0 0-.76 0a1 1 0 0 0-.33.21l-5 5a1 1 0 0 0 1.42 1.42L11 9.41V17a1 1 0 0 0 2 0V9.41l3.29 3.3a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.42Z"/></svg>
                     </button>
                 </div>
             </div>

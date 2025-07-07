@@ -7,11 +7,9 @@
   <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com">
   <title>Novaria - AI Assistant</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-  <!-- Font Awesome for new icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="style.css">
-  <!-- HIGHLIGHT.JS STYLES FOR CODE BLOCKS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
 <body class="app-hidden">
@@ -32,6 +30,9 @@
             </ul>
         </div>
         <div class="sidebar-footer">
+            <button class="settings-btn" id="sidebarSettingsBtn">
+                <i class="fas fa-cog"></i> Settings
+            </button>
             <div class="user-info" id="sidebarUserProfile">
                 <img id="profilePicture" src="placeholder-user.png" alt="User Avatar" class="user-avatar">
                 <div class="profile-details">
@@ -63,12 +64,11 @@
             </div>
             <div class="header-actions-right">
                 <button class="favorite-toggle-btn" id="currentChatFavoriteBtn">
-                    <i class="far fa-star"></i> <!-- Initial non-favorited state -->
+                    <i class="far fa-star"></i>
                 </button>
                 <button class="new-chat-btn-header" id="headerNewChatBtn">
                     <i class="fas fa-plus-circle"></i>
                 </button>
-                <!-- Theme Toggle -->
                 <div id="mainThemeToggleContainer" class="theme-toggle-main">
                     <label class="switch">
                         <input type="checkbox" id="themeToggleMain">
@@ -87,16 +87,20 @@
 
         <section id="chatSection" class="page-section chat-active">
             <div id="chatHistory" class="chat-display">
-                <!-- Initial greeting or chat messages will appear here -->
                 <div class="initial-greeting">Hi Fariz, I Can Help You?</div>
+                <div id="quickPrompts" class="quick-prompts-container">
+                    <button class="quick-prompt-btn">Berikan ide konten menarik</button>
+                    <button class="quick-prompt-btn">Apa berita teknologi terbaru?</button>
+                    <button class="quick-prompt-btn">Jelaskan konsep machine learning</button>
+                    <button class="quick-prompt-btn">Saran resep masakan mudah</button>
+                </div>
                 <div id="thinkingIndicator" class="ai-message thinking-indicator hidden">
                     <div class="spinner"></div>
-                    <span class="thinking-text">Thinking...</span>
+                    <span class="thinking-text">Sabar...</span>
                 </div>
             </div>
         </section>
 
-        <!-- New Wrapper for the bottom chat area -->
         <div class="bottom-chat-area" id="bottomChatArea">
             <div class="file-chips-area" id="fileChipsArea">
                 <div id="fileChipContainer" class="file-chip-container">
@@ -106,7 +110,6 @@
 
             <div class="new-input-wrapper-container">
                 <div class="input-top-row">
-                    <!-- Model Selector Trigger -->
                     <div class="model-selector-container">
                         <button id="customModelSelectorTrigger" class="custom-selector-trigger">
                             <span id="selectedModelName"></span>
@@ -114,29 +117,24 @@
                         </button>
                     </div>
 
-                    <!-- Fast/Smart Toggle -->
                     <div class="speed-smart-toggle-container">
                         <div class="toggle-switch-group">
-                            <button id="fastButton" class="toggle-button active">Fast</button>
-                            <button id="smartButton" class="toggle-button">Smart</button>
+                            <button id="fastButton" class="toggle-button active">Text</button>
+                            <button id="smartButton" class="toggle-button">Image</button>
                         </div>
                     </div>
 
-                    <!-- Plus button (Attachment) -->
                     <button class="btn-circle btn-plus-top" id="plusButtonTop">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
 
                 <div class="input-bottom-row">
-                    <!-- Message Input -->
                     <textarea id="messageInput" placeholder="Ask me anything..." rows="1"></textarea>
 
-                    <!-- Voice Input Button -->
                     <button class="btn-circle btn-voice-bottom" id="voiceInputButtonBottom">
                         <i class="fas fa-microphone"></i>
                     </button>
-                    <!-- Send Button -->
                     <button class="btn-circle btn-send-bottom" id="sendButtonBottom">
                         <i class="fas fa-arrow-up"></i>
                     </button>
@@ -150,7 +148,6 @@
     </main>
   </div>
 
-  <!-- Hidden file input -->
   <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
 
   <!-- Custom Model Select Modal -->
@@ -162,6 +159,50 @@
           </div>
           <button id="closeModelModal" class="close-modal-btn">&times;</button>
       </div>
+  </div>
+
+  <!-- User Settings Modal -->
+  <div id="settingsModal" class="settings-modal">
+    <div class="settings-modal-content">
+      <h3>User Settings</h3>
+      <div class="settings-form">
+        <div class="form-group">
+          <label for="defaultModelSetting">Default AI Model:</label>
+          <select id="defaultModelSetting">
+            <!-- Options populated by JS -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="typingSpeedSetting">Typing Speed (ms per char):</label>
+          <input type="number" id="typingSpeedSetting" min="1" max="100" value="5">
+          <span>(Lower is faster)</span>
+        </div>
+        <div class="form-group">
+          <label for="maxHistoryLengthSetting">Max History Messages:</label>
+          <input type="number" id="maxHistoryLengthSetting" min="2" max="50" value="10">
+          <span>(Per conversation for context)</span>
+        </div>
+        <div class="form-group">
+            <label for="languageSetting">AI Response Language:</label>
+            <select id="languageSetting">
+                <option value="en-US">English (US)</option>
+                <option value="id-ID">Bahasa Indonesia</option>
+                <option value="ja-JP">Japanese</option>
+                <option value="es-ES">Spanish</option>
+            </select>
+        </div>
+        <div class="form-actions">
+          <button class="btn-save-settings" id="saveSettingsBtn"><i class="fas fa-save"></i> Save Settings</button>
+          <button class="btn-reset-settings" id="resetSettingsBtn"><i class="fas fa-undo"></i> Reset to Default</button>
+        </div>
+      </div>
+      <button id="closeSettingsModal" class="close-modal-btn">&times;</button>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container">
+      <!-- Toasts will be appended here -->
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>

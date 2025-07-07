@@ -62,29 +62,29 @@ export default async function handler(req, res) {
     // selectedModel akan berisi 'gemini-2.5-flash', 'gemini-2.0-flash', atau 'gemini-1.5-flash'
     const MODELS_CONFIG_BACKEND = {
         'gemini-2.5-flash': { // Ini adalah nama yang dikirim dari frontend
-            model: 'gemini-1.5-flash-latest', // Nama model yang sebenarnya di API Gemini
-            temperature: 0.9,
+            model: 'gemini-2.5-flash', // Nama model yang sebenarnya di API Gemini
+            temperature: 0.1,
             topP: 1,
             topK: 1,
             maxOutputTokens: 2048,
         },
         'gemini-2.0-flash': { // Nama yang dikirim dari frontend untuk Smart
-            model: 'gemini-1.5-pro-latest', // Nama model yang sebenarnya di API Gemini
-            temperature: 0.7,
+            model: 'gemini-2.0-flash', // Nama model yang sebenarnya di API Gemini
+            temperature: 0.5,
             topP: 1,
             topK: 1,
             maxOutputTokens: 2048,
         },
         'gemini-1.5-flash': { // Nama yang dikirim dari frontend untuk Other (jika ada)
-            model: 'gemini-1.5-flash-latest', // Contoh, bisa ganti ke model lain jika perlu
-            temperature: 0.8,
+            model: 'gemini-1.5-flash', // Contoh, bisa ganti ke model lain jika perlu
+            temperature: 0.9,
             topP: 1,
             topK: 1,
             maxOutputTokens: 2048,
         },
         // Model default jika 'selectedModel' tidak cocok dengan yang di atas
         'default': {
-            model: 'gemini-1.5-flash-latest',
+            model: 'gemini-1.5-flash',
             temperature: 0.9,
             topP: 1,
             topK: 1,

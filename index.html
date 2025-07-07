@@ -15,7 +15,6 @@
 <body class="app-hidden">
 
   <div class="app-container">
-    <!-- =============== SIDEBAR =============== -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>Novaria</h3>
@@ -26,7 +25,6 @@
         <div class="chat-history-container">
             <h4>History Chat</h4>
             <ul id="chat-history-list">
-                <!-- Chat history items will be dynamically added here by JavaScript -->
             </ul>
         </div>
         <div class="sidebar-footer">
@@ -47,7 +45,6 @@
     </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- =============== MAIN CONTENT =============== -->
     <main class="main-content">
         <header class="main-header">
             <button class="sidebar-toggle-btn" id="sidebarToggleBtn">
@@ -104,7 +101,6 @@
         <div class="bottom-chat-area" id="bottomChatArea">
             <div class="file-chips-area" id="fileChipsArea">
                 <div id="fileChipContainer" class="file-chip-container">
-                    <!-- File chips will be added here -->
                 </div>
             </div>
 
@@ -119,8 +115,8 @@
 
                     <div class="speed-smart-toggle-container">
                         <div class="toggle-switch-group">
-                            <button id="fastButton" class="toggle-button active">Text</button>
-                            <button id="smartButton" class="toggle-button">Image</button>
+                            <button id="textButton" class="toggle-button active">Text</button>
+                            <button id="imageButton" class="toggle-button">Image</button>
                         </div>
                     </div>
 
@@ -150,18 +146,15 @@
 
   <input type="file" id="fileInput" class="hidden" multiple accept="image/*,video/*,audio/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,text/plain">
 
-  <!-- Custom Model Select Modal -->
   <div id="modelSelectModal" class="model-select-modal">
       <div class="model-select-modal-content">
           <h3>Choose AI Model</h3>
           <div id="modelOptions" class="model-options-list">
-              <!-- Options will be populated by JS -->
           </div>
           <button id="closeModelModal" class="close-modal-btn">&times;</button>
       </div>
   </div>
 
-  <!-- User Settings Modal -->
   <div id="settingsModal" class="settings-modal">
     <div class="settings-modal-content">
       <h3>User Settings</h3>
@@ -169,7 +162,6 @@
         <div class="form-group">
           <label for="defaultModelSetting">Default AI Model:</label>
           <select id="defaultModelSetting">
-            <!-- Options populated by JS -->
           </select>
         </div>
         <div class="form-group">
@@ -200,9 +192,7 @@
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
   <div id="toastContainer" class="toast-container">
-      <!-- Toasts will be appended here -->
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>

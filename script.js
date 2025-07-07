@@ -86,16 +86,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelOptionsContainer = document.getElementById('modelOptions');
     const closeModelModalButton = document.getElementById('closeModelModal');
 
-    // Mengganti tombol Fast/Smart menjadi Text/Image
     const textButton = document.getElementById('textButton');
     const imageButton = document.getElementById('imageButton');
-    let currentGenerationType = 'text'; // Default type
+    let currentGenerationType = 'text';
 
     const themeToggleMain = document.getElementById('themeToggleMain');
 
     const availableModels = [
-        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'text' }, // Untuk teks
-        { value: 'gemini-2.0-flash-preview-image-generation', label: 'Gemini 2.0 Flash (Image)', type: 'image' } // Untuk gambar
+        { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash', type: 'text' },
+        { value: 'gemini-2.0-flash-preview-image-generation', label: 'Gemini 2.0 Flash (Image)', type: 'image' }
     ];
 
     let currentSelectedModelValue = '';
@@ -238,6 +237,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     imgElement.alt = "Generated image";
                     imgElement.classList.add('ai-generated-image');
                     aiContentContainer.appendChild(imgElement);
+
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.classList.add('ai-action-btn', 'download-btn');
+                    downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
+                    downloadBtn.title = 'Download Image';
+                    downloadBtn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.href = msg.imageUrl;
+                        link.download = `novaria_image_${Date.now()}.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    };
+                    const imageActionsContainer = document.createElement('div');
+                    imageActionsContainer.classList.add('ai-message-actions');
+                    imageActionsContainer.appendChild(downloadBtn);
+                    aiContentContainer.appendChild(imageActionsContainer);
+
                     if (msg.content && msg.content.trim()) {
                         const spacer = document.createElement('div');
                         spacer.style.height = '10px';
@@ -334,7 +351,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedModel = availableModels.find(m => m.value === currentSelectedModelValue);
         if (selectedModel) {
             selectedModelName.textContent = selectedModel.label;
-            // Update type toggle based on selected model
             currentGenerationType = selectedModel.type;
             if (currentGenerationType === 'text') {
                 textButton.classList.add('active');
@@ -427,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let content = msg.content;
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = content;
-            content = tempDiv.textContent || tempDiv.innerText || content; // Get plain text
+            content = tempDiv.textContent || tempDiv.innerText || content;
             return `${msg.role === 'user' ? 'You' : 'Novaria'}: ${content}`;
         }).join('\n\n');
 
@@ -453,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let content = msg.content;
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = content;
-            content = tempDiv.textContent || tempDiv.innerText || content; // Get plain text
+            content = tempDiv.textContent || tempDiv.innerText || content;
             return `${msg.role === 'user' ? 'You' : 'Novaria'}: ${content}`;
         }).join('\n\n');
 
@@ -505,15 +521,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // New Text/Image Toggle Buttons
     if (textButton) {
         textButton.addEventListener('click', () => {
-            setSelectedModel('gemini-2.5-flash'); // Set model to text
+            setSelectedModel('gemini-2.5-flash');
         });
     }
     if (imageButton) {
         imageButton.addEventListener('click', () => {
-            setSelectedModel('gemini-2.0-flash-preview-image-generation'); // Set model to image
+            setSelectedModel('gemini-2.0-flash-preview-image-generation');
         });
     }
 
@@ -586,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
         let html = text.replace(codeBlockRegex, (match, language, code) => {
             const lang = language || 'text';
-            const escapedCode = code.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
+            const escapedCode = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             return `<div class="code-block">
                         <div class="code-header">
                             <span class="language-tag">${lang}</span>
@@ -613,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
         html = html.replace(/(<li>.*?<\/li>(\n<li>.*?<\/li>)*)/g, (match) => {
             if (match.startsWith('<li>')) {
                 const firstChar = match.trim().charAt(0);
-                if (match.includes('•') || match.includes('*') || match.includes('-')) {
+                if (match.includes('&#x2022;') || match.includes('*') || match.includes('-')) {
                     return `<ul>${match}</ul>`;
                 } else if (match.match(/^\d+\./)) {
                     return `<ol>${match}</ol>`;
@@ -724,7 +739,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 imgElement.classList.add('ai-generated-image');
                 aiContentContainer.appendChild(imgElement);
 
-                // Add download button for images
                 const downloadBtn = document.createElement('button');
                 downloadBtn.classList.add('ai-action-btn', 'download-btn');
                 downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
@@ -732,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 downloadBtn.onclick = () => {
                     const link = document.createElement('a');
                     link.href = imageUrl;
-                    link.download = `novaria_image_${Date.now()}.png`; // Simple filename
+                    link.download = `novaria_image_${Date.now()}.png`;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
@@ -873,7 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const buttons = [
             { name: 'copy', icon: '<i class="fas fa-copy"></i>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<i class="fas fa-check" style="color: #66bb6a;"></i>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US';
+            { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'id-ID';
             utterance.onend = () => { buttonEl.classList.remove('pulsing'); buttonEl.innerHTML = buttons[1].icon; };
             buttonEl.classList.add('pulsing'); buttonEl.innerHTML = '<i class="fas fa-volume-up"></i>';
             speechApi.speak(utterance); } } },
@@ -942,8 +956,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const payload = {
                 prompt: userMessage,
-                generationType: generationType, // Kirim tipe generasi yang dipilih
-                conversationHistory: conversationHistory.slice(Math.max(0, conversationHistory.length - MAX_HISTORY_DISPLAY_LENGTH * 2)),
+                generationType: generationType,
                 attachedFiles: filesAsBase64,
                 selectedModel: currentSelectedModelValue,
                 isRegenerate: isRegenerate
@@ -977,7 +990,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             const rawAiResponseText = data.text || '';
             const generatedImageUrl = data.images && data.images.length > 0 ? `data:${data.images[0].mimeType};base64,${data.images[0].data}` : null;
-            const modelUsed = data.modelUsed || currentSelectedModelValue; // Use current selected model if backend doesn't return it
+            const modelUsed = data.modelUsed || currentSelectedModelValue;
 
             if (thinkingIndicator) thinkingIndicator.style.opacity = '0';
             setTimeout(() => {
@@ -1033,7 +1046,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             initialGreeting.classList.add('hidden');
             addChatMessage(messageInput.value.trim() || finalPrompt, 'user');
-            generateAIResponse(finalPrompt, attachedFiles, false, currentGenerationType); // Pass currentGenerationType
+            generateAIResponse(finalPrompt, attachedFiles, false, currentGenerationType);
 
             messageInput.value = '';
             autoResizeTextarea();
@@ -1201,7 +1214,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const removeButton = document.createElement('button');
         removeButton.classList.add('remove-chip-btn');
-        removeButton.innerHTML = '×';
+        removeButton.innerHTML = '&times;';
         removeButton.title = `Remove ${file.name}`;
         removeButton.addEventListener('click', (event) => {
             event.stopPropagation();

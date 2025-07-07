@@ -688,7 +688,7 @@ body.light-mode .novaria-title-dropdown:hover {
     margin-top: auto;
     margin-bottom: 20px;
     opacity: 0.9;
-    align-self: center; /* Memastikan di tengah secara horizontal */
+    align-self: center;
 }
 
 .chat-message {
@@ -810,6 +810,16 @@ body.light-mode .user-message {
 .ai-action-btn:hover { background-color: var(--action-button-hover-bg); }
 .ai-action-btn svg { width: 20px; height: 20px; stroke: var(--action-button-icon-color); fill: none; stroke-width: 2; }
 body.light-mode .ai-action-btn svg { stroke: var(--action-button-icon-color); }
+
+.ai-action-btn.download-btn {
+    background-color: #007bff;
+}
+.ai-action-btn.download-btn:hover {
+    background-color: #0056b3;
+}
+.ai-action-btn.download-btn i {
+    color: white;
+}
 
 
 #thinkingIndicator {
@@ -1411,16 +1421,15 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
 .ai-action-btn.pulsing i { animation: pulse-icon 1.5s ease-in-out infinite; color: #3b82f6; }
 .ai-action-btn.liked i { color: #3b82f6; }
 
-/* Quick Prompts Styling */
 .quick-prompts-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
-    margin-top: auto; /* Push to center/bottom if chat is empty */
+    margin-top: auto;
     margin-bottom: 40px;
     max-width: 700px;
-    align-self: center; /* Memastikan kontainer di tengah */
+    align-self: center;
 }
 
 .quick-prompt-btn {
@@ -1443,7 +1452,6 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Settings Modal Styling */
 .settings-modal {
     position: fixed;
     top: 0;
@@ -1530,7 +1538,7 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
     appearance: none;
 }
 .form-group select {
-    padding-right: 30px; /* Space for custom arrow */
+    padding-right: 30px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cccccc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
@@ -1594,7 +1602,6 @@ body.light-mode .form-group select {
     transform: translateY(-1px);
 }
 
-/* Toast Notification Styling */
 .toast-container {
     position: fixed;
     bottom: 30px;
@@ -1604,9 +1611,9 @@ body.light-mode .form-group select {
     display: flex;
     flex-direction: column;
     align-items: center;
-    pointer-events: none; /* Allows clicks to pass through to elements below */
+    pointer-events: none;
     width: 100%;
-    max-width: 400px; /* Max width for toasts */
+    max-width: 400px;
     padding: 0 20px;
     box-sizing: border-box;
 }
@@ -1627,7 +1634,7 @@ body.light-mode .form-group select {
     font-size: 0.95em;
     font-weight: 500;
     width: fit-content;
-    pointer-events: auto; /* Re-enable pointer events for the toast itself */
+    pointer-events: auto;
     min-width: 150px;
     text-align: center;
 }
@@ -1821,54 +1828,4 @@ body.light-mode .form-group select {
         padding: 8px 10px;
         text-align: center;
     }
-}
-
-/* Styling for Text/Image Toggle */
-.toggle-switch-group {
-    background-color: var(--toggle-group-bg);
-    border-radius: 20px;
-    overflow: hidden;
-    padding: 3px;
-    height: 36px;
-    box-sizing: border-box;
-}
-
-.toggle-button {
-    background-color: var(--toggle-button-bg);
-    color: var(--toggle-button-text);
-    border: none;
-    padding: 6px 15px;
-    border-radius: 17px;
-    font-size: 0.9em;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    white-space: nowrap;
-    position: relative;
-    overflow: hidden;
-}
-
-.toggle-button.active {
-    background-color: var(--toggle-button-active-bg);
-    color: var(--toggle-button-active-text);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-}
-
-.toggle-button:hover:not(.active) {
-    background-color: var(--toggle-button-hover-bg, rgba(255,255,255,0.05));
-    color: var(--toggle-button-active-text);
-}
-body.light-mode .toggle-button:hover:not(.active) {
-    background-color: var(--toggle-button-hover-bg, rgba(0,0,0,0.05));
-}
-
-/* Styling for Download button */
-.ai-action-btn.download-btn {
-    background-color: #007bff; /* Blue color for download */
-}
-.ai-action-btn.download-btn:hover {
-    background-color: #0056b3;
-}
-.ai-action-btn.download-btn i {
-    color: white;
 }

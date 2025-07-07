@@ -1,28 +1,31 @@
 /* GANTI SELURUH ISI STYLE.CSS ANDA DENGAN KODE INI */
 
+/* CSS Variables for Themes */
 :root {
-  --bg-color: #1a1a1a;
-  --text-color: #ffffff;
-  --input-bg: #2a2a2a;
-  --button-bg: #3a3a3a;
-  --button-hover-bg: #5a5a5a;
+  /* Dark Mode Defaults */
+  --bg-color: #1a1a1a; /* Background utama aplikasi */
+  --text-color: #ffffff; /* Warna teks umum */
+  --input-bg: #2a2a2a; /* Background untuk area input teks */
+  --button-bg: #3a3a3a; /* Background tombol-tombol umum */
+  --button-hover-bg: #5a5a5a; /* Hover state untuk tombol */
   --placeholder-color: rgba(255, 255, 255, 0.5);
-  --sidebar-bg: #111111;
+  --sidebar-bg: #111111; /* Background sidebar */
   --sidebar-text: #ffffff;
+  --sidebar-header-bg: #1a1a1a;
   --sidebar-header-border: rgba(255, 255, 255, 0.1);
   --sidebar-footer-border: rgba(255, 255, 255, 0.1);
   --sidebar-item-hover: #2a2a2a;
   --ripple-color: rgba(255, 255, 255, 0.4);
-  --border-color: rgba(255, 255, 255, 0.1);
-  --modal-bg: #222222;
+  --border-color: rgba(255, 255, 255, 0.1); /* Border untuk elemen */
+  --modal-bg: #222222; /* Warna background modal */
   --modal-text: #ffffff;
   --modal-close-button: #999999;
   --modal-close-button-hover: #ffffff;
-
+  --quick-complete-bg: #222222; /* (Mungkin tidak digunakan lagi) */
+  --quick-complete-text: #ffffff;
+  --quick-complete-hover-bg: #3a3a3a;
   --user-message-color: #ffffff;
   --ai-message-color: rgba(255, 255, 255, 0.9);
-  --user-avatar-bg: #9C27B0; /* Ungu */
-
   --ai-thinking-color: rgba(255, 255, 255, 0.7);
   --file-chip-bg: #3a3a3a;
   --file-chip-text: #ffffff;
@@ -40,10 +43,11 @@
   --copy-button-hover-bg: #6a707c;
   --code-language-tag-bg: #4a4f59;
   --code-language-tag-text: #ffffff;
-  --glass-bg: rgba(26, 26, 26, 0.8);
+  --glass-bg: rgba(26, 26, 26, 0.8); /* Background header utama */
   --glass-border-color: rgba(255, 255, 255, 0.1);
 
-  --new-input-container-bg: #222222;
+  /* Input area specific colors */
+  --new-input-container-bg: #222222; /* Background untuk kontainer input utama */
   --new-input-container-border: rgba(255, 255, 255, 0.08);
   --toggle-group-bg: #333333;
   --toggle-button-bg: transparent;
@@ -54,14 +58,16 @@
   --model-selector-border: #555555;
   --model-selector-text: #ffffff;
   --model-selector-hover-bg: #5a5a5a;
-  --file-chip-area-bg: rgba(26, 26, 26, 0.6);
+  --file-chip-area-bg: rgba(26, 26, 26, 0.6); /* Background transparan untuk area chips */
 
+  /* New chat history items */
   --chat-item-bg: #2a2a2a;
   --chat-item-hover-bg: #3a3a3a;
-  --chat-item-fav-color: #ffcc00;
+  --chat-item-fav-color: #ffcc00; /* Gold for favorited icon */
   --chat-item-text-color: #f0f0f0;
   --chat-item-meta-color: #aaaaaa;
 
+  /* Dropdown Menu (Novaria title) */
   --dropdown-bg: #2a2a2a;
   --dropdown-item-hover-bg: #3a3a3a;
   --dropdown-text: #f0f0f0;
@@ -86,11 +92,11 @@ body.light-mode {
   --modal-text: #333333;
   --modal-close-button: #bbbbbb;
   --modal-close-button-hover: #999999;
-
+  --quick-complete-bg: #eeeeee;
+  --quick-complete-text: #333333;
+  --quick-complete-hover-bg: #dddddd;
   --user-message-color: #333333;
   --ai-message-color: rgba(51, 51, 51, 0.9);
-  --user-avatar-bg: #673AB7; /* Ungu lebih terang */
-
   --ai-thinking-color: rgba(51, 51, 51, 0.7);
   --file-chip-bg: #cccccc;
   --file-chip-text: #333333;
@@ -135,24 +141,22 @@ body.light-mode {
   --dropdown-text: #333333;
 }
 
-html {
-    scroll-behavior: smooth;
-}
-
+/* General Styles */
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
-  overflow: hidden;
+  overflow: hidden; /* Mencegah scroll body secara keseluruhan */
   transition: background-color 0.3s ease, color 0.3s ease, opacity 0.5s ease-in-out;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Sembunyikan body secara default, tampilkan setelah login diverifikasi */
 body.app-hidden {
     opacity: 0;
-    pointer-events: none;
+    pointer-events: none; /* Cegah interaksi saat tersembunyi */
 }
 
 body.app-loaded {
@@ -165,41 +169,19 @@ body.app-loaded {
   box-shadow: none;
 }
 
-.icon-svg {
-    display: inline-block;
-    vertical-align: middle;
-    fill: currentColor;
-    stroke: none;
-    flex-shrink: 0; /* Penting untuk mencegah SVG menyusut */
-}
-
-.icon-svg path {
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.icon-svg.icon-menu { width: 28px; height: 28px; stroke: currentColor; fill: none; }
-.icon-svg.icon-fav-header { width: 28px; height: 28px; fill: currentColor; }
-.icon-svg.icon-new-chat-header, .icon-svg.icon-new-chat-sidebar { width: 28px; height: 28px; fill: currentColor; }
-.icon-svg.icon-dropdown-arrow { width: 18px; height: 18px; fill: currentColor; }
-.icon-svg.icon-voice { width: 24px; height: 24px; stroke: currentColor; fill: none; }
-.icon-svg.icon-send { width: 24px; height: 24px; fill: currentColor; }
-.icon-svg.icon-plus { width: 24px; height: 24px; stroke: currentColor; fill: none; }
-.icon-svg.icon-logout, .icon-svg.icon-contact, .icon-svg.icon-settings { width: 24px; height: 24px; stroke: currentColor; fill: none; }
-.icon-svg.icon-logout path, .icon-svg.icon-contact path, .icon-svg.icon-settings path { stroke-width: 1.5; }
-
-
+/* --- APP CONTAINER (Main Layout) --- */
 .app-container {
     display: grid;
-    grid-template-columns: 0px 1fr;
+    grid-template-columns: 0px 1fr; /* Default: sidebar tersembunyi */
     height: 100vh;
-    transition: grid-template-columns 0.3s ease;
+    transition: grid-template-columns 0.3s ease; /* Smooth transition for sidebar */
 }
 
 .app-container.sidebar-open {
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 280px 1fr; /* Lebar sidebar saat terbuka */
 }
 
+/* --- SIDEBAR STYLES --- */
 .sidebar {
     background-color: var(--sidebar-bg);
     color: var(--sidebar-text);
@@ -207,17 +189,17 @@ body.app-loaded {
     display: flex;
     flex-direction: column;
     box-shadow: 2px 0 10px rgba(0,0,0,0.5);
-    overflow-y: auto;
-    transition: margin-left 0.3s ease;
-    width: 280px;
-    margin-left: -280px;
+    overflow-y: auto; /* Scroll jika history terlalu panjang */
+    transition: margin-left 0.3s ease; /* Animasi geser sidebar */
+    width: 280px; /* Lebar asli sidebar */
+    margin-left: -280px; /* Default: tersembunyi */
     box-sizing: border-box;
     position: relative;
-    z-index: 1001;
+    z-index: 1001; /* Pastikan di atas overlay */
 }
 
 .app-container.sidebar-open .sidebar {
-    margin-left: 0;
+    margin-left: 0; /* Sidebar terlihat */
 }
 
 .sidebar-overlay {
@@ -227,7 +209,7 @@ body.app-loaded {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
+    z-index: 1000; /* Di antara sidebar dan main content */
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -268,7 +250,7 @@ body.app-loaded {
     width: 100%;
     justify-content: flex-start;
     transition: background-color 0.2s ease;
-    position: relative;
+    position: relative; /* For ripple */
     overflow: hidden;
 }
 
@@ -276,8 +258,12 @@ body.app-loaded {
     background-color: var(--button-hover-bg);
 }
 
+.sidebar .new-chat-btn i {
+    font-size: 1.2em;
+}
+
 .chat-history-container {
-    flex-grow: 1;
+    flex-grow: 1; /* Agar mengambil sisa ruang */
     padding-bottom: 20px;
     display: flex;
     flex-direction: column;
@@ -296,26 +282,10 @@ body.app-loaded {
     list-style: none;
     padding: 0;
     margin: 0;
-    overflow-y: auto;
+    overflow-y: auto; /* Scrollable history list */
     -webkit-overflow-scrolling: touch;
     flex-grow: 1;
-    &::-webkit-scrollbar {
-        width: 6px;
-    }
-    &::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    &::-webkit-scrollbar-thumb {
-        background-color: var(--button-bg);
-        border-radius: 3px;
-    }
-    &::-webkit-scrollbar-thumb:hover {
-        background-color: var(--button-hover-bg);
-    }
-    scrollbar-width: thin;
-    scrollbar-color: var(--button-bg) transparent;
 }
-
 
 .chat-item {
     display: flex;
@@ -327,7 +297,7 @@ body.app-loaded {
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.1s ease;
-    position: relative;
+    position: relative; /* For ripple */
     overflow: hidden;
 }
 
@@ -337,7 +307,7 @@ body.app-loaded {
 }
 
 .chat-item.active-chat {
-    background-color: #3b82f6;
+    background-color: #3b82f6; /* Blue for active chat */
     color: white;
     font-weight: 600;
 }
@@ -355,27 +325,25 @@ body.app-loaded {
     color: var(--chat-item-text-color);
 }
 
-.chat-item .icon-svg.favorite-icon {
-    fill: var(--chat-item-meta-color);
+.chat-item .favorite-icon {
+    color: var(--chat-item-meta-color); /* Default non-favorited */
     margin-left: 10px;
-    width: 20px;
-    height: 20px;
-    transition: fill 0.2s ease;
+    font-size: 0.9em;
+    transition: color 0.2s ease;
 }
 
-.chat-item .icon-svg.favorite-icon.active {
-    fill: var(--chat-item-fav-color);
+.chat-item .favorite-icon.active {
+    color: var(--chat-item-fav-color); /* Gold for favorited */
 }
 
 .sidebar-footer {
     padding-top: 20px;
     border-top: 1px solid var(--sidebar-footer-border);
-    margin-top: auto;
+    margin-top: auto; /* Push to bottom */
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 15px;
-    position: relative;
 }
 
 .user-info {
@@ -394,16 +362,9 @@ body.app-loaded {
     height: 45px;
     border-radius: 50%;
     object-fit: cover;
-    background-color: var(--user-avatar-bg);
+    background-color: #555; /* Placeholder color */
     border: 2px solid var(--border-color);
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.5em;
-    color: white;
-    text-transform: uppercase;
 }
 
 .user-info .profile-details {
@@ -419,72 +380,39 @@ body.app-loaded {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.user-info .user-menu-toggle-btn {
-    background: none;
+.user-info .profile-email {
+    font-size: 0.8em;
+    color: var(--chat-item-meta-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.logout-btn {
+    background-color: #dc3545; /* Red logout button */
+    color: white;
     border: none;
-    color: var(--sidebar-text);
-    cursor: pointer;
-    padding: 5px;
-    transition: color 0.2s ease;
-    position: relative;
-    overflow: hidden;
-    margin-left: auto;
-    flex-shrink: 0;
-}
-.user-info .user-menu-toggle-btn:hover {
-    color: #ccc;
-}
-.user-info .user-menu-toggle-btn .icon-svg {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
-}
-
-
-.user-menu-dropdown-content {
-    position: absolute;
-    bottom: calc(100% + 10px);
-    left: 15px;
-    background-color: var(--dropdown-bg);
-    border: 1px solid var(--border-color);
+    padding: 10px 15px;
     border-radius: 8px;
-    min-width: 180px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    display: none;
-    z-index: 100;
-    overflow: hidden;
-    padding: 5px 0;
-    transform-origin: bottom left;
-}
-
-.user-menu-dropdown-content.show {
-    display: block;
-    animation: fadeInScaleUp 0.2s ease-out forwards;
-}
-
-@keyframes fadeInScaleUp {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-.user-menu-item {
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 15px;
-    color: var(--dropdown-text);
-    text-decoration: none;
-    font-size: 0.95em;
+    width: 100%;
+    justify-content: center;
     transition: background-color 0.2s ease;
-    position: relative;
+    position: relative; /* For ripple */
     overflow: hidden;
 }
 
-.user-menu-item:hover {
-    background-color: var(--dropdown-item-hover-bg);
+.logout-btn:hover {
+    background-color: #c82333;
 }
 
-/* MAIN CONTENT */
+
+/* --- MAIN CONTENT STYLES --- */
 .main-content {
     display: flex;
     flex-direction: column;
@@ -492,7 +420,7 @@ body.app-loaded {
     flex-grow: 1;
     position: relative;
     padding-top: 70px; /* Space for header */
-    padding-bottom: 120px; /* Space for bottom chat area (initial) */
+    padding-bottom: 120px; /* Space for bottom chat area (initial, updated by JS) */
     box-sizing: border-box;
 }
 
@@ -508,22 +436,23 @@ body.app-loaded {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 70px;
+    width: calc(100% - 280px); /* Adjust width when sidebar is open */
+    height: 70px; /* Fixed height */
     box-sizing: border-box;
     z-index: 100;
-    transition: left 0.3s ease, width 0.3s ease;
+    transition: width 0.3s ease, left 0.3s ease;
 }
 
 .app-container.sidebar-open .main-header {
-    width: calc(100% - 280px);
-    left: 280px;
+    width: calc(100% - 280px); /* Adjust width when sidebar is open */
+    left: 280px; /* Shift header to the right */
 }
 
 .sidebar-toggle-btn {
     background: none;
     border: none;
     color: var(--text-color);
+    font-size: 1.5em;
     cursor: pointer;
     padding: 5px;
     transition: color 0.2s ease;
@@ -534,81 +463,18 @@ body.app-loaded {
 .sidebar-toggle-btn:hover {
     color: #ccc;
 }
-.sidebar-toggle-btn .icon-svg {
-    width: 28px;
-    height: 28px;
-    stroke: currentColor;
-    fill: none;
-}
-
-/* Header states */
-.header-initial-state, .header-active-state {
-    display: flex; /* Default to flex, hidden/shown by JS */
-    flex-grow: 1; /* Take available space */
-    justify-content: center; /* Center the Novaria title */
-    align-items: center;
-    height: 100%;
-    transition: opacity 0.3s ease;
-}
-
-.header-active-state {
-    justify-content: space-between; /* Space out elements */
-}
-
-.header-right-initial {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex-shrink: 0;
-    gap: 15px; /* Adjust as needed */
-    transition: opacity 0.3s ease;
-}
-
-.user-avatar-header {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--user-avatar-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.2em;
-    color: white;
-    text-transform: uppercase;
-    cursor: pointer; /* Can be clickable for profile */
-    flex-shrink: 0;
-}
-
-.btn.login-btn-header {
-    background-color: #3b82f6; /* Blue login button */
-    color: white;
-    border: none;
-    padding: 8px 18px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.95em;
-    font-weight: 600;
-    transition: background-color 0.2s ease;
-    white-space: nowrap;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-.btn.login-btn-header:hover {
-    background-color: #2563eb;
-}
-
 
 .novaria-title-dropdown {
     position: relative;
     cursor: pointer;
     user-select: none;
-    font-size: 1.6em;
+    font-size: 1.6em; /* Slightly larger */
     font-weight: bold;
     color: var(--text-color);
     display: flex;
     align-items: center;
     gap: 5px;
-    padding: 5px 10px;
+    padding: 5px 10px; /* Make it clickable area larger */
     border-radius: 8px;
     transition: background-color 0.2s ease;
 }
@@ -619,12 +485,13 @@ body.light-mode .novaria-title-dropdown:hover {
     background-color: rgba(0, 0, 0, 0.08);
 }
 
-.novaria-title-dropdown .icon-svg {
-    transform: rotate(0deg);
+
+.novaria-title-dropdown i {
+    font-size: 0.6em;
     transition: transform 0.2s ease;
 }
 
-.novaria-title-dropdown.active .icon-svg {
+.novaria-title-dropdown.active i {
     transform: rotate(180deg);
 }
 
@@ -636,12 +503,12 @@ body.light-mode .novaria-title-dropdown:hover {
     background-color: var(--dropdown-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
-    min-width: 200px;
+    min-width: 200px; /* Lebar menu dropdown */
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     display: none;
     z-index: 1000;
     overflow: hidden;
-    padding: 5px 0;
+    padding: 5px 0; /* Padding vertikal untuk item */
 }
 
 .dropdown-menu.show {
@@ -687,6 +554,7 @@ body.light-mode .novaria-title-dropdown:hover {
     background: none;
     border: none;
     color: var(--text-color);
+    font-size: 1.5em; /* Ukuran ikon */
     cursor: pointer;
     padding: 5px;
     transition: color 0.2s ease, transform 0.1s ease;
@@ -698,14 +566,14 @@ body.light-mode .novaria-title-dropdown:hover {
     color: #ccc;
 }
 
-.favorite-toggle-btn .icon-svg.icon-fav-header.active {
-    fill: var(--chat-item-fav-color);
+.favorite-toggle-btn i.fas { /* Solid star for active/favorited */
+    color: var(--chat-item-fav-color);
 }
-.favorite-toggle-btn .icon-svg.icon-fav-header {
-    fill: currentColor;
+.favorite-toggle-btn i.far { /* Outline star for non-favorited */
+    color: var(--text-color);
 }
 
-
+/* Theme Toggle in Header */
 .theme-toggle-main {
     position: relative;
     margin-left: 10px;
@@ -725,73 +593,37 @@ body.light-mode .novaria-title-dropdown:hover {
 
 /* Page Sections (Chat) */
 .page-section {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  position: relative; /* Make it flow normally */
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
   box-sizing: border-box;
-  position: relative;
 }
 
-.initial-greeting-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
-    text-align: center;
-    padding: 20px;
-    box-sizing: border-box;
-    opacity: 0; /* Hidden by default, shown by JS */
-    transition: opacity 0.5s ease;
+.page-section.hidden {
+  display: none !important;
 }
 
-.initial-greeting-container.show {
-    opacity: 1;
-}
-
-.initial-logo {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 20px;
-    object-fit: contain;
-}
-
-.initial-title {
-    font-size: 2.2em;
-    font-weight: 700;
-    margin: 0 0 10px 0;
-    color: var(--text-color);
-}
-
-.initial-greeting-text {
-    font-size: 1.4em;
-    font-weight: 500;
-    color: var(--text-color);
-    opacity: 0.9;
-    margin-bottom: 40px;
-}
-
-
+/* Chat History/Display */
 .chat-display {
     flex-grow: 1;
     width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 800px; /* Lebar maksimal konten chat */
+    margin: 0 auto; /* Tengah secara horizontal */
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 20px 20px 20px;
+    padding: 20px 20px 20px; /* Initial padding, bottom will be adjusted by JS */
     box-sizing: border-box;
     position: relative;
     display: flex;
     flex-direction: column;
-    opacity: 0; /* Hidden by default, shown by JS */
-    transition: opacity 0.5s ease;
 }
-.chat-display.show {
-    opacity: 1;
-}
-
 
 .chat-display.has-scroll-fade::after {
   content: '';
@@ -811,54 +643,65 @@ body.light-mode .novaria-title-dropdown:hover {
 }
 
 
-.chat-message {
-    max-width: 100%;
-    word-wrap: break-word;
-    line-height: 1.7;
-    font-size: 1em;
+.initial-greeting {
+    text-align: center;
+    font-size: 1.5em;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-top: auto; /* Push to center vertically */
     margin-bottom: 20px;
-    padding: 0;
-    border-radius: 0;
-    background-color: transparent;
-    box-shadow: none;
+    opacity: 0.9;
+}
+
+.chat-message {
+    max-width: 95%;
+    word-wrap: break-word;
+    line-height: 1.6;
+    font-size: 1em;
+    text-align: left;
+    margin-bottom: 16px;
     transition: opacity 0.5s ease, transform 0.5s ease;
     opacity: 0;
     transform: translateY(15px);
-    display: flex;
-    flex-direction: column;
-    position: relative;
 }
 
 .user-message {
-    align-self: flex-end;
-    text-align: right;
-    max-width: 80%;
-    color: var(--user-message-color);
-    margin-left: auto;
-    padding-left: 50px;
+  color: var(--user-message-color);
+  font-weight: 500;
+  align-self: flex-end; /* User message align right */
+  max-width: 80%;
+  background-color: #3b82f6; /* Blue background for user */
+  padding: 10px 15px;
+  border-radius: 18px 18px 2px 18px; /* Rounded corners with sharp bottom-left */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+body.light-mode .user-message {
+    background-color: #55aaff;
 }
 
 .ai-message {
-    align-self: flex-start;
-    text-align: left;
-    max-width: 80%;
-    color: var(--ai-message-color);
-    margin-right: auto;
-    padding-right: 50px;
+  color: var(--ai-message-color);
+  font-weight: 400;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: flex-start;
+  background-color: var(--input-bg); /* Background for AI message bubble */
+  padding: 10px 15px;
+  border-radius: 18px 18px 18px 2px; /* Rounded corners with sharp bottom-right */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .ai-message-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
-  color: var(--text-color);
-  justify-content: flex-start;
+  margin-bottom: 5px; /* Adjust spacing */
 }
 
 .ai-message-header .ai-logo {
-  width: 32px;
-  height: 32px;
+  width: 28px; /* Larger logo */
+  height: 28px;
   object-fit: contain;
   flex-shrink: 0;
   border-radius: 50%;
@@ -866,7 +709,7 @@ body.light-mode .novaria-title-dropdown:hover {
 
 .ai-message-header .ai-name {
   font-weight: 600;
-  font-size: 1.05em;
+  font-size: 1em; /* Slightly larger font */
   color: var(--text-color);
 }
 
@@ -881,15 +724,16 @@ body.light-mode .novaria-title-dropdown:hover {
 }
 
 .ai-message-content {
-    padding-top: 0;
+    padding-top: 5px; /* Space between header and content */
     font-size: 0.98em;
-    color: var(--ai-message-color);
 }
+/* This span will now hold the typed out content */
 .ai-message-content > span {
     white-space: pre-wrap;
-    display: block;
+    display: block; /* Ensure it takes full width for text flow */
 }
 
+/* Gambar yang dihasilkan AI */
 .ai-generated-image {
     max-width: 100%;
     height: auto;
@@ -904,16 +748,16 @@ body.light-mode .novaria-title-dropdown:hover {
 
 .ai-message-actions {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
-    justify-content: flex-start;
+    gap: 10px; /* Jarak antar tombol action */
+    margin-top: 10px;
+    justify-content: flex-end; /* Rata kanan */
     width: 100%;
 }
 .ai-action-btn {
     background-color: var(--action-button-bg);
     border: none;
     border-radius: 50%;
-    width: 36px;
+    width: 36px; /* Ukuran tombol action */
     height: 36px;
     display: flex;
     align-items: center;
@@ -931,6 +775,7 @@ body.light-mode .novaria-title-dropdown:hover {
 body.light-mode .ai-action-btn svg { stroke: var(--action-button-icon-color); }
 
 
+/* --- THINKING INDICATOR (New Style) --- */
 #thinkingIndicator {
   color: var(--ai-thinking-color);
   font-style: italic;
@@ -938,21 +783,21 @@ body.light-mode .ai-action-btn svg { stroke: var(--action-button-icon-color); }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0;
-  background-color: transparent;
-  border-radius: 0;
-  box-shadow: none;
+  padding: 8px 15px; /* Padding mirip AI message */
+  background-color: var(--input-bg);
+  border-radius: 18px 18px 18px 2px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
   opacity: 0;
   transition: opacity 0.3s ease;
   align-self: flex-start;
-  max-width: fit-content;
-  height: auto;
+  max-width: fit-content; /* Biar lebarnya sesuai konten */
+  height: auto; /* Biar kontennya pas */
 }
 
 #thinkingIndicator .spinner {
   width: 20px;
   height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3); /* Warna lebih terang dari --ai-thinking-color */
   border-top: 3px solid var(--ai-thinking-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -961,7 +806,7 @@ body.light-mode .ai-action-btn svg { stroke: var(--action-button-icon-color); }
 
 #thinkingIndicator .thinking-text {
   font-weight: 500;
-  animation: fade-in-out 1.5s infinite alternate;
+  animation: fade-in-out 1.5s infinite alternate; /* Animasi berkedip */
 }
 
 @keyframes spin {
@@ -986,7 +831,7 @@ body.light-mode .ai-action-btn svg { stroke: var(--action-button-icon-color); }
     color: var(--placeholder-color);
     font-size: 0.85em;
     text-align: center;
-    z-index: 90;
+    z-index: 90; /* Di bawah bottom-chat-area */
     box-sizing: border-box;
     border-top: 1px solid var(--border-color);
 }
@@ -995,25 +840,26 @@ body.light-mode .disclaimer-footer {
     border-top: 1px solid var(--border-color);
 }
 
+/* --- BOTTOM CHAT AREA (File chips & Input) --- */
 .bottom-chat-area {
     position: fixed;
     bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 40px);
+    width: calc(100% - 40px); /* 20px padding each side */
     max-width: 900px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 8px; /* Space between file chips area and input wrapper */
     z-index: 95;
     box-sizing: border-box;
-    align-items: center;
-    transition: width 0.3s ease, left 0.3s ease, transform 0.3s ease;
+    align-items: center; /* Center horizontally */
+    transition: width 0.3s ease, left 0.3s ease, transform 0.3s ease; /* For sidebar open/close */
 }
 
 .app-container.sidebar-open .bottom-chat-area {
-    width: calc(100% - 280px - 40px);
-    left: calc(280px + (100% - 280px) / 2);
+    width: calc(100% - 280px - 40px); /* Adjust width when sidebar is open */
+    left: calc(280px + (100% - 280px) / 2); /* Center relative to main content area */
     transform: translateX(-50%);
 }
 
@@ -1029,16 +875,16 @@ body.light-mode .disclaimer-footer {
     display: flex;
     justify-content: flex-start;
     position: relative;
-    z-index: 1;
-    background-color: var(--file-chip-area-bg);
-    backdrop-filter: blur(8px);
+    z-index: 1; /* Di atas main content footer */
+    background-color: var(--file-chip-area-bg); /* Background transparan */
+    backdrop-filter: blur(8px); /* Efek blur */
     -webkit-backdrop-filter: blur(8px);
     border-radius: 12px;
     border: 1px solid var(--border-color);
     padding-top: 8px;
     padding-bottom: 8px;
 }
-.file-chips-area.hidden {
+.file-chips-area.hidden { /* Added by JS when no files */
     display: none;
     opacity: 0;
 }
@@ -1046,14 +892,14 @@ body.light-mode .disclaimer-footer {
 .file-chip-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 8px; /* Jarak antar chip */
   overflow-x: auto;
   overflow-y: hidden;
   flex-shrink: 1;
   min-width: 0;
   scrollbar-width: thin;
   scrollbar-color: var(--button-hover-bg) transparent;
-  padding-bottom: 5px;
+  padding-bottom: 5px; /* Agar scrollbar tidak menutupi chip */
 }
 .file-chip-container::-webkit-scrollbar { height: 4px; }
 .file-chip-container::-webkit-scrollbar-track { background: transparent; }
@@ -1061,7 +907,7 @@ body.light-mode .disclaimer-footer {
 .file-chip-container::-webkit-scrollbar-thumb:hover { background-color: var(--button-bg); }
 
 
-.input-wrapper-initial, .new-input-wrapper-container {
+.new-input-wrapper-container {
     background-color: var(--new-input-container-bg);
     border: 1px solid var(--new-input-container-border);
     border-radius: 28px;
@@ -1072,27 +918,7 @@ body.light-mode .disclaimer-footer {
     gap: 10px;
     box-sizing: border-box;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    transition: opacity 0.3s ease;
 }
-
-.input-wrapper-initial .input-bottom-row {
-    background-color: transparent; /* Input initial tidak punya background di row-nya */
-    border-radius: 0;
-    padding: 0;
-    box-shadow: none;
-}
-.input-wrapper-initial .input-bottom-row textarea {
-    background-color: var(--input-bg);
-    border-radius: 20px;
-    padding: 8px 12px;
-    min-height: 40px; /* Minimal height untuk input awal */
-}
-.btn-plus-bottom-initial, .btn-send-bottom-initial {
-    width: 36px;
-    height: 36px;
-    background-color: var(--button-bg);
-}
-
 
 .input-top-row {
     display: flex;
@@ -1108,7 +934,7 @@ body.light-mode .disclaimer-footer {
     background-color: var(--input-bg);
     border-radius: 20px;
     padding: 8px 12px;
-    position: relative;
+    position: relative; /* For ripple on buttons */
 }
 
 
@@ -1126,7 +952,7 @@ body.light-mode .disclaimer-footer {
   transition: background-color 0.2s ease, opacity 0.3s ease, transform 0.3s ease;
   white-space: nowrap;
   max-width: 150px;
-  height: 32px;
+  height: 32px; /* Fixed height for consistency */
   box-sizing: border-box;
   opacity: 0;
   transform: scale(0.9);
@@ -1145,6 +971,7 @@ body.light-mode .disclaimer-footer {
 }
 .file-chip-item .remove-chip-btn:hover { opacity: 1; color: var(--file-chip-remove-hover-color); transform: scale(1.1); background-color: rgba(255, 255, 255, 0.1); }
 
+/* Input field (textarea) */
 .input-bottom-row textarea {
   flex-grow: 1;
   background: none;
@@ -1164,8 +991,8 @@ body.light-mode .disclaimer-footer {
   word-wrap: break-word;
   margin-bottom: 0;
   text-align: left;
-  scrollbar-width: thin;
-  scrollbar-color: var(--button-hover-bg) transparent;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--button-hover-bg) transparent; /* Firefox */
 }
 .input-bottom-row textarea::-webkit-scrollbar { width: 4px; }
 .input-bottom-row textarea::-webkit-scrollbar-track { background: transparent; }
@@ -1177,6 +1004,7 @@ body.light-mode .disclaimer-footer {
   text-align: left;
 }
 
+/* Button circles (general style) */
 .btn-circle {
   background-color: var(--button-bg);
   border: none;
@@ -1194,36 +1022,31 @@ body.light-mode .disclaimer-footer {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 .btn-circle:hover { background-color: var(--button-hover-bg); }
-.btn-circle .icon-svg { color: var(--text-color); font-size: 1.2em; transition: color 0.3s ease; }
+.btn-circle i { color: var(--text-color); font-size: 1.2em; transition: color 0.3s ease; }
 
+/* Specific button styles for the new layout */
 .btn-plus-top {
     width: 36px;
     height: 36px;
     background-color: var(--button-bg);
 }
-.btn-plus-top .icon-svg {
-    width: 20px;
-    height: 20px;
+.btn-plus-top i {
+    font-size: 1.1em;
 }
 .btn-voice-bottom, .btn-send-bottom {
     width: 36px;
     height: 36px;
     background-color: var(--button-bg);
 }
-.btn-voice-bottom .icon-svg, .btn-send-bottom .icon-svg {
-    width: 20px;
-    height: 20px;
+.btn-voice-bottom i, .btn-send-bottom i {
+    font-size: 1.1em;
 }
-.btn-send-bottom .icon-svg {
-    transform: rotate(90deg);
-}
-
-.btn-plus-bottom-initial .icon-svg, .btn-send-bottom-initial .icon-svg {
-    width: 20px;
-    height: 20px;
+.btn-send-bottom i {
+    transform: rotate(90deg); /* Icon points right, make it point up */
 }
 
 
+/* Model Selector Styling */
 .model-selector-container {
     display: flex;
     align-items: center;
@@ -1241,7 +1064,7 @@ body.light-mode .disclaimer-footer {
     outline: none;
     appearance: none;
     transition: background-color 0.2s ease, border-color 0.2s ease;
-    max-width: 160px;
+    max-width: 160px; /* Batasi lebar */
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -1262,18 +1085,18 @@ body.light-mode .disclaimer-footer {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.custom-selector-trigger .icon-svg {
+.custom-selector-trigger i {
     flex-shrink: 0;
-    width: 14px;
-    height: 14px;
+    font-size: 0.8em;
     color: var(--model-selector-text);
     transition: transform 0.2s ease;
 }
-.model-select-modal.active .custom-selector-trigger .icon-svg {
+.model-select-modal.active .custom-selector-trigger i {
     transform: rotate(180deg);
 }
 
 
+/* --- Custom Model Select Modal Styling --- */
 .model-select-modal {
     position: fixed;
     top: 0;
@@ -1369,7 +1192,7 @@ body.light-mode .disclaimer-footer {
     flex-grow: 1;
 }
 
-.model-option-item i.fas.fa-check {
+.model-option-item i.fas.fa-check { /* Checkmark icon */
     width: 20px;
     height: 20px;
     font-size: 1em;
@@ -1404,6 +1227,7 @@ body.light-mode .disclaimer-footer {
     transform: scale(1.1);
 }
 
+/* --- Fast/Smart Toggle Styling --- */
 .speed-smart-toggle-container {
     flex-grow: 1;
     display: flex;
@@ -1442,7 +1266,7 @@ body.light-mode .disclaimer-footer {
 }
 
 .toggle-button:hover:not(.active) {
-    background-color: var(--toggle-button-hover-bg, rgba(255,255,255,0.05));
+    background-color: var(--toggle-button-hover-bg, rgba(255,255,255,0.05)); /* Slightly visible hover */
     color: var(--toggle-button-active-text);
 }
 body.light-mode .toggle-button:hover:not(.active) {
@@ -1450,6 +1274,7 @@ body.light-mode .toggle-button:hover:not(.active) {
 }
 
 
+/* --- Ripple Effect --- */
 .ripple {
     position: absolute;
     border-radius: 50%;
@@ -1464,6 +1289,7 @@ body.light-mode .toggle-button:hover:not(.active) {
     to { transform: scale(2.5); opacity: 0; }
 }
 
+/* --- Theme Toggle Switch --- */
 .theme-toggle-main, .theme-toggle-container { display: flex; align-items: center; }
 .switch { position: relative; display: inline-block; width: 48px; height: 28px; }
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -1521,6 +1347,7 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 
 .hidden { display: none !important; }
 
+/* Code Block */
 .code-block {
   background-color: var(--code-block-bg);
   color: var(--code-block-text);
@@ -1554,12 +1381,13 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 .code-block .copy-code-btn i { width: 16px; height: 16px; stroke: var(--copy-button-text, #ffffff); fill: none; stroke-width: 2; color: inherit; }
 body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
 
+/* Animasi Tombol (regenerate, speak) */
 @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.ai-action-btn.rotating .icon-svg { animation: spin-slow 2s linear infinite; }
+.ai-action-btn.rotating i { animation: spin-slow 2s linear infinite; } /* Regenerate */
 
 @keyframes pulse-icon { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-.ai-action-btn.pulsing .icon-svg { animation: pulse-icon 1.5s ease-in-out infinite; fill: #3b82f6; stroke: #3b82f6; }
-.ai-action-btn.liked .icon-svg { fill: #3b82f6; stroke: #3b82f6;}
+.ai-action-btn.pulsing i { animation: pulse-icon 1.5s ease-in-out infinite; color: #3b82f6; } /* Speak */
+.ai-action-btn.liked i { color: #3b82f6; } /* Like */
 
 
 @media (max-width: 768px) {
@@ -1574,39 +1402,31 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
     }
 
     .sidebar {
-        width: 250px;
+        width: 250px; /* Slightly smaller sidebar on mobile */
         margin-left: -250px;
     }
     .app-container.sidebar-open {
         grid-template-columns: 250px 1fr;
     }
     .main-header {
-        width: 100%;
+        width: 100%; /* Header always full width on mobile */
         left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-header {
         padding: 10px 15px;
         height: 60px;
     }
     .novaria-title-dropdown {
         font-size: 1.4em;
-        padding: 5px 8px;
-    }
-    .novaria-title-dropdown .icon-svg {
-        width: 14px;
-        height: 14px;
     }
     .header-actions-right {
         gap: 10px;
     }
     .favorite-toggle-btn, .new-chat-btn-header {
-        padding: 3px;
-    }
-    .favorite-toggle-btn .icon-svg, .new-chat-btn-header .icon-svg {
-        width: 24px;
-        height: 24px;
-    }
-    .sidebar-toggle-btn .icon-svg {
-        width: 24px;
-        height: 24px;
+        font-size: 1.3em;
     }
     .theme-toggle-main .switch {
         width: 44px;
@@ -1620,39 +1440,11 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
         height: 18px;
     }
 
-    /* Initial state adjustments for mobile */
-    .initial-greeting-container {
-        padding: 10px;
-    }
-    .initial-logo {
-        width: 80px;
-        height: 80px;
-        margin-bottom: 15px;
-    }
-    .initial-title {
-        font-size: 1.8em;
-    }
-    .initial-greeting-text {
-        font-size: 1.2em;
-        margin-bottom: 30px;
-    }
-    .header-right-initial .user-avatar-header {
-        width: 36px;
-        height: 36px;
-        font-size: 1em;
-    }
-    .btn.login-btn-header {
-        padding: 6px 15px;
-        font-size: 0.9em;
-    }
-
-
     .bottom-chat-area {
-        width: calc(100% - 30px);
+        width: calc(100% - 30px); /* Smaller padding on mobile */
         bottom: 10px;
-        padding: 0 5px;
     }
-    .new-input-wrapper-container, .input-wrapper-initial {
+    .new-input-wrapper-container {
         padding: 10px;
         border-radius: 25px;
         gap: 8px;
@@ -1666,17 +1458,15 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
         width: 32px;
         height: 32px;
     }
-    .btn-circle .icon-svg {
-        width: 18px;
-        height: 18px;
+    .btn-circle i {
+        font-size: 1em;
     }
-    .btn-plus-top, .btn-voice-bottom, .btn-send-bottom, .btn-plus-bottom-initial, .btn-send-bottom-initial {
+    .btn-plus-top, .btn-voice-bottom, .btn-send-bottom {
         width: 32px;
         height: 32px;
     }
-    .btn-plus-top .icon-svg, .btn-voice-bottom .icon-svg, .btn-send-bottom .icon-svg, .btn-plus-bottom-initial .icon-svg, .btn-send-bottom-initial .icon-svg {
-        width: 18px;
-        height: 18px;
+    .btn-plus-top i, .btn-voice-bottom i, .btn-send-bottom i {
+        font-size: 1em;
     }
     .custom-selector-trigger {
         padding: 6px 10px;
@@ -1684,9 +1474,8 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
         border-radius: 18px;
         height: 32px;
     }
-    .custom-selector-trigger .icon-svg {
-        width: 12px;
-        height: 12px;
+    .custom-selector-trigger i {
+        font-size: 0.7em;
     }
     .toggle-switch-group {
         height: 32px;
@@ -1718,9 +1507,5 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
     .ai-action-btn svg {
         width: 18px;
         height: 18px;
-    }
-    .disclaimer-footer {
-        font-size: 0.75em;
-        padding: 6px 15px;
     }
 }

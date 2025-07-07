@@ -1,3 +1,4 @@
+/* GANTI SELURUH ISI SCRIPT.JS ANDA DENGAN KODE INI */
 document.addEventListener('DOMContentLoaded', () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
     const storedUser = localStorage.getItem('novaUser');
@@ -15,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const profilePicture = document.getElementById('profilePicture');
             const profileName = document.getElementById('profileName');
             const sidebarUserProfile = document.getElementById('sidebarUserProfile');
+            const userAvatarHeader = document.getElementById('userAvatarHeader');
+            const loginBtnHeader = document.getElementById('loginBtnHeader');
+            const initialGreetingText = document.getElementById('initialGreetingText');
+
 
             if (currentUser) {
                 if (profilePicture) {
@@ -29,8 +34,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (profileName) profileName.textContent = currentUser.name || 'User';
                 if (sidebarUserProfile) sidebarUserProfile.style.display = 'flex';
-            } else {
+
+                // Initial state header for logged-in user
+                if (userAvatarHeader) {
+                    if (currentUser.picture) {
+                        userAvatarHeader.style.backgroundImage = `url(${currentUser.picture})`;
+                        userAvatarHeader.style.backgroundSize = 'cover';
+                        userAvatarHeader.style.backgroundPosition = 'center';
+                        userAvatarHeader.textContent = '';
+                    } else {
+                        userAvatarHeader.style.backgroundColor = 'var(--user-avatar-bg)';
+                        userAvatarHeader.textContent = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
+                    }
+                    userAvatarHeader.classList.remove('hidden');
+                }
+                if (loginBtnHeader) loginBtnHeader.classList.add('hidden');
+
+                if (initialGreetingText) {
+                    initialGreetingText.textContent = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]}, I Can Help You?`;
+                }
+
+            } else { // Should not happen if isLoggedIn is 'true', but as fallback
                 if (sidebarUserProfile) sidebarUserProfile.style.display = 'none';
+                if (userAvatarHeader) userAvatarHeader.classList.add('hidden');
+                if (loginBtnHeader) loginBtnHeader.classList.remove('hidden');
             }
 
         } catch (e) {
@@ -41,10 +68,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
     } else {
-        window.location.href = 'login.html';
+        document.body.classList.remove('app-hidden');
+        document.body.classList.add('app-loaded');
+        // Initial state header for non-logged-in user
+        const loginBtnHeader = document.getElementById('loginBtnHeader');
+        if (loginBtnHeader) loginBtnHeader.classList.remove('hidden');
+        const userAvatarHeader = document.getElementById('userAvatarHeader');
+        if (userAvatarHeader) userAvatarHeader.classList.add('hidden');
+        window.location.href = 'login.html'; // Redirect to login if not logged in
         return;
     }
 
+    // DOM Elements
     const appContainer = document.querySelector('.app-container');
     const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
     const sidebar = document.getElementById('sidebar');
@@ -54,6 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const userMenuToggleBtn = document.getElementById('userMenuToggleBtn');
     const userMenuDropdown = document.getElementById('userMenuDropdown');
     const logoutButtonUserMenu = document.getElementById('logoutButtonUserMenu');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const contactBtn = document.getElementById('contactBtn');
 
     const novariaTitleDropdown = document.getElementById('novariaTitleDropdown');
     const novariaDropdownMenu = document.getElementById('novariaDropdownMenu');
@@ -65,14 +102,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentChatFavoriteBtn = document.getElementById('currentChatFavoriteBtn');
     const chatHistoryList = document.getElementById('chat-history-list');
 
-    const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendButtonBottom');
+    // Input elements (initial & active states)
+    let messageInput; // Will be assigned dynamically
+    const sendButtonInitial = document.getElementById('sendButtonBottomInitial');
+    const plusButtonInitial = document.getElementById('plusButtonBottomInitial');
+    const messageInputInitial = document.getElementById('messageInputInitial');
+
+    const messageInputActive = document.getElementById('messageInputActive');
+    const sendButtonActive = document.getElementById('sendButtonBottom'); // Existing send button
+    const plusButtonActive = document.getElementById('plusButtonTop'); // Existing plus button
+
     const chatDisplay = document.getElementById('chatHistory');
-    const initialGreeting = document.querySelector('.initial-greeting');
+    const initialGreetingContainer = document.getElementById('initialGreetingContainer');
     const thinkingIndicator = document.getElementById('thinkingIndicator');
     const mainContent = document.querySelector('.main-content');
 
-    const plusButton = document.getElementById('plusButtonTop');
     const fileInput = document.getElementById('fileInput');
     const bottomChatArea = document.getElementById('bottomChatArea');
 
@@ -95,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modelOptionsContainer = document.getElementById('modelOptions');
     const closeModelModalButton = document.getElementById('closeModelModal');
 
-    const fastButton = document.getElementById('fastButton');
+    const flashButton = document.getElementById('flashButton');
     const smartButton = document.getElementById('smartButton');
 
     const themeToggleMain = document.getElementById('themeToggleMain');
@@ -103,12 +147,101 @@ document.addEventListener('DOMContentLoaded', () => {
     const availableModels = [
         { value: 'gemini-2.5-flash', label: 'Flash', type: 'flash' },
         { value: 'gemini-2.0-flash', label: 'Smart', type: 'smart' },
-        { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', type: 'other' }
+        { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash', type: 'other' } // Default model if others are not selected
     ];
 
     let currentSelectedModelValue = '';
     let currentTypingAnimationInterval = null;
     let currentTypingAnimationTimeout = null;
+
+    // Header state elements
+    const headerInitialState = document.getElementById('headerInitialState');
+    const headerActiveState = document.getElementById('headerActiveState');
+    const headerRightInitial = document.getElementById('headerRightInitial');
+
+    // Input wrapper states
+    const inputWrapperInitial = document.getElementById('inputWrapperInitial');
+    const inputWrapperActive = document.getElementById('inputWrapperActive');
+
+    // Function to switch UI state
+    function switchToInitialState() {
+        headerInitialState.classList.remove('hidden');
+        headerActiveState.classList.add('hidden');
+        headerRightInitial.classList.remove('hidden');
+
+        initialGreetingContainer.classList.add('show');
+        chatDisplay.classList.remove('show');
+        chatDisplay.innerHTML = ''; // Clear chat history display
+
+        inputWrapperInitial.classList.remove('hidden');
+        inputWrapperActive.classList.add('hidden');
+
+        messageInput = messageInputInitial;
+        setupInputListeners(messageInputInitial, sendButtonInitial, plusButtonInitial);
+        autoResizeTextarea();
+        updateInputAreaAppearance(); // Re-adjust padding-bottom for the initial input
+    }
+
+    function switchToActiveState() {
+        headerInitialState.classList.add('hidden');
+        headerActiveState.classList.remove('hidden');
+        headerRightInitial.classList.add('hidden');
+
+        initialGreetingContainer.classList.remove('show');
+        chatDisplay.classList.add('show');
+
+        inputWrapperInitial.classList.add('hidden');
+        inputWrapperActive.classList.remove('hidden');
+
+        messageInput = messageInputActive;
+        setupInputListeners(messageInputActive, sendButtonActive, plusButtonActive);
+        autoResizeTextarea();
+        updateInputAreaAppearance(); // Re-adjust padding-bottom for the active input
+    }
+
+    // Function to set up input listeners for current active input
+    function setupInputListeners(inputEl, sendBtn, plusBtn) {
+        // Remove previous listeners if they exist (to prevent duplicates)
+        if (messageInputInitial) messageInputInitial.removeEventListener('input', autoResizeTextarea);
+        if (messageInputInitial) messageInputInitial.removeEventListener('keypress', handleMessageInputKeypress);
+        if (sendButtonInitial) sendButtonInitial.removeEventListener('click', handleSendMessage);
+        if (plusButtonInitial) plusButtonInitial.removeEventListener('click', handlePlusButtonClick);
+
+        if (messageInputActive) messageInputActive.removeEventListener('input', autoResizeTextarea);
+        if (messageInputActive) messageInputActive.removeEventListener('keypress', handleMessageInputKeypress);
+        if (sendButtonActive) sendButtonActive.removeEventListener('click', handleSendMessage);
+        if (plusButtonActive) plusButtonActive.removeEventListener('click', handlePlusButtonClick);
+
+        // Add new listeners
+        if (inputEl) inputEl.addEventListener('input', autoResizeTextarea);
+        if (inputEl) inputEl.addEventListener('keypress', handleMessageInputKeypress);
+        if (sendBtn) sendBtn.addEventListener('click', handleSendMessage);
+        if (plusBtn) plusBtn.addEventListener('click', handlePlusButtonClick);
+    }
+
+    function handleMessageInputKeypress(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            this.nextElementSibling.click(); // Assuming send button is next sibling
+        }
+    }
+
+    function handleSendMessage() {
+        const message = messageInput.value.trim();
+        if (message !== '' || attachedFiles.length > 0) {
+            // Switch to active state if not already
+            if (!headerActiveState.classList.contains('show') && conversationHistory.length === 0) {
+                switchToActiveState();
+            }
+            // Continue with message sending logic
+            sendMessageLogic(message);
+        }
+    }
+
+    function handlePlusButtonClick() {
+        fileInput.click();
+    }
+
 
     function generateUniqueId() {
         return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -152,18 +285,17 @@ document.addEventListener('DOMContentLoaded', () => {
             listItem.appendChild(titleSpan);
 
             const favoriteIcon = document.createElement('svg');
-            favoriteIcon.classList.add('icon-svg', 'favorite-icon', 'icon-fav-header'); // Use icon-fav-header styling
+            favoriteIcon.classList.add('icon-svg', 'favorite-icon', 'icon-fav-header');
             favoriteIcon.setAttribute('viewBox', '0 0 24 24');
             favoriteIcon.innerHTML = '<path fill="currentColor" d="M21.919 10.127a1 1 0 0 0-.845-1.136l-5.651-.826l-2.526-5.147a1.037 1.037 0 0 0-1.795.001L8.577 8.165l-5.651.826a1 1 0 0 0-.556 1.704l4.093 4.013l-.966 5.664a1.002 1.002 0 0 0 1.453 1.052l5.05-2.67l5.049 2.669a1 1 0 0 0 1.454-1.05l-.966-5.665l4.094-4.014a1 1 0 0 0 .288-.567zm-5.269 4.05a.502.502 0 0 0-.143.441l1.01 5.921l-5.284-2.793a.505.505 0 0 0-.466 0L6.483 20.54l1.01-5.922a.502.502 0 0 0-.143-.441L3.07 9.98l5.912-.864a.503.503 0 0 0 .377-.275L12 3.46l2.64 5.382a.503.503 0 0 0 .378.275l5.913.863l-4.28 4.197z"/>';
             if (conv.isFavorite) {
                 favoriteIcon.classList.add('active');
             }
+            listItem.appendChild(favoriteIcon);
             favoriteIcon.addEventListener('click', (e) => {
                 e.stopPropagation();
                 toggleChatFavorite(conv.id);
             });
-            listItem.appendChild(favoriteIcon);
-
             listItem.addEventListener('click', () => loadChat(conv.id));
             chatHistoryList.appendChild(listItem);
         });
@@ -187,14 +319,14 @@ document.addEventListener('DOMContentLoaded', () => {
         messageInput.value = '';
         autoResizeTextarea();
         updateInputAreaAppearance();
-        initialGreeting.classList.remove('hidden');
-        chatDisplay.innerHTML = '';
-        chatDisplay.appendChild(initialGreeting);
-        chatDisplay.appendChild(thinkingIndicator);
+        chatDisplay.innerHTML = ''; // Clear chat messages
 
         if (currentChatFavoriteBtn.querySelector('.icon-svg')) {
              currentChatFavoriteBtn.querySelector('.icon-svg').classList.remove('active');
         }
+
+        switchToInitialState(); // Switch to initial UI
+        chatDisplay.appendChild(thinkingIndicator); // Add indicator back for potential future use
 
         renderChatHistoryList();
         closeSidebar();
@@ -223,7 +355,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInputAreaAppearance();
 
         chatDisplay.innerHTML = '';
-        initialGreeting.classList.add('hidden');
         conversationHistory.forEach(msg => {
             const msgEl = document.createElement('div');
             msgEl.classList.add('chat-message', msg.role === 'user' ? 'user-message' : 'ai-message');
@@ -279,6 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentChatFavoriteBtn.querySelector('.icon-svg').classList.remove('active');
         }
 
+        switchToActiveState(); // Switch to active UI
         setTimeout(() => chatDisplay.scrollTop = chatDisplay.scrollHeight, 100);
         renderChatHistoryList();
         closeSidebar();
@@ -350,10 +482,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedModel) {
             selectedModelName.textContent = selectedModel.label;
             if (updateFastSmartToggle) {
-                fastButton.classList.remove('active');
+                flashButton.classList.remove('active');
                 smartButton.classList.remove('active');
                 if (selectedModel.type === 'flash') {
-                    fastButton.classList.add('active');
+                    flashButton.classList.add('active');
                 } else if (selectedModel.type === 'smart') {
                     smartButton.classList.add('active');
                 }
@@ -401,16 +533,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultModel = availableModels.find(m => m.value === savedModelValue) || availableModels[0];
     setSelectedModel(defaultModel.value, true);
 
+    // Initial setup based on conversation history
+    loadConversations();
+    if (Object.keys(allConversations).length === 0) {
+        createNewChat(); // This will call switchToInitialState
+    } else {
+        const lastChatId = localStorage.getItem('lastActiveChatId');
+        if (lastChatId && allConversations[lastChatId]) {
+            loadChat(lastChatId); // This will call switchToActiveState
+        } else {
+            const sortedByTime = Object.values(allConversations).sort((a,b) => b.timestamp - a.timestamp);
+            if (sortedByTime.length > 0) {
+                loadChat(sortedByTime[0].id);
+            } else {
+                createNewChat();
+            }
+        }
+    }
+
+    // Event Listeners
     sidebarToggleBtn.addEventListener('click', openSidebar);
     sidebarOverlay.addEventListener('click', closeSidebar);
     sidebarNewChatBtn.addEventListener('click', createNewChat);
     headerNewChatBtn.addEventListener('click', createNewChat);
 
+    // Handle initial login button click
+    if (loginBtnHeader) {
+        loginBtnHeader.addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+    }
+
+    // Handle user menu
     userMenuToggleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         userMenuDropdown.classList.toggle('show');
     });
-
+    settingsBtn.addEventListener('click', () => { window.location.href = 'settings.html'; });
+    contactBtn.addEventListener('click', () => { window.location.href = 'contact.html'; });
     logoutButtonUserMenu.addEventListener('click', (event) => {
         event.preventDefault();
         if (confirm('Are you sure you want to log out?')) {
@@ -451,7 +611,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let content = msg.content;
             const doc = new DOMParser().parseFromString(content, 'text/html');
             content = doc.documentElement.textContent;
-
             return `${msg.role === 'user' ? 'You' : 'Novaria'}: ${content}`;
         }).join('\n\n');
 
@@ -485,12 +644,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: currentChat.title || 'Novaria Chat',
                 text: chatText,
                 url: window.location.href,
-            }).catch((error) => console.log('Error sharing', error));
+            }).catch((error) => console.error(error));
         } else {
             navigator.clipboard.writeText(chatText).then(() => {
                 alert('Chat content copied to clipboard!');
             }).catch(err => {
-                console.error('Failed to copy chat: ', err);
+                console.error(err);
             });
         }
         novariaDropdownMenu.classList.remove('show');
@@ -528,10 +687,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (fastButton) {
-        fastButton.addEventListener('click', () => {
+    if (flashButton) {
+        flashButton.addEventListener('click', () => {
             setSelectedModel('gemini-2.5-flash', false);
-            fastButton.classList.add('active');
+            flashButton.classList.add('active');
             smartButton.classList.remove('active');
         });
     }
@@ -539,25 +698,8 @@ document.addEventListener('DOMContentLoaded', () => {
         smartButton.addEventListener('click', () => {
             setSelectedModel('gemini-2.0-flash', false);
             smartButton.classList.add('active');
-            fastButton.classList.remove('active');
+            flashButton.classList.remove('active');
         });
-    }
-
-    loadConversations();
-    if (Object.keys(allConversations).length === 0) {
-        createNewChat();
-    } else {
-        const lastChatId = localStorage.getItem('lastActiveChatId');
-        if (lastChatId && allConversations[lastChatId]) {
-            loadChat(lastChatId);
-        } else {
-            const sortedByTime = Object.values(allConversations).sort((a,b) => b.timestamp - a.timestamp);
-            if (sortedByTime.length > 0) {
-                loadChat(sortedByTime[0].id);
-            } else {
-                createNewChat();
-            }
-        }
     }
 
     function checkScrollable() {
@@ -576,26 +718,21 @@ document.addEventListener('DOMContentLoaded', () => {
       chatDisplay.addEventListener('scroll', checkScrollable);
     }
 
-    messageInput.addEventListener('input', () => {
+    // This listener will be for the currently active messageInput
+    // It's attached via setupInputListeners
+    function handleMessageInputInput() {
         autoResizeTextarea();
-        if (messageInput.value.trim() !== '' || attachedFiles.length > 0) {
-            initialGreeting.classList.add('hidden');
-        } else {
-            if (conversationHistory.length === 0) {
-                initialGreeting.classList.remove('hidden');
-            }
-        }
-    });
+        // The visibility of initialGreetingContainer/chatDisplay is now managed by state functions
+    }
 
     function autoResizeTextarea() {
+        if (!messageInput) return; // Ensure messageInput is defined
         messageInput.style.height = 'auto';
         let scrollHeight = messageInput.scrollHeight;
         const maxHeight = 120;
         messageInput.style.height = Math.min(scrollHeight, maxHeight) + 'px';
         updateInputAreaAppearance();
     }
-    messageInput.addEventListener('input', autoResizeTextarea);
-    autoResizeTextarea();
 
     function stopCurrentTypingAnimation() {
         if (currentTypingAnimationInterval) {
@@ -888,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
         actionsContainer.classList.add('ai-message-actions');
 
         const buttons = [
-            { name: 'copy', icon: '<i class="fas fa-copy"></i>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<i class="fas fa-check" style="color: #66bb6a;"></i>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
+            { name: 'copy', icon: '<i class="fas fa-copy"></i>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<i class="fas fa-check" style="color: #66bb6a;"></i>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error(err); }); } },
             { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'en-US';
             utterance.onend = () => { buttonEl.classList.remove('pulsing'); buttonEl.innerHTML = buttons[1].icon; };
             buttonEl.classList.add('pulsing'); buttonEl.innerHTML = '<i class="fas fa-volume-up"></i>';
@@ -914,7 +1051,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('Tidak ada pesan pengguna sebelumnya untuk meregenerasi respons.');
                 }
             } },
-            { name: 'share-msg', icon: '<i class="fas fa-share-alt"></i>', title: 'Share Message', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); if (navigator.share) { navigator.share({ title: 'Novaria Message', text: fullContent, }).catch((error) => console.log('Error sharing', error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
+            { name: 'share-msg', icon: '<i class="fas fa-share-alt"></i>', title: 'Share Message', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); if (navigator.share) { navigator.share({ title: 'Novaria Message', text: fullContent, }).catch((error) => console.error(error)); } else { navigator.clipboard.writeText(fullContent).then(() => { buttonEl.title = "Not supported, copied instead!"; setTimeout(() => { buttonEl.title = buttons[4].title; }, 2000); }); } } }
         ];
         buttons.forEach((btnInfo) => {
             const button = document.createElement('button');
@@ -1034,138 +1171,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    sendButton.addEventListener('click', () => {
-        const message = messageInput.value.trim();
-        if (message !== '' || attachedFiles.length > 0) {
-            stopCurrentTypingAnimation();
+    // Main send message logic
+    function sendMessageLogic(message) {
+        stopCurrentTypingAnimation();
 
-            let finalPrompt = message;
-            if (attachedFiles.length > 0 && message === '') {
-                const fileNames = attachedFiles.map(f => f.name).join(', ');
-                finalPrompt = `Harap menganalisis file-file ini: ${fileNames}`;
-            } else if (attachedFiles.length > 0) {
-                const fileNames = attachedFiles.map(f => f.name).join(', ');
-                finalPrompt = `${message} (Dilampirkan: ${fileNames})`;
+        let finalPrompt = message;
+        if (attachedFiles.length > 0 && message === '') {
+            const fileNames = attachedFiles.map(f => f.name).join(', ');
+            finalPrompt = `Harap menganalisis file-file ini: ${fileNames}`;
+        } else if (attachedFiles.length > 0) {
+            const fileNames = attachedFiles.map(f => f.name).join(', ');
+            finalPrompt = `${message} (Dilampirkan: ${fileNames})`;
+        }
+
+        addChatMessage(messageInput.value.trim() || finalPrompt, 'user');
+        generateRealAIResponse(finalPrompt, attachedFiles);
+
+        messageInput.value = '';
+        autoResizeTextarea();
+    }
+
+    fileInput.addEventListener('change', (event) => {
+        const filesToProcess = Array.from(event.target.files);
+        if (filesToProcess.length === 0) return;
+
+        let canAddCount = MAX_FILES_ALLOWED - attachedFiles.length;
+
+        if (canAddCount <= 0) {
+            alert(`You have reached the maximum of ${MAX_FILES_ALLOWED} files.`);
+            fileInput.value = '';
+            return;
+        }
+
+        const newValidFiles = [];
+
+        for (const file of filesToProcess) {
+            if (newValidFiles.length >= canAddCount) {
+                alert(`You can only add ${canAddCount} more file(s). Some files were not added.`);
+                break;
             }
+            if (file.size > MAX_FILE_SIZE_BYTES_NEW) {
+                alert(`File "${file.name}" (${formatFileSize(file.size)}) exceeds the maximum size of ${formatFileSize(MAX_FILE_SIZE_BYTES_NEW, 0)}.`);
+                continue;
+            }
+            const isDuplicate = attachedFiles.some(f => f.name === file.name && f.size === file.size);
+            if (isDuplicate) {
+                alert(`File "${file.name}" is already attached.`);
+                continue;
+            }
+            newValidFiles.push(file);
+        }
 
-            initialGreeting.classList.add('hidden');
-            addChatMessage(messageInput.value.trim() || finalPrompt, 'user');
-            generateRealAIResponse(finalPrompt, attachedFiles);
+        newValidFiles.forEach(file => {
+            attachedFiles.push(file);
+            displayFileChipItem(file);
+        });
 
-            messageInput.value = '';
-            autoResizeTextarea();
+        fileInput.value = '';
+        // If files are attached, and it's currently initial state, switch to active state input
+        if (attachedFiles.length > 0 && inputWrapperInitial && !inputWrapperInitial.classList.contains('hidden')) {
+            switchToActiveState();
         }
     });
-    messageInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendButton.click(); } });
-
-    const savedTheme = localStorage.getItem('novaria_theme');
-    const hljsLink = document.querySelector('link[href*="highlight.js"]');
-
-    function applyTheme(isLightMode) {
-        if (isLightMode) {
-            document.body.classList.add('light-mode');
-            localStorage.setItem('novaria_theme', 'light-mode');
-            if (hljsLink) hljsLink.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css";
-        } else {
-            document.body.classList.remove('light-mode');
-            localStorage.setItem('novaria_theme', 'dark-mode');
-            if (hljsLink) hljsLink.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css";
-        }
-        themeToggleMain.checked = isLightMode;
-        document.querySelectorAll('pre code').forEach((block) => {
-            hljs.highlightElement(block);
-        });
-    }
-
-    if (savedTheme === 'light-mode') {
-        applyTheme(true);
-    } else {
-        applyTheme(false);
-    }
-    themeToggleMain.addEventListener('change', () => applyTheme(themeToggleMain.checked));
-
-    function setupRippleEffects() {
-        const clickableElements = document.querySelectorAll('.btn-circle, .sidebar .new-chat-btn, .chat-item, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item, .toggle-button, .dropdown-item, .favorite-toggle-btn, .new-chat-btn-header, .sidebar-toggle-btn, .user-menu-item, .user-menu-toggle-btn');
-        clickableElements.forEach(element => {
-            const oldHandler = element._rippleHandler;
-            if (oldHandler) {
-                element.removeEventListener('click', oldHandler);
-            }
-            const newHandler = function (e) {
-                if (e.target.tagName === 'A' || e.target.closest('a') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('icon-svg')) {
-                    return;
-                }
-                const ripple = document.createElement('span');
-                ripple.classList.add('ripple');
-                this.appendChild(ripple);
-                const rect = this.getBoundingClientRect();
-                const size = Math.max(rect.width, rect.height);
-                const x = e.clientX - rect.left - (size / 2);
-                const y = e.clientY - rect.top - (size / 2);
-                ripple.style.width = ripple.style.height = `${size}px`;
-                ripple.style.left = `${x}px`;
-                ripple.style.top = `${y}px`;
-                ripple.addEventListener('animationend', () => {
-                    ripple.remove();
-                });
-            };
-            element.addEventListener('click', newHandler);
-            element._rippleHandler = newHandler;
-        });
-    }
-    setupRippleEffects();
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                let needsRippleSetup = false;
-                mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === 1) {
-                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.remove-chip-btn') || node.matches('.chat-item') || node.matches('.model-option-item') || node.matches('.toggle-button') || node.matches('.dropdown-item') || node.matches('.user-menu-item') || node.matches('.sidebar .new-chat-btn') || node.matches('.logout-btn'))) {
-                            needsRippleSetup = true;
-                        }
-                        if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.chat-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button') || node.querySelector('.dropdown-item') || node.querySelector('.user-menu-item') || node.querySelector('.sidebar .new-chat-btn') || node.querySelector('.logout-btn'))) {
-                            needsRippleSetup = true;
-                        }
-                    }
-                });
-                if (needsRippleSetup) {
-                    setupRippleEffects();
-                }
-            }
-        });
-    });
-    if (chatDisplay) observer.observe(chatDisplay, { childList: true, subtree: true });
-    if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
-    if (chatHistoryList) observer.observe(chatHistoryList, { childList: true, subtree: true });
-    if (modelOptionsContainer) observer.observe(modelOptionsContainer, { childList: true, subtree: true });
-    const newInputWrapperContainer = document.querySelector('.new-input-wrapper-container');
-    if (newInputWrapperContainer) observer.observe(newInputWrapperContainer, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
-
-    function updateInputAreaAppearance() {
-        if (!bottomChatArea) return;
-
-        const totalBottomSpace = bottomChatArea.offsetHeight + 15 + 30;
-        mainContent.style.paddingBottom = `${totalBottomSpace}px`;
-
-        if (chatDisplay) {
-            const isAtBottom = chatDisplay.scrollHeight - chatDisplay.scrollTop <= chatDisplay.clientHeight + 50;
-            if (isAtBottom) {
-                chatDisplay.scrollTop = chatDisplay.scrollHeight;
-            }
-        }
-    }
-
-    const resizeObserverForBottomArea = new ResizeObserver(() => {
-        updateInputAreaAppearance();
-    });
-    if (bottomChatArea) {
-        resizeObserverForBottomArea.observe(bottomChatArea);
-    }
-    messageInput.addEventListener('input', updateInputAreaAppearance);
-    messageInput.addEventListener('blur', updateInputAreaAppearance);
-    messageInput.addEventListener('focus', updateInputAreaAppearance);
-
-    plusButton.addEventListener('click', () => { fileInput.click(); });
 
     function displayFileChipItem(file) {
         const chipItem = document.createElement('div');
@@ -1179,9 +1246,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fileIcon.classList.add('fas', 'fa-image');
         } else if (file.type.startsWith('video/')) {
             fileIcon.classList.add('fas', 'fa-video');
-        } else if (file.type.startsWith('audio/')) {
-            fileIcon.classList.add('fas', 'fa-volume-up');
-        } else if (file.type === 'application/pdf') {
+        } else if (file.type.includes('pdf')) { // Changed to includes for broader compatibility
             fileIcon.classList.add('fas', 'fa-file-pdf');
         } else if (file.type.includes('word')) {
             fileIcon.classList.add('fas', 'fa-file-word');
@@ -1260,45 +1325,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInputAreaAppearance();
     }
 
-    fileInput.addEventListener('change', (event) => {
-        const filesToProcess = Array.from(event.target.files);
-        if (filesToProcess.length === 0) return;
-
-        let canAddCount = MAX_FILES_ALLOWED - attachedFiles.length;
-
-        if (canAddCount <= 0) {
-            alert(`You have reached the maximum of ${MAX_FILES_ALLOWED} files.`);
-            fileInput.value = '';
-            return;
-        }
-
-        const newValidFiles = [];
-
-        for (const file of filesToProcess) {
-            if (newValidFiles.length >= canAddCount) {
-                alert(`You can only add ${canAddCount} more file(s). Some files were not added.`);
-                break;
-            }
-            if (file.size > MAX_FILE_SIZE_BYTES_NEW) {
-                alert(`File "${file.name}" (${formatFileSize(file.size)}) exceeds the maximum size of ${formatFileSize(MAX_FILE_SIZE_BYTES_NEW, 0)}.`);
-                continue;
-            }
-            const isDuplicate = attachedFiles.some(f => f.name === file.name && f.size === file.size);
-            if (isDuplicate) {
-                alert(`File "${file.name}" is already attached.`);
-                continue;
-            }
-            newValidFiles.push(file);
-        }
-
-        newValidFiles.forEach(file => {
-            attachedFiles.push(file);
-            displayFileChipItem(file);
-        });
-
-        fileInput.value = '';
-    });
-
     const voiceInputButton = document.getElementById('voiceInputButtonBottom');
     let recognition;
 
@@ -1311,11 +1337,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let finalTranscript = '';
         recognition.onstart = () => { voiceInputButton.style.backgroundColor = 'red'; messageInput.placeholder = 'Listening...'; };
         recognition.onresult = (event) => { let interimTranscript = ''; for (let i = event.resultIndex; i < event.results.length; ++i) { if (event.results[i].isFinal) { finalTranscript += event.results[i][0].transcript; } else { interimTranscript += event.results[i][0].transcript; } } messageInput.value = finalTranscript + interimTranscript; autoResizeTextarea(); };
-        recognition.onend = () => { voiceInputButton.style.backgroundColor = ''; if (finalTranscript.trim() !== '') { messageInput.value = finalTranscript.trim(); sendButton.click(); } if (messageInput.value.trim() === '') { messageInput.placeholder = "Ask me anything..."; } finalTranscript = ''; };
+        recognition.onend = () => { voiceInputButton.style.backgroundColor = ''; if (finalTranscript.trim() !== '') { sendMessageLogic(finalTranscript.trim()); } if (messageInput.value.trim() === '') { messageInput.placeholder = "Ask me anything..."; } finalTranscript = ''; };
         recognition.onerror = (event) => { voiceInputButton.style.backgroundColor = ''; messageInput.placeholder = "Ask me anything..."; finalTranscript = ''; console.error(event.error); alert('Speech recognition error: ' + event.error); };
         voiceInputButton.addEventListener('click', () => { try { if (recognition && typeof recognition.stop === 'function' && recognition.recording) { recognition.stop(); } else { recognition.start(); } } catch (e) { if (recognition && typeof recognition.stop === 'function') recognition.stop(); } });
     } else {
-        voiceInputButton.style.display = 'none';
+        if (voiceInputButton) voiceInputButton.style.display = 'none';
     }
 
     window.copyCode = function(buttonElement) {
@@ -1323,64 +1349,71 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!pre) return;
         navigator.clipboard.writeText(pre.textContent).then(() => {
             const icon = buttonElement.querySelector('i');
-            const originalClass = icon.className;
-            const originalTitle = buttonElement.title;
             if (icon) {
-                icon.className = 'fas fa-check'; // Fallback for Font Awesome if needed
+                const originalClass = icon.className;
+                const originalTitle = buttonElement.title;
+                icon.className = 'fas fa-check';
                 icon.style.color = '#66bb6a';
+                buttonElement.title = 'Copied!';
+                setTimeout(() => {
+                    icon.className = originalClass;
+                    icon.style.color = '';
+                    buttonElement.title = originalTitle;
+                }, 2000);
             } else { // For SVG icons
                 const svg = buttonElement.querySelector('svg');
                 if (svg) {
-                    const path = svg.querySelector('path');
-                    svg.dataset.originalSvg = svg.innerHTML; // Store original SVG for restoration
-                    svg.innerHTML = '<path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>'; // Checkmark SVG
+                    const originalSvgContent = svg.innerHTML;
+                    const originalFill = svg.style.fill;
+                    const originalStroke = svg.style.stroke;
+
+                    svg.innerHTML = '<path fill="currentColor" d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>'; // Checkmark SVG path
                     svg.style.fill = '#66bb6a';
+                    svg.style.stroke = 'none'; // Ensure no stroke interferes
+
+                    buttonElement.title = 'Copied!';
+                    setTimeout(() => {
+                        svg.innerHTML = originalSvgContent;
+                        svg.style.fill = originalFill;
+                        svg.style.stroke = originalStroke;
+                        buttonElement.title = 'Copy code'; // Reset to original title
+                    }, 2000);
                 }
             }
-            buttonElement.title = 'Copied!';
-            setTimeout(() => {
-                if (icon) {
-                    icon.className = originalClass;
-                    icon.style.color = '';
-                } else {
-                    const svg = buttonElement.querySelector('svg');
-                    if (svg && svg.dataset.originalSvg) {
-                         svg.innerHTML = svg.dataset.originalSvg;
-                         svg.style.fill = '';
-                    }
-                }
-                buttonElement.title = originalTitle;
-            }, 2000);
         }).catch(err => {
             console.error(err);
             const icon = buttonElement.querySelector('i');
-            const originalClass = icon.className;
-            const originalTitle = buttonElement.title;
             if (icon) {
+                const originalClass = icon.className;
+                const originalTitle = buttonElement.title;
                 icon.className = 'fas fa-times';
                 icon.style.color = '#ff4444';
-            } else {
-                const svg = buttonElement.querySelector('svg');
-                if (svg) {
-                    svg.dataset.originalSvg = svg.innerHTML;
-                    svg.innerHTML = '<path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17L12 13.41L8.41 17L7 15.59L10.59 12L7 8.41L8.41 7L12 10.59L15.59 7L17 8.41L13.41 12L17 15.59z"/>'; // X mark SVG
-                    svg.style.fill = '#ff4444';
-                }
-            }
-            buttonElement.title = 'Error!';
-            setTimeout(() => {
-                if (icon) {
+                buttonElement.title = 'Error!';
+                setTimeout(() => {
                     icon.className = originalClass;
                     icon.style.color = '';
-                } else {
-                    const svg = buttonElement.querySelector('svg');
-                    if (svg && svg.dataset.originalSvg) {
-                        svg.innerHTML = svg.dataset.originalSvg;
-                        svg.style.fill = '';
-                    }
+                    buttonElement.title = originalTitle;
+                }, 2000);
+            } else {
+                 const svg = buttonElement.querySelector('svg');
+                if (svg) {
+                    const originalSvgContent = svg.innerHTML;
+                    const originalFill = svg.style.fill;
+                    const originalStroke = svg.style.stroke;
+
+                    svg.innerHTML = '<path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17L12 13.41L8.41 17L7 15.59L10.59 12L7 8.41L8.41 7L12 10.59L15.59 7L17 8.41L13.41 12L17 15.59z"/>'; // X mark SVG path
+                    svg.style.fill = '#ff4444';
+                    svg.style.stroke = 'none';
+
+                    buttonElement.title = 'Error!';
+                    setTimeout(() => {
+                        svg.innerHTML = originalSvgContent;
+                        svg.style.fill = originalFill;
+                        svg.style.stroke = originalStroke;
+                        buttonElement.title = 'Copy code';
+                    }, 2000);
                 }
-                buttonElement.title = originalTitle;
-            }, 2000);
+            }
         });
     };
 
@@ -1392,4 +1425,119 @@ document.addEventListener('DOMContentLoaded', () => {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
+
+    const savedTheme = localStorage.getItem('novaria_theme');
+    const hljsLink = document.querySelector('link[href*="highlight.js"]');
+
+    function applyTheme(isLightMode) {
+        if (isLightMode) {
+            document.body.classList.add('light-mode');
+            localStorage.setItem('novaria_theme', 'light-mode');
+            if (hljsLink) hljsLink.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css";
+        } else {
+            document.body.classList.remove('light-mode');
+            localStorage.setItem('novaria_theme', 'dark-mode');
+            if (hljsLink) hljsLink.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css";
+        }
+        if (themeToggleMain) themeToggleMain.checked = isLightMode;
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
+    }
+
+    if (savedTheme === 'light-mode') {
+        applyTheme(true);
+    } else {
+        applyTheme(false);
+    }
+    if (themeToggleMain) themeToggleMain.addEventListener('change', () => applyTheme(themeToggleMain.checked));
+
+
+    function setupRippleEffects() {
+        const clickableElements = document.querySelectorAll('.btn-circle, .sidebar .new-chat-btn, .chat-item, .ai-action-btn, .copy-code-btn, .remove-chip-btn, .custom-selector-trigger, .model-option-item, .toggle-button, .dropdown-item, .favorite-toggle-btn, .new-chat-btn-header, .sidebar-toggle-btn, .user-menu-item, .user-menu-toggle-btn, .login-btn-header');
+        clickableElements.forEach(element => {
+            const oldHandler = element._rippleHandler;
+            if (oldHandler) {
+                element.removeEventListener('click', oldHandler);
+            }
+            const newHandler = function (e) {
+                if (e.target.tagName === 'A' || e.target.closest('a') || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('icon-svg')) {
+                    return;
+                }
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                this.appendChild(ripple);
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - (size / 2);
+                const y = e.clientY - rect.top - (size / 2);
+                ripple.style.width = ripple.style.height = `${size}px`;
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                ripple.addEventListener('animationend', () => {
+                    ripple.remove();
+                });
+            };
+            element.addEventListener('click', newHandler);
+            element._rippleHandler = newHandler;
+        });
+    }
+    setupRippleEffects();
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                let needsRippleSetup = false;
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1) {
+                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.remove-chip-btn') || node.matches('.chat-item') || node.matches('.model-option-item') || node.matches('.toggle-button') || node.matches('.dropdown-item') || node.matches('.user-menu-item') || node.matches('.sidebar .new-chat-btn') || node.matches('.login-btn-header'))) {
+                            needsRippleSetup = true;
+                        }
+                        if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.chat-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button') || node.querySelector('.dropdown-item') || node.querySelector('.user-menu-item') || node.querySelector('.sidebar .new-chat-btn') || node.querySelector('.login-btn-header'))) {
+                            needsRippleSetup = true;
+                        }
+                    }
+                });
+                if (needsRippleSetup) {
+                    setupRippleEffects();
+                }
+            }
+        });
+    });
+    if (chatDisplay) observer.observe(chatDisplay, { childList: true, subtree: true });
+    if (fileChipContainer) observer.observe(fileChipContainer, { childList: true, subtree: true });
+    if (chatHistoryList) observer.observe(chatHistoryList, { childList: true, subtree: true });
+    if (modelOptionsContainer) observer.observe(modelOptionsContainer, { childList: true, subtree: true });
+    const inputWrapperObserverTarget = document.getElementById('mainContent'); // Observe mainContent for input wrapper changes
+    if (inputWrapperObserverTarget) observer.observe(inputWrapperObserverTarget, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+
+
+    function updateInputAreaAppearance() {
+        if (!bottomChatArea || !mainContent) return;
+
+        // Determine which input wrapper is visible
+        const activeInputWrapper = inputWrapperInitial.classList.contains('hidden') ? inputWrapperActive : inputWrapperInitial;
+
+        const totalBottomSpace = activeInputWrapper.offsetHeight + 15 + 30; // 15px bottom margin for bottomChatArea + 30px footer height
+        mainContent.style.paddingBottom = `${totalBottomSpace}px`;
+
+        if (chatDisplay && chatDisplay.classList.contains('show')) { // Only scroll if chatDisplay is visible
+            const isAtBottom = chatDisplay.scrollHeight - chatDisplay.scrollTop <= chatDisplay.clientHeight + 50;
+            if (isAtBottom) {
+                chatDisplay.scrollTop = chatDisplay.scrollHeight;
+            }
+        }
+    }
+
+    const resizeObserverForBottomArea = new ResizeObserver(() => {
+        updateInputAreaAppearance();
+    });
+    if (bottomChatArea) {
+        resizeObserverForBottomArea.observe(bottomChatArea);
+    }
+    // Also observe the input wrappers themselves for height changes
+    if (inputWrapperInitial) resizeObserverForBottomArea.observe(inputWrapperInitial);
+    if (inputWrapperActive) resizeObserverForBottomArea.observe(inputWrapperActive);
+
+    // Initial call to set correct padding
+    updateInputAreaAppearance();
 });

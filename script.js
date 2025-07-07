@@ -968,15 +968,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload),
             });
 
+            const responseText = await response.text();
+            let data = {};
+
+            try {
+                data = JSON.parse(responseText);
+            } catch (jsonParseError) {
+                console.warn("Response was not valid JSON, treating as plain text:", responseText);
+                data.error = responseText;
+            }
+
             if (!response.ok) {
                 let errorMessageToDisplay = `Terjadi kesalahan server: ${response.status}.`;
-                try {
-                    const errorData = await response.json();
-                    errorMessageToDisplay = errorData.error || errorMessageToDisplay;
-                } catch (jsonError) {
-                    const plainTextError = await response.text();
-                    errorMessageToDisplay = `Terjadi kesalahan server: ${response.status}. Detail: ${plainTextError.substring(0, 100)}... (bukan JSON)`;
-                    console.error("Server returned non-JSON error:", plainTextError);
+                if (data.error) {
+                    errorMessageToDisplay = data.error;
+                } else if (data.details) {
+                    errorMessageToDisplay = data.details;
                 }
 
                 if (thinkingIndicator) {
@@ -987,7 +994,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const data = await response.json();
             const rawAiResponseText = data.text || '';
             const generatedImageUrl = data.images && data.images.length > 0 ? `data:${data.images[0].mimeType};base64,${data.images[0].data}` : null;
             const modelUsed = data.modelUsed || currentSelectedModelValue;

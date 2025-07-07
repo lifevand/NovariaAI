@@ -1323,8 +1323,15 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
   line-height: 1.5;
   border: 1px solid var(--code-block-border);
   text-align: left;
-  white-space: pre-wrap;
-  word-break: break-all;
+  /* Modifikasi di sini untuk responsivitas kode */
+  max-width: 100%; /* Pastikan tidak melebihi lebar induk */
+  box-sizing: border-box; /* Pastikan padding termasuk dalam lebar */
+}
+
+.code-block pre {
+    margin: 0;
+    padding: 0;
+    /* overflow-x: auto; ini sudah di .code-block */
 }
 
 .code-block pre code {
@@ -1333,6 +1340,8 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
     background: none !important;
     color: inherit !important;
     font-family: inherit !important;
+    white-space: pre; /* Ganti dari pre-wrap agar baris kode tetap utuh dan scroll horizontal */
+    word-break: normal; /* Ganti dari break-all */
 }
 
 .code-block .code-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--code-block-border); }

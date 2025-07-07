@@ -1,3 +1,5 @@
+/* GANTI SELURUH ISI STYLE.CSS ANDA DENGAN KODE INI */
+
 :root {
   --bg-color: #1a1a1a;
   --text-color: #ffffff;
@@ -16,9 +18,6 @@
   --modal-text: #ffffff;
   --modal-close-button: #999999;
   --modal-close-button-hover: #ffffff;
-  --quick-complete-bg: #222222;
-  --quick-complete-text: #ffffff;
-  --quick-complete-hover-bg: #3a3a3a;
 
   --user-message-color: #ffffff;
   --ai-message-color: rgba(255, 255, 255, 0.9);
@@ -87,9 +86,6 @@ body.light-mode {
   --modal-text: #333333;
   --modal-close-button: #bbbbbb;
   --modal-close-button-hover: #999999;
-  --quick-complete-bg: #eeeeee;
-  --quick-complete-text: #333333;
-  --quick-complete-hover-bg: #dddddd;
 
   --user-message-color: #333333;
   --ai-message-color: rgba(51, 51, 51, 0.9);
@@ -139,6 +135,10 @@ body.light-mode {
   --dropdown-text: #333333;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -166,8 +166,7 @@ body.app-loaded {
 }
 
 .icon-svg {
-    width: 24px;
-    height: 24px;
+    display: inline-block;
     vertical-align: middle;
     fill: currentColor;
     stroke: none;
@@ -178,53 +177,15 @@ body.app-loaded {
     stroke-linejoin: round;
 }
 
-.icon-svg.icon-menu {
-    width: 28px;
-    height: 28px;
-    stroke: currentColor;
-    fill: none;
-}
-.icon-svg.icon-fav-header {
-    width: 28px;
-    height: 28px;
-    fill: currentColor;
-}
-.icon-svg.icon-new-chat-header, .icon-svg.icon-new-chat-sidebar {
-    width: 28px;
-    height: 28px;
-    fill: currentColor;
-}
-.icon-svg.icon-dropdown-arrow {
-    width: 18px;
-    height: 18px;
-    fill: currentColor;
-}
-.icon-svg.icon-voice {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-    fill: none;
-}
-.icon-svg.icon-send {
-    width: 24px;
-    height: 24px;
-    fill: currentColor;
-}
-.icon-svg.icon-plus {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-    fill: none;
-}
-.icon-svg.icon-logout, .icon-svg.icon-contact, .icon-svg.icon-settings {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-    fill: none;
-}
-.icon-svg.icon-logout path, .icon-svg.icon-contact path, .icon-svg.icon-settings path {
-    stroke-width: 1.5;
-}
+.icon-svg.icon-menu { width: 28px; height: 28px; stroke: currentColor; fill: none; }
+.icon-svg.icon-fav-header { width: 28px; height: 28px; fill: currentColor; }
+.icon-svg.icon-new-chat-header, .icon-svg.icon-new-chat-sidebar { width: 28px; height: 28px; fill: currentColor; }
+.icon-svg.icon-dropdown-arrow { width: 18px; height: 18px; fill: currentColor; }
+.icon-svg.icon-voice { width: 24px; height: 24px; stroke: currentColor; fill: none; }
+.icon-svg.icon-send { width: 24px; height: 24px; fill: currentColor; }
+.icon-svg.icon-plus { width: 24px; height: 24px; stroke: currentColor; fill: none; }
+.icon-svg.icon-logout, .icon-svg.icon-contact, .icon-svg.icon-settings { width: 24px; height: 24px; stroke: currentColor; fill: none; }
+.icon-svg.icon-logout path, .icon-svg.icon-contact path, .icon-svg.icon-settings path { stroke-width: 1.5; }
 
 
 .app-container {
@@ -401,7 +362,7 @@ body.app-loaded {
 }
 
 .chat-item .favorite-icon.active {
-    color: var(--chat-item-fav-color);
+    fill: var(--chat-item-fav-color);
 }
 
 .sidebar-footer {
@@ -460,7 +421,6 @@ body.app-loaded {
     background: none;
     border: none;
     color: var(--sidebar-text);
-    font-size: 1.2em;
     cursor: pointer;
     padding: 5px;
     transition: color 0.2s ease;
@@ -472,17 +432,21 @@ body.app-loaded {
 .user-info .user-menu-toggle-btn:hover {
     color: #ccc;
 }
+.user-info .user-menu-toggle-btn .icon-svg {
+    width: 24px;
+    height: 24px;
+}
 
 .user-menu-dropdown-content {
     position: absolute;
-    bottom: calc(100% + 10px); /* Position above the user info */
+    bottom: calc(100% + 10px);
     left: 15px;
     background-color: var(--dropdown-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     min-width: 180px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    display: none; /* Controlled by JS */
+    display: none;
     z-index: 100;
     overflow: hidden;
     padding: 5px 0;
@@ -540,11 +504,11 @@ body.app-loaded {
     position: fixed;
     top: 0;
     left: 0;
-    width: calc(100% - 280px);
+    width: 100%;
     height: 70px;
     box-sizing: border-box;
     z-index: 100;
-    transition: width 0.3s ease, left 0.3s ease;
+    transition: left 0.3s ease, width 0.3s ease;
 }
 
 .app-container.sidebar-open .main-header {
@@ -556,7 +520,6 @@ body.app-loaded {
     background: none;
     border: none;
     color: var(--text-color);
-    font-size: 1.5em;
     cursor: pointer;
     padding: 5px;
     transition: color 0.2s ease;
@@ -567,6 +530,13 @@ body.app-loaded {
 .sidebar-toggle-btn:hover {
     color: #ccc;
 }
+.sidebar-toggle-btn .icon-svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    fill: none;
+}
+
 
 .novaria-title-dropdown {
     position: relative;
@@ -588,7 +558,6 @@ body.app-loaded {
 body.light-mode .novaria-title-dropdown:hover {
     background-color: rgba(0, 0, 0, 0.08);
 }
-
 
 .novaria-title-dropdown .icon-svg {
     transform: rotate(0deg);
@@ -642,7 +611,18 @@ body.light-mode .novaria-title-dropdown:hover {
     background-color: var(--dropdown-item-hover-bg);
 }
 
-.dropdown-item i {
+.dropdown-item .icon-svg {
+    width: 20px;
+    height: 20px;
+    color: inherit;
+    stroke: currentColor;
+    fill: none;
+}
+.dropdown-item .icon-svg path {
+    stroke-width: 1.5; /* Default for settings/contact/logout */
+}
+/* Override specific Font Awesome styles if still used */
+.dropdown-item i.fas {
     font-size: 1.1em;
     color: inherit;
 }
@@ -658,7 +638,6 @@ body.light-mode .novaria-title-dropdown:hover {
     background: none;
     border: none;
     color: var(--text-color);
-    font-size: 1.5em;
     cursor: pointer;
     padding: 5px;
     transition: color 0.2s ease, transform 0.1s ease;
@@ -670,12 +649,13 @@ body.light-mode .novaria-title-dropdown:hover {
     color: #ccc;
 }
 
+.favorite-toggle-btn .icon-svg.icon-fav-header.active {
+    fill: var(--chat-item-fav-color);
+}
 .favorite-toggle-btn .icon-svg.icon-fav-header {
-    fill: var(--chat-item-fav-color);
+    fill: currentColor;
 }
-body.light-mode .favorite-toggle-btn .icon-svg.icon-fav-header {
-    fill: var(--chat-item-fav-color);
-}
+
 
 .theme-toggle-main {
     position: relative;
@@ -784,6 +764,7 @@ body.light-mode .favorite-toggle-btn .icon-svg.icon-fav-header {
     transform: translateY(15px);
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .user-message {
@@ -792,7 +773,7 @@ body.light-mode .favorite-toggle-btn .icon-svg.icon-fav-header {
     max-width: 80%;
     color: var(--user-message-color);
     margin-left: auto;
-    padding-left: 50px; /* Tambahkan padding agar teks tidak terlalu dekat ke tepi saat rata kanan */
+    padding-left: 50px;
 }
 
 .ai-message {
@@ -801,7 +782,7 @@ body.light-mode .favorite-toggle-btn .icon-svg.icon-fav-header {
     max-width: 80%;
     color: var(--ai-message-color);
     margin-right: auto;
-    padding-right: 50px; /* Tambahkan padding agar teks tidak terlalu dekat ke tepi saat rata kiri */
+    padding-right: 50px;
 }
 
 .ai-message-header {
@@ -1487,11 +1468,11 @@ input:not(:checked) + .slider .slider-icon .moon-shape { opacity: 1; transform: 
 body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
 
 @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.ai-action-btn.rotating i { animation: spin-slow 2s linear infinite; }
+.ai-action-btn.rotating .icon-svg { animation: spin-slow 2s linear infinite; }
 
 @keyframes pulse-icon { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
-.ai-action-btn.pulsing i { animation: pulse-icon 1.5s ease-in-out infinite; color: #3b82f6; }
-.ai-action-btn.liked i { color: #3b82f6; }
+.ai-action-btn.pulsing .icon-svg { animation: pulse-icon 1.5s ease-in-out infinite; fill: #3b82f6; stroke: #3b82f6; }
+.ai-action-btn.liked .icon-svg { fill: #3b82f6; stroke: #3b82f6;}
 
 
 @media (max-width: 768px) {
@@ -1515,22 +1496,30 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
     .main-header {
         width: 100%;
         left: 0;
-    }
-}
-
-@media (max-width: 480px) {
-    .main-header {
         padding: 10px 15px;
         height: 60px;
     }
     .novaria-title-dropdown {
         font-size: 1.4em;
+        padding: 5px 8px;
+    }
+    .novaria-title-dropdown .icon-svg {
+        width: 14px;
+        height: 14px;
     }
     .header-actions-right {
         gap: 10px;
     }
     .favorite-toggle-btn, .new-chat-btn-header {
-        font-size: 1.3em;
+        padding: 3px;
+    }
+    .favorite-toggle-btn .icon-svg, .new-chat-btn-header .icon-svg {
+        width: 24px;
+        height: 24px;
+    }
+    .sidebar-toggle-btn .icon-svg {
+        width: 24px;
+        height: 24px;
     }
     .theme-toggle-main .switch {
         width: 44px;
@@ -1547,6 +1536,7 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
     .bottom-chat-area {
         width: calc(100% - 30px);
         bottom: 10px;
+        padding: 0 5px;
     }
     .new-input-wrapper-container {
         padding: 10px;
@@ -1563,7 +1553,8 @@ body.light-mode .code-block .copy-code-btn i { color: var(--text-color); }
         height: 32px;
     }
     .btn-circle .icon-svg {
-        font-size: 1em;
+        width: 18px;
+        height: 18px;
     }
     .btn-plus-top, .btn-voice-bottom, .btn-send-bottom {
         width: 32px;

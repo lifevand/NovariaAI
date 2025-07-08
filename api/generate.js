@@ -1,7 +1,6 @@
-import { GoogleGenerativeAI } from '@google/genai';
-import mime from 'mime'; // <--- Jika ini tidak dipakai, hapus saja.
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -20,7 +19,6 @@ export default async function handler(req, res) {
   let generationConfig = {};
   let contents = [{ role: 'user', parts: [{ text: prompt }] }];
 
-  // Ini bagian yang menangani file yang dilampirkan
   if (attachedFiles && attachedFiles.length > 0) {
     const fileParts = attachedFiles.map(file => ({
       inlineData: {
@@ -83,4 +81,4 @@ export default async function handler(req, res) {
     console.error(`Error generating ${generationType}:`, error);
     res.status(500).json({ error: `Failed to generate ${generationType}.`, details: error.message });
   }
-}
+};

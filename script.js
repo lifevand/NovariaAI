@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             optionItem.addEventListener('click', () => {
                 setSelectedModel(model.value);
-                setTimeout(closeModelSelectModal, 200);
+                setTimeout(closeModelModalButton, 200); // Changed to closeModelModalButton
             });
             modelOptionsContainer.appendChild(optionItem);
         });
@@ -755,33 +755,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageActionsContainer.appendChild(downloadBtn);
                 aiContentContainer.appendChild(imageActionsContainer);
 
-                if (content.trim()) {
+                if (content && content.trim()) {
                     const spacer = document.createElement('div');
                     spacer.style.height = '10px';
                     aiContentContainer.appendChild(spacer);
                 }
             }
+            
+            // Check if there's actual text content to display, other than just the greeting
+            const contentToDisplay = (aiResponseRawText && aiResponseRawText.trim() !== '' && !aiResponseRawText.includes('Hii rinzzqt')) ? aiResponseRawText : '';
 
-            if (content.startsWith('<span') || !aiResponseRawText) {
-                aiContentContainer.innerHTML = content;
-                addAiMessageActions(messageElement);
-                clearAttachedFiles();
-                checkScrollable();
+            if (content.startsWith('<span') || !contentToDisplay) { // If it's an error span, or no meaningful text
+                aiContentContainer.innerHTML = content; // Just display the content as is (could be an error)
             } else {
                 const segments = [];
                 const codeBlockRegex = /(```(\w+)?\n([\s\S]*?)```)/g;
                 let lastIndex = 0;
 
-                aiResponseRawText.replace(codeBlockRegex, (match, fullBlock, language, code, offset) => {
+                contentToDisplay.replace(codeBlockRegex, (match, fullBlock, language, code, offset) => {
                     if (offset > lastIndex) {
-                        segments.push({ type: 'text', content: aiResponseRawText.substring(lastIndex, offset) });
+                        segments.push({ type: 'text', content: contentToDisplay.substring(lastIndex, offset) });
                     }
                     segments.push({ type: 'code', language: language || 'text', content: code.trim(), raw: fullBlock });
                     lastIndex = offset + match.length;
                 });
 
-                if (lastIndex < aiResponseRawText.length) {
-                    segments.push({ type: 'text', content: aiResponseRawText.substring(lastIndex) });
+                if (lastIndex < contentToDisplay.length) {
+                    segments.push({ type: 'text', content: contentToDisplay.substring(lastIndex) });
                 }
 
                 let segmentIndex = 0;
@@ -816,8 +816,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
                 };
                 processNextSegment();
-                conversationHistory.push({ role: 'assistant', content: aiResponseRawText, modelUsed: modelTag, imageUrl: imageUrl });
             }
+            conversationHistory.push({ role: 'assistant', content: aiResponseRawText, modelUsed: modelTag, imageUrl: imageUrl });
         }
 
         if (conversationHistory.length > MAX_HISTORY_DISPLAY_LENGTH * 2) {
@@ -1001,12 +1001,29 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
 
-                let personalizedResponseText = rawAiResponseText;
-                if (currentUser && currentUser.name && !rawAiResponseText.startsWith('<span')) {
-                    const greeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},\n\n`;
-                    personalizedResponseText = greeting + rawAiResponseText;
+                // Determine content to display based on generationType and API response
+                let displayContent = '';
+                if (generationType === 'image' && generatedImageUrl) {
+                    // For image generation, if image is present, prioritize displaying image.
+                    // Text might still be present (like "Hii rinzzqt"), filter it out if not meaningful.
+                    if (rawAiResponseText && rawAiResponseText.trim() !== '' && !rawAiResponseText.includes('Hii rinzzqt')) {
+                         displayContent = rawAiResponseText;
+                    }
+                } else if (generationType === 'text' && rawAiResponseText) {
+                    displayContent = rawAiResponseText;
+                } else {
+                    // Fallback for cases where expected content is missing or not as expected
+                    displayContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
+                    if (generationType === 'image') displayContent = "Maaf, gambar tidak dapat dibuat.";
                 }
-                addChatMessage(personalizedResponseText, 'ai', generatedImageUrl, modelUsed, rawAiResponseText);
+
+                // If content is just "Hii rinzzqt" and no image, or just a generic error, don't show it as main content.
+                if (displayContent.trim() === 'Hii rinzzqt,' && !generatedImageUrl) {
+                    displayContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai."; // Override generic greeting
+                    if (generationType === 'image') displayContent = "Maaf, gambar tidak dapat dibuat.";
+                }
+
+                addChatMessage(displayContent, 'ai', generatedImageUrl, modelUsed, displayContent); // Pass displayContent for raw text parsing
 
                 const regenerateBtn = document.querySelector('.ai-action-btn.rotating');
                 if (regenerateBtn) {

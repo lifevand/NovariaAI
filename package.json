@@ -2,22 +2,11 @@
   "name": "nama-proyek-novaria",
   "version": "1.0.0",
   "description": "Novaria AI Assistant",
-  "main": "index.js",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
   "dependencies": {
     "@google/generative-ai": "^0.14.1",
     "mime": "^2.0.4",
     "node-fetch": "^3.3.2",
     "dotenv": "^16.4.5",
     "openai": "^4.39.0"
-  },
-  "devDependencies": {
-    "eslint": "^8",
-    "eslint-config-next": "14.2.3"
   }
 }

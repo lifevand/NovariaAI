@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/genai';
-import mime from 'mime';
+import mime from 'mime'; // <--- Jika ini tidak dipakai, hapus saja.
 
 export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -20,6 +20,7 @@ export default async function handler(req, res) {
   let generationConfig = {};
   let contents = [{ role: 'user', parts: [{ text: prompt }] }];
 
+  // Ini bagian yang menangani file yang dilampirkan
   if (attachedFiles && attachedFiles.length > 0) {
     const fileParts = attachedFiles.map(file => ({
       inlineData: {

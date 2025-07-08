@@ -39,7 +39,7 @@ module.exports = async function handler(req, res) {
     case 'image':
       modelName = 'gemini-2.0-flash-preview-image-generation';
       generationConfig = {
-        responseModalities: ['TEKS IMAGE'],
+        responseModalities: ['TEKS','IMAGE'],
       };
       break;
     default:

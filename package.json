@@ -1,23 +1,15 @@
 {
-  "name": "novaria-ai",
+  "name": "novaria-app",
   "version": "1.0.0",
-  "description": "Aplikasi Novaria AI",
+  "description": "AI Assistant for Novaria",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
-  "keywords": [
-    "ai",
-    "chatbot",
-    "novaria"
-  ],
-  "author": "rizlifeinvander",
-  "license": "ISC",
   "dependencies": {
-    "node-fetch": "^3.3.2",
-    "@google/generative-ai": "^0.14.1",
-    "dotenv": "^16.4.5",
-    "openai": "^4.52.0"
+    "@google/generative-ai": "^0.x.x",
+    "mime": "^2.x.x"
   }
 }

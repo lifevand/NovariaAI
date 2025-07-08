@@ -263,7 +263,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 aiContentContainer.innerHTML += parseMarkdownToHtml(msg.content);
                 msgEl.appendChild(aiContentContainer);
-                addAiMessageActions(msgEl);
                 aiContentContainer.querySelectorAll('pre code').forEach((block) => {
                     hljs.highlightElement(block);
                 });
@@ -1191,8 +1190,6 @@ document.addEventListener('DOMContentLoaded', () => {
             fileIcon.classList.add('fas', 'fa-file-excel');
         } else if (file.type.includes('powerpoint') || file.type.includes('presentation')) {
             fileIcon.classList.add('fas', 'fa-file-powerpoint');
-        } else if (file.type.includes('text')) {
-            fileIcon.classList.add('fas', 'fa-file-alt');
         } else {
             fileIcon.classList.add('fas', 'fa-file');
         }

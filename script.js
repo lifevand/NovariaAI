@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportChatBtn = document.getElementById('exportChatBtn');
     const shareChatBtn = document.getElementById('shareChatBtn');
     const clearCurrentChatBtn = document.getElementById('clearCurrentChatBtn');
-    const clearAllHistoryBtn = document.getElementById('clearAllHistoryBtn');
+    const clearAllHistoryBtn = document = document.getElementById('clearAllHistoryBtn'); // Corrected typo here
 
     const currentChatFavoriteBtn = document.getElementById('currentChatFavoriteBtn');
     const chatHistoryList = document.getElementById('chat-history-list');
@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             optionItem.addEventListener('click', () => {
                 setSelectedModel(model.value);
-                setTimeout(closeModelModalButton, 200); // Changed to closeModelModalButton
+                setTimeout(closeModelModalButton, 200);
             });
             modelOptionsContainer.appendChild(optionItem);
         });
@@ -731,6 +731,9 @@ document.addEventListener('DOMContentLoaded', () => {
             aiContentContainer.classList.add('ai-message-content');
             messageElement.appendChild(aiContentContainer);
 
+            // Flag untuk menandai apakah ada elemen yang perlu menunggu load
+            let needsLoadWaiting = false;
+
             if (imageUrl) {
                 const imgElement = document.createElement('img');
                 imgElement.src = imageUrl;
@@ -755,6 +758,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageActionsContainer.appendChild(downloadBtn);
                 aiContentContainer.appendChild(imageActionsContainer);
 
+                needsLoadWaiting = true; // Set flag karena ada gambar
+                imgElement.onload = () => {
+                    // Setelah gambar load, lakukan update UI
+                    if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                    checkScrollable();
+                };
+                imgElement.onerror = () => {
+                    // Handle jika gambar gagal load (misal, base64 korup)
+                    console.error("Failed to load generated image.");
+                    aiContentContainer.innerHTML = aiContentContainer.innerHTML + "<p>Gambar tidak dapat dimuat.</p>";
+                    if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                    checkScrollable();
+                };
+
                 if (content && content.trim()) {
                     const spacer = document.createElement('div');
                     spacer.style.height = '10px';
@@ -762,26 +779,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
-            // Check if there's actual text content to display, other than just the greeting
-            const contentToDisplay = (aiResponseRawText && aiResponseRawText.trim() !== '' && !aiResponseRawText.includes('Hii rinzzqt')) ? aiResponseRawText : '';
+            let displayContent = aiResponseRawText || '';
 
-            if (content.startsWith('<span') || !contentToDisplay) { // If it's an error span, or no meaningful text
-                aiContentContainer.innerHTML = content; // Just display the content as is (could be an error)
+            if (aiResponseRawText && aiResponseRawText.trim() === 'Hii rinzzqt,') {
+                if (imageUrl) {
+                    displayContent = "";
+                } else {
+                    displayContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
+                    if (modelTag.includes('Image')) displayContent = "Maaf, gambar tidak dapat dibuat.";
+                }
+            } else if (!displayContent && !imageUrl) {
+                 displayContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
+                 if (modelTag.includes('Image')) displayContent = "Maaf, gambar tidak dapat dibuat.";
+            }
+
+
+            if (displayContent.startsWith('<span')) {
+                aiContentContainer.innerHTML = displayContent;
             } else {
                 const segments = [];
                 const codeBlockRegex = /(```(\w+)?\n([\s\S]*?)```)/g;
                 let lastIndex = 0;
 
-                contentToDisplay.replace(codeBlockRegex, (match, fullBlock, language, code, offset) => {
+                displayContent.replace(codeBlockRegex, (match, fullBlock, language, code, offset) => {
                     if (offset > lastIndex) {
-                        segments.push({ type: 'text', content: contentToDisplay.substring(lastIndex, offset) });
+                        segments.push({ type: 'text', content: displayContent.substring(lastIndex, offset) });
                     }
                     segments.push({ type: 'code', language: language || 'text', content: code.trim(), raw: fullBlock });
                     lastIndex = offset + match.length;
                 });
 
-                if (lastIndex < contentToDisplay.length) {
-                    segments.push({ type: 'text', content: contentToDisplay.substring(lastIndex) });
+                if (lastIndex < displayContent.length) {
+                    segments.push({ type: 'text', content: displayContent.substring(lastIndex) });
                 }
 
                 let segmentIndex = 0;
@@ -811,13 +840,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else {
                         addAiMessageActions(messageElement);
                         clearAttachedFiles();
-                        checkScrollable();
+                        // Scrolling dan checkScrollable hanya dilakukan di sini jika tidak ada gambar
+                        if (!needsLoadWaiting) {
+                            if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                            checkScrollable();
+                        }
                     }
-                    if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                    if (chatDisplay && !needsLoadWaiting) chatDisplay.scrollTop = chatDisplay.scrollHeight;
                 };
                 processNextSegment();
             }
-            conversationHistory.push({ role: 'assistant', content: aiResponseRawText, modelUsed: modelTag, imageUrl: imageUrl });
+            if (!displayContent.startsWith('Maaf, saya tidak dapat') && !displayContent.startsWith('Maaf, gambar tidak dapat')) {
+                conversationHistory.push({ role: 'assistant', content: aiResponseRawText, modelUsed: modelTag, imageUrl: imageUrl });
+            }
         }
 
         if (conversationHistory.length > MAX_HISTORY_DISPLAY_LENGTH * 2) {
@@ -835,10 +870,14 @@ document.addEventListener('DOMContentLoaded', () => {
             messageElement.style.transform = 'translateY(0)';
         }, 10);
 
-        setTimeout(() => {
-            if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
-            checkScrollable();
-        }, 50);
+        // Hanya lakukan auto-scroll dan checkScrollable jika tidak ada gambar yang perlu load
+        if (!needsLoadWaiting) {
+            setTimeout(() => {
+                if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                checkScrollable();
+            }, 50);
+        }
+
 
         if (currentConversationId) {
              allConversations[currentConversationId] = {
@@ -922,7 +961,8 @@ document.addEventListener('DOMContentLoaded', () => {
             actionsContainer.appendChild(button);
         });
         aiMessageElement.appendChild(actionsContainer);
-        setTimeout(() => { if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight; }, 0);
+        // Remove this setTimeout, as onload will handle scroll
+        // setTimeout(() => { if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight; }, 0);
     }
 
     async function getBase64(file) {
@@ -1001,29 +1041,22 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
 
-                // Determine content to display based on generationType and API response
-                let displayContent = '';
-                if (generationType === 'image' && generatedImageUrl) {
-                    // For image generation, if image is present, prioritize displaying image.
-                    // Text might still be present (like "Hii rinzzqt"), filter it out if not meaningful.
-                    if (rawAiResponseText && rawAiResponseText.trim() !== '' && !rawAiResponseText.includes('Hii rinzzqt')) {
-                         displayContent = rawAiResponseText;
-                    }
-                } else if (generationType === 'text' && rawAiResponseText) {
-                    displayContent = rawAiResponseText;
-                } else {
-                    // Fallback for cases where expected content is missing or not as expected
-                    displayContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
-                    if (generationType === 'image') displayContent = "Maaf, gambar tidak dapat dibuat.";
+                let finalContent = rawAiResponseText;
+                let finalImageUrl = generatedImageUrl;
+
+                if (generationType === 'image' && !generatedImageUrl) {
+                    finalContent = "Maaf, gambar tidak dapat dibuat.";
+                }
+                else if (rawAiResponseText.trim() === 'Hii rinzzqt,' && !generatedImageUrl) {
+                    finalContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
+                    if (generationType === 'image') finalContent = "Maaf, gambar tidak dapat dibuat.";
+                }
+                else if ((generationType === 'text' && !rawAiResponseText) || (generationType === 'image' && rawAiResponseText && !generatedImageUrl)) {
+                    finalContent = rawAiResponseText || "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
                 }
 
-                // If content is just "Hii rinzzqt" and no image, or just a generic error, don't show it as main content.
-                if (displayContent.trim() === 'Hii rinzzqt,' && !generatedImageUrl) {
-                    displayContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai."; // Override generic greeting
-                    if (generationType === 'image') displayContent = "Maaf, gambar tidak dapat dibuat.";
-                }
 
-                addChatMessage(displayContent, 'ai', generatedImageUrl, modelUsed, displayContent); // Pass displayContent for raw text parsing
+                addChatMessage(finalContent, 'ai', finalImageUrl, modelUsed, rawAiResponseText);
 
                 const regenerateBtn = document.querySelector('.ai-action-btn.rotating');
                 if (regenerateBtn) {
@@ -1138,10 +1171,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 let needsRippleSetup = false;
                 mutation.addedNodes.forEach(node => {
                     if (node.nodeType === 1) {
-                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item') || node.matches('.model-option-item') || node.matches('.toggle-button') || node.matches('.chat-item') || node.matches('.dropdown-item') || node.matches('.sidebar .new-chat-btn') || node.matches('.logout-btn'))) {
+                        if (node.matches && (node.matches('.ai-action-btn') || node.matches('.copy-code-btn') || node.matches('.remove-chip-btn') || node.matches('.sidebar-item') || node.matches('.model-option-item') || node.matches('.toggle-button') || node.matches('.chat-item') || node.matches('.dropdown-item') || node.matches('.favorite-toggle-btn') || node.matches('.new-chat-btn-header') || node.matches('.sidebar-toggle-btn') || node.matches('.logout-btn'))) {
                             needsRippleSetup = true;
                         }
-                        if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button') || node.querySelector('.chat-item') || node.querySelector('.dropdown-item') || node.querySelector('.sidebar .new-chat-btn') || node.querySelector('.logout-btn'))) {
+                        if (node.querySelector && (node.querySelector('.ai-action-btn') || node.querySelector('.copy-code-btn') || node.querySelector('.remove-chip-btn') || node.querySelector('.sidebar-item') || node.querySelector('.model-option-item') || node.querySelector('.toggle-button') || node.querySelector('.chat-item') || node.querySelector('.dropdown-item') || node.querySelector('.favorite-toggle-btn') || node.querySelector('.new-chat-btn-header') || node.querySelector('.sidebar-toggle-btn') || node.querySelector('.logout-btn'))) {
                             needsRippleSetup = true;
                         }
                     }

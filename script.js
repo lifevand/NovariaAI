@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportChatBtn = document.getElementById('exportChatBtn');
     const shareChatBtn = document.getElementById('shareChatBtn');
     const clearCurrentChatBtn = document.getElementById('clearCurrentChatBtn');
-    const clearAllHistoryBtn = document = document.getElementById('clearAllHistoryBtn'); // Corrected typo here
+    const clearAllHistoryBtn = document.getElementById('clearAllHistoryBtn');
 
     const currentChatFavoriteBtn = document.getElementById('currentChatFavoriteBtn');
     const chatHistoryList = document.getElementById('chat-history-list');
@@ -254,13 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     imageActionsContainer.classList.add('ai-message-actions');
                     imageActionsContainer.appendChild(downloadBtn);
                     aiContentContainer.appendChild(imageActionsContainer);
-
-                    if (msg.content && msg.content.trim()) {
-                        const spacer = document.createElement('div');
-                        spacer.style.height = '10px';
-                        aiContentContainer.appendChild(spacer);
-                    }
                 }
+                
                 aiContentContainer.innerHTML += parseMarkdownToHtml(msg.content);
                 msgEl.appendChild(aiContentContainer);
                 aiContentContainer.querySelectorAll('pre code').forEach((block) => {
@@ -731,9 +726,6 @@ document.addEventListener('DOMContentLoaded', () => {
             aiContentContainer.classList.add('ai-message-content');
             messageElement.appendChild(aiContentContainer);
 
-            // Flag untuk menandai apakah ada elemen yang perlu menunggu load
-            let needsLoadWaiting = false;
-
             if (imageUrl) {
                 const imgElement = document.createElement('img');
                 imgElement.src = imageUrl;
@@ -757,60 +749,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageActionsContainer.classList.add('ai-message-actions');
                 imageActionsContainer.appendChild(downloadBtn);
                 aiContentContainer.appendChild(imageActionsContainer);
-
-                needsLoadWaiting = true; // Set flag karena ada gambar
-                imgElement.onload = () => {
-                    // Setelah gambar load, lakukan update UI
-                    if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
-                    checkScrollable();
-                };
-                imgElement.onerror = () => {
-                    // Handle jika gambar gagal load (misal, base64 korup)
-                    console.error("Failed to load generated image.");
-                    aiContentContainer.innerHTML = aiContentContainer.innerHTML + "<p>Gambar tidak dapat dimuat.</p>";
-                    if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
-                    checkScrollable();
-                };
-
-                if (content && content.trim()) {
-                    const spacer = document.createElement('div');
-                    spacer.style.height = '10px';
-                    aiContentContainer.appendChild(spacer);
-                }
             }
             
-            let displayContent = aiResponseRawText || '';
+            let currentTextContent = content; // Ini akan menjadi konten yang akan di-parse markdown atau ditampilkan
+            let isErrorMessage = false;
 
-            if (aiResponseRawText && aiResponseRawText.trim() === 'Hii rinzzqt,') {
-                if (imageUrl) {
-                    displayContent = "";
+            // Periksa jika content adalah pesan error span dari generateAIResponse
+            if (content.startsWith('<span')) {
+                isErrorMessage = true;
+            } 
+            // Periksa jika content adalah sapaan default yang tidak diinginkan
+            else if (aiResponseRawText && aiResponseRawText.trim() === `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},`) { // Sesuaikan dengan sapaan defaultmu
+                if (!imageUrl) { // Jika hanya sapaan dan tidak ada gambar
+                    currentTextContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
+                    if (modelTag.includes('Image')) currentTextContent = "Maaf, gambar tidak dapat dibuat.";
+                    isErrorMessage = true; // Tandai sebagai pesan error untuk tidak disimpan ke history jika tidak relevan
                 } else {
-                    displayContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
-                    if (modelTag.includes('Image')) displayContent = "Maaf, gambar tidak dapat dibuat.";
+                    currentTextContent = ""; // Jika ada gambar, hapus sapaan default
                 }
-            } else if (!displayContent && !imageUrl) {
-                 displayContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
-                 if (modelTag.includes('Image')) displayContent = "Maaf, gambar tidak dapat dibuat.";
+            } else if (!content && !imageUrl) { // Jika content kosong dan tidak ada gambar
+                currentTextContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
+                if (modelTag.includes('Image')) currentTextContent = "Maaf, gambar tidak dapat dibuat.";
+                isErrorMessage = true;
             }
 
 
-            if (displayContent.startsWith('<span')) {
-                aiContentContainer.innerHTML = displayContent;
-            } else {
+            if (currentTextContent.startsWith('<span') || isErrorMessage) { // Jika content adalah error span atau pesan error fallback
+                aiContentContainer.innerHTML = currentTextContent;
+            } else { // Jika ada teks yang berarti, lakukan parsing markdown
                 const segments = [];
                 const codeBlockRegex = /(```(\w+)?\n([\s\S]*?)```)/g;
                 let lastIndex = 0;
 
-                displayContent.replace(codeBlockRegex, (match, fullBlock, language, code, offset) => {
+                currentTextContent.replace(codeBlockRegex, (match, fullBlock, language, code, offset) => {
                     if (offset > lastIndex) {
-                        segments.push({ type: 'text', content: displayContent.substring(lastIndex, offset) });
+                        segments.push({ type: 'text', content: currentTextContent.substring(lastIndex, offset) });
                     }
                     segments.push({ type: 'code', language: language || 'text', content: code.trim(), raw: fullBlock });
                     lastIndex = offset + match.length;
                 });
 
-                if (lastIndex < displayContent.length) {
-                    segments.push({ type: 'text', content: displayContent.substring(lastIndex) });
+                if (lastIndex < currentTextContent.length) {
+                    segments.push({ type: 'text', content: currentTextContent.substring(lastIndex) });
                 }
 
                 let segmentIndex = 0;
@@ -838,19 +818,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             processNextSegment();
                         }
                     } else {
-                        addAiMessageActions(messageElement);
+                        addAiMessageActions(messageElement); // Add actions after all typing/parsing
                         clearAttachedFiles();
-                        // Scrolling dan checkScrollable hanya dilakukan di sini jika tidak ada gambar
-                        if (!needsLoadWaiting) {
-                            if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
-                            checkScrollable();
-                        }
+                        checkScrollable();
                     }
-                    if (chatDisplay && !needsLoadWaiting) chatDisplay.scrollTop = chatDisplay.scrollHeight;
+                    if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
                 };
                 processNextSegment();
             }
-            if (!displayContent.startsWith('Maaf, saya tidak dapat') && !displayContent.startsWith('Maaf, gambar tidak dapat')) {
+
+            // Only add to conversation history if it's not a temporary error message from frontend
+            if (!isErrorMessage) {
                 conversationHistory.push({ role: 'assistant', content: aiResponseRawText, modelUsed: modelTag, imageUrl: imageUrl });
             }
         }
@@ -870,14 +848,10 @@ document.addEventListener('DOMContentLoaded', () => {
             messageElement.style.transform = 'translateY(0)';
         }, 10);
 
-        // Hanya lakukan auto-scroll dan checkScrollable jika tidak ada gambar yang perlu load
-        if (!needsLoadWaiting) {
-            setTimeout(() => {
-                if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
-                checkScrollable();
-            }, 50);
-        }
-
+        setTimeout(() => {
+            if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight;
+            checkScrollable();
+        }, 50);
 
         if (currentConversationId) {
              allConversations[currentConversationId] = {
@@ -961,8 +935,7 @@ document.addEventListener('DOMContentLoaded', () => {
             actionsContainer.appendChild(button);
         });
         aiMessageElement.appendChild(actionsContainer);
-        // Remove this setTimeout, as onload will handle scroll
-        // setTimeout(() => { if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight; }, 0);
+        setTimeout(() => { if (chatDisplay) chatDisplay.scrollTop = chatDisplay.scrollHeight; }, 0);
     }
 
     async function getBase64(file) {
@@ -1041,22 +1014,31 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
 
-                let finalContent = rawAiResponseText;
-                let finalImageUrl = generatedImageUrl;
+                // Logic to determine what to display
+                let finalContent = rawAiResponseText; // Default to raw text from API
+                let finalImageUrl = generatedImageUrl; // Default to image from API
+                let isErrorMessageToSave = false; // Flag to prevent saving generic messages to history
 
-                if (generationType === 'image' && !generatedImageUrl) {
-                    finalContent = "Maaf, gambar tidak dapat dibuat.";
-                }
-                else if (rawAiResponseText.trim() === 'Hii rinzzqt,' && !generatedImageUrl) {
+                // Handle cases where the model might just return the generic greeting or no meaningful content
+                const genericGreeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},`;
+                
+                // If text is only the generic greeting (or empty) AND no image generated
+                if ((!rawAiResponseText || rawAiResponseText.trim() === genericGreeting) && !generatedImageUrl) {
                     finalContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
-                    if (generationType === 'image') finalContent = "Maaf, gambar tidak dapat dibuat.";
+                    if (generationType === 'image') {
+                        finalContent = "Maaf, gambar tidak dapat dibuat.";
+                    }
+                    isErrorMessageToSave = true; // Mark as error for history purposes
+                } else if (rawAiResponseText.trim() === genericGreeting && generatedImageUrl) {
+                    finalContent = ""; // Clear the greeting if there's an image
                 }
-                else if ((generationType === 'text' && !rawAiResponseText) || (generationType === 'image' && rawAiResponseText && !generatedImageUrl)) {
-                    finalContent = rawAiResponseText || "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
+                // If an image was requested and returned, but also some generic text we want to ignore
+                else if (generationType === 'image' && generatedImageUrl && rawAiResponseText.trim() === genericGreeting) {
+                    finalContent = ""; // Display image only, discard the greeting text
                 }
 
 
-                addChatMessage(finalContent, 'ai', finalImageUrl, modelUsed, rawAiResponseText);
+                addChatMessage(finalContent, 'ai', finalImageUrl, modelUsed, rawAiResponseText, isErrorMessageToSave);
 
                 const regenerateBtn = document.querySelector('.ai-action-btn.rotating');
                 if (regenerateBtn) {
@@ -1100,11 +1082,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             initialGreeting.classList.add('hidden');
-            addChatMessage(messageInput.value.trim() || finalPrompt, 'user');
+            addChatMessage(messageInput.value.trim() || finalPrompt, 'user'); // Add user message
+            
+            // Clear input field immediately after sending
+            messageInput.value = ''; 
+            autoResizeTextarea(); // Reset textarea height
+
             generateAIResponse(finalPrompt, attachedFiles, false, currentGenerationType);
 
-            messageInput.value = '';
-            autoResizeTextarea();
         }
     });
     messageInput.addEventListener('keypress', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendButton.click(); } });

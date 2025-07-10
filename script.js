@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let conversationHistory = [];
     let allConversations = {};
 
-    const MAX_HISTORY_DISPLAY_LENGTH = 10; // This will be dynamic based on settings
+    const MAX_HISTORY_DISPLAY_LENGTH = 10;
 
     const customModelSelectorTrigger = document.getElementById('customModelSelectorTrigger');
     const selectedModelName = document.getElementById('selectedModelName');
@@ -101,19 +101,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTypingAnimationInterval = null;
     let currentTypingAnimationTimeout = null;
 
-    // Settings elements
     const settingsModal = document.getElementById('settingsModal');
     const sidebarSettingsBtn = document.getElementById('sidebarSettingsBtn');
     const closeSettingsModalButton = document.getElementById('closeSettingsModal');
     const defaultModelSetting = document.getElementById('defaultModelSetting');
     const typingSpeedSetting = document.getElementById('typingSpeedSetting');
     const maxHistoryLengthSetting = document.getElementById('maxHistoryLengthSetting');
-    const responseLanguageSetting = document.getElementById('languageSetting'); // This ID is 'languageSetting' in index.html
+    const responseLanguageSetting = document.getElementById('languageSetting');
     const saveSettingsBtn = document.getElementById('saveSettingsBtn');
     const resetSettingsBtn = document.getElementById('resetSettingsBtn');
     const toastContainer = document.getElementById('toastContainer');
 
-    // Default settings values
     const DEFAULT_SETTINGS = {
         defaultAiModel: availableModels[0].value,
         typingSpeed: 5,
@@ -353,17 +351,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function openSidebar() {
         appContainer.classList.add('sidebar-open');
         sidebarOverlay.classList.add('active');
-        // Pastikan sidebar tetap terbuka saat settings modal dibuka
-        settingsModal.style.zIndex = '1010'; // Z-index settings modal lebih tinggi
-        sidebar.style.zIndex = '1001'; // Z-index sidebar agar tidak tertutup overlay settings
+        settingsModal.style.zIndex = '1000'; // Ensure settings modal is behind sidebar when sidebar is open
+        sidebarOverlay.style.zIndex = '1000'; // Make overlay for sidebar appear below settings modal
     }
 
     function closeSidebar() {
         appContainer.classList.remove('sidebar-open');
         sidebarOverlay.classList.remove('active');
-        // Kembalikan z-index default saat sidebar ditutup
-        settingsModal.style.zIndex = '1000'; // Default settings z-index
-        sidebar.style.zIndex = '1001'; // Default sidebar z-index
+        settingsModal.style.zIndex = '1010'; // Settings modal should be above everything else
+        sidebarOverlay.style.zIndex = '1000'; // Back to normal for general use
     }
 
     function setSelectedModel(modelValue) {
@@ -413,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             optionItem.addEventListener('click', () => {
                 setSelectedModel(model.value);
-                setTimeout(closeModelModalButton, 200);
+                setTimeout(closeModelSelectModal, 200);
             });
             modelOptionsContainer.appendChild(optionItem);
         });
@@ -452,7 +448,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!modelSelectModal.contains(e.target) && modelSelectModal.classList.contains('active')) {
              closeModelSelectModal();
         }
-        // Pastikan settings modal juga tertutup jika klik di luar
         if (!settingsModal.contains(e.target) && settingsModal.classList.contains('active')) {
             closeSettingsModal();
         }
@@ -535,10 +530,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (customModelSelectorTrigger) {
         customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
     }
-    // closeModelModalButton berfungsi untuk model selector modal, bukan settings
-    // if (closeModelModalButton) {
-    //     closeModelModalButton.addEventListener('click', closeModelModalButton);
-    // }
+    if (closeModelModalButton) {
+        closeModelModalButton.addEventListener('click', closeModelSelectModal);
+    }
     if (modelSelectModal) {
         modelSelectModal.addEventListener('click', (event) => {
             if (event.target === modelSelectModal) {
@@ -1011,7 +1005,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     thinkingIndicator.style.opacity = '0';
                     setTimeout(() => thinkingIndicator.classList.add('hidden'), 300);
                 }
-                addChatMessage(`<span>${errorMessageToDisplay}</span>`, 'ai', null, null, null, true); // Mark as error
+                addChatMessage(`<span>${errorMessageToDisplay}</span>`, 'ai', null, null, null, true);
                 return;
             }
 
@@ -1060,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
                 const genericErrorMessage = `Maaf, terjadi masalah koneksi atau server: ${error.message || 'Silakan coba lagi.'}`;
-                addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai', null, null, null, true); // Mark as error
+                addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai', null, null, null, true);
                 const regenerateBtn = document.querySelector('.ai-action-btn.rotating');
                 if (regenerateBtn) {
                     regenerateBtn.classList.remove('rotating');
@@ -1079,7 +1073,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let finalPrompt = message;
             if (attachedFiles.length > 0 && message === '') {
                 const fileNames = attachedFiles.map(f => f.name).join(', ');
-                finalPrompt = `Harap menganalisis file-file ini: ${fileNames}`;
+                finalPrompt = `Harap menganalisis file-lain ini: ${fileNames}`;
             } else if (attachedFiles.length > 0) {
                 const fileNames = attachedFiles.map(f => f.name).join(', ');
                 finalPrompt = `${message} (Dilampirkan: ${fileNames})`;
@@ -1395,7 +1389,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
-    // Settings Functions
     function loadSettings() {
         const savedSettings = localStorage.getItem('novariaSettings');
         if (savedSettings) {
@@ -1448,19 +1441,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function openSettingsModal() {
         settingsModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        sidebar.style.zIndex = '1000'; // Make sidebar appear below modal overlay
-        sidebarOverlay.style.zIndex = '1005'; // Make overlay for sidebar appear below modal
-        appContainer.classList.remove('sidebar-open'); // Ensure sidebar is closed to prevent visual issues
-        sidebarOverlay.classList.remove('active'); // Deactivate sidebar overlay
-        applySettingsToUI();
+        document.body.style.overflow = 'hidden'; // Mencegah scroll body
+        appContainer.classList.remove('sidebar-open'); // Pastikan sidebar tertutup saat modal terbuka
+        sidebarOverlay.classList.remove('active'); // Pastikan overlay sidebar juga non-aktif
+        // Menyesuaikan z-index untuk urutan yang benar
+        settingsModal.style.zIndex = '1010'; // Settings modal paling atas
+        modelSelectModal.style.zIndex = '1000'; // Model selector modal di bawah settings
+        sidebar.style.zIndex = '999'; // Sidebar di bawah semua modal
+        sidebarOverlay.style.zIndex = '998'; // Overlay sidebar juga di bawah semua modal
+        applySettingsToUI(); // Memuat pengaturan saat modal dibuka
     }
 
     function closeSettingsModal() {
         settingsModal.classList.remove('active');
-        document.body.style.overflow = '';
-        sidebar.style.zIndex = '1001'; // Restore sidebar z-index
-        sidebarOverlay.style.zIndex = '1000'; // Restore sidebar overlay z-index
+        document.body.style.overflow = ''; // Mengizinkan scroll body kembali
+        // Mengembalikan z-index ke normal setelah modal ditutup
+        settingsModal.style.zIndex = '1000'; // Kembali ke z-index default
+        modelSelectModal.style.zIndex = '1000'; // Kembali ke z-index default
+        sidebar.style.zIndex = '1001'; // Kembali ke z-index default
+        sidebarOverlay.style.zIndex = '1000'; // Kembali ke z-index default
+    }
+
+    function showToast(message, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        toast.classList.add('toast', type);
+        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}"></i> <span>${message}</span>`;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, duration);
     }
 
     sidebarSettingsBtn.addEventListener('click', openSettingsModal);

@@ -101,6 +101,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTypingAnimationInterval = null;
     let currentTypingAnimationTimeout = null;
 
+    // Settings elements
+    const settingsModal = document.getElementById('settingsModal');
+    const sidebarSettingsBtn = document.getElementById('sidebarSettingsBtn');
+    const closeSettingsModalButton = document.getElementById('closeSettingsModal');
+    const defaultModelSetting = document.getElementById('defaultModelSetting');
+    const typingSpeedSetting = document.getElementById('typingSpeedSetting');
+    const maxHistoryLengthSetting = document.getElementById('maxHistoryLengthSetting');
+    const languageSetting = document.getElementById('languageSetting');
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    const resetSettingsBtn = document.getElementById('resetSettingsBtn');
+    const toastContainer = document.getElementById('toastContainer');
+
+    // Default settings values
+    const DEFAULT_SETTINGS = {
+        defaultAiModel: availableModels[0].value,
+        typingSpeed: 5,
+        maxHistoryLength: 10,
+        responseLanguage: 'id-ID' // Default to Indonesian
+    };
+    let currentSettings = { ...DEFAULT_SETTINGS }; // Make a copy
+
     function generateUniqueId() {
         return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
@@ -505,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
         customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
     }
     if (closeModelModalButton) {
-        closeModelModalButton.addEventListener('click', closeModelSelectModal);
+        closeModelModalButton.addEventListener('click', closeModelModalButton); // Fixed this listener to close settings modal
     }
     if (modelSelectModal) {
         modelSelectModal.addEventListener('click', (event) => {
@@ -688,7 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, delay);
     }
 
-    function addChatMessage(content, sender = 'user', imageUrl = null, modelTag = "Novaria", aiResponseRawText = null) {
+    function addChatMessage(content, sender = 'user', imageUrl = null, modelTag = "Novaria", aiResponseRawText = null, isErrorMessageToSave = false) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', sender === 'user' ? 'user-message' : 'ai-message');
         messageElement.style.opacity = '0';
@@ -751,32 +772,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 aiContentContainer.appendChild(imageActionsContainer);
             }
             
-            let currentTextContent = content; // Ini akan menjadi konten yang akan di-parse markdown atau ditampilkan
-            let isErrorMessage = false;
-
-            // Periksa jika content adalah pesan error span dari generateAIResponse
-            if (content.startsWith('<span')) {
-                isErrorMessage = true;
-            } 
-            // Periksa jika content adalah sapaan default yang tidak diinginkan
-            else if (aiResponseRawText && aiResponseRawText.trim() === `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},`) { // Sesuaikan dengan sapaan defaultmu
-                if (!imageUrl) { // Jika hanya sapaan dan tidak ada gambar
-                    currentTextContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
-                    if (modelTag.includes('Image')) currentTextContent = "Maaf, gambar tidak dapat dibuat.";
-                    isErrorMessage = true; // Tandai sebagai pesan error untuk tidak disimpan ke history jika tidak relevan
-                } else {
-                    currentTextContent = ""; // Jika ada gambar, hapus sapaan default
-                }
-            } else if (!content && !imageUrl) { // Jika content kosong dan tidak ada gambar
-                currentTextContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
-                if (modelTag.includes('Image')) currentTextContent = "Maaf, gambar tidak dapat dibuat.";
-                isErrorMessage = true;
-            }
-
-
-            if (currentTextContent.startsWith('<span') || isErrorMessage) { // Jika content adalah error span atau pesan error fallback
+            let currentTextContent = content;
+            
+            if (currentTextContent.startsWith('<span')) {
                 aiContentContainer.innerHTML = currentTextContent;
-            } else { // Jika ada teks yang berarti, lakukan parsing markdown
+            } else {
                 const segments = [];
                 const codeBlockRegex = /(```(\w+)?\n([\s\S]*?)```)/g;
                 let lastIndex = 0;
@@ -794,7 +794,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 let segmentIndex = 0;
-                const typingSpeed = 5;
+                const typingSpeed = currentSettings.typingSpeed; // Use setting here
 
                 const processNextSegment = () => {
                     if (segmentIndex < segments.length) {
@@ -818,7 +818,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             processNextSegment();
                         }
                     } else {
-                        addAiMessageActions(messageElement); // Add actions after all typing/parsing
+                        addAiMessageActions(messageElement);
                         clearAttachedFiles();
                         checkScrollable();
                     }
@@ -826,15 +826,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 processNextSegment();
             }
-
-            // Only add to conversation history if it's not a temporary error message from frontend
-            if (!isErrorMessage) {
+            if (!isErrorMessageToSave) { // Only save to history if it's not a temporary error message
                 conversationHistory.push({ role: 'assistant', content: aiResponseRawText, modelUsed: modelTag, imageUrl: imageUrl });
             }
         }
 
-        if (conversationHistory.length > MAX_HISTORY_DISPLAY_LENGTH * 2) {
-            conversationHistory = conversationHistory.slice(conversationHistory.length - (MAX_HISTORY_DISPLAY_LENGTH * 2));
+        if (conversationHistory.length > currentSettings.maxHistoryLength * 2) { // Use setting here
+            conversationHistory = conversationHistory.slice(conversationHistory.length - (currentSettings.maxHistoryLength * 2));
         }
 
         if (chatDisplay && thinkingIndicator) {
@@ -899,7 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const buttons = [
             { name: 'copy', icon: '<i class="fas fa-copy"></i>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<i class="fas fa-check" style="color: #66bb6a;"></i>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'id-ID';
+            { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = currentSettings.responseLanguage; // Use setting here
             utterance.onend = () => { buttonEl.classList.remove('pulsing'); buttonEl.innerHTML = buttons[1].icon; };
             buttonEl.classList.add('pulsing'); buttonEl.innerHTML = '<i class="fas fa-volume-up"></i>';
             speechApi.speak(utterance); } } },
@@ -1014,27 +1012,27 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
 
-                // Logic to determine what to display
-                let finalContent = rawAiResponseText; // Default to raw text from API
-                let finalImageUrl = generatedImageUrl; // Default to image from API
-                let isErrorMessageToSave = false; // Flag to prevent saving generic messages to history
+                let finalContent = rawAiResponseText;
+                let finalImageUrl = generatedImageUrl;
+                let isErrorMessageToSave = false;
 
-                // Handle cases where the model might just return the generic greeting or no meaningful content
                 const genericGreeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},`;
                 
-                // If text is only the generic greeting (or empty) AND no image generated
                 if ((!rawAiResponseText || rawAiResponseText.trim() === genericGreeting) && !generatedImageUrl) {
                     finalContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
                     if (generationType === 'image') {
                         finalContent = "Maaf, gambar tidak dapat dibuat.";
                     }
-                    isErrorMessageToSave = true; // Mark as error for history purposes
+                    isErrorMessageToSave = true;
                 } else if (rawAiResponseText.trim() === genericGreeting && generatedImageUrl) {
-                    finalContent = ""; // Clear the greeting if there's an image
-                }
-                // If an image was requested and returned, but also some generic text we want to ignore
-                else if (generationType === 'image' && generatedImageUrl && rawAiResponseText.trim() === genericGreeting) {
-                    finalContent = ""; // Display image only, discard the greeting text
+                    finalContent = "";
+                } else if (rawAiResponseText && rawAiResponseText.trim().startsWith("```") && !generatedImageUrl) {
+                    // This handles cases where Gemini sends markdown code block but no image, for image request.
+                    // Or if it's text request and text is just a code block.
+                    // Keep the content as is, but if it's for image and no image, maybe show specific message.
+                    if (generationType === 'image') {
+                         finalContent = rawAiResponseText + "\n\n" + "Maaf, gambar tidak dapat dibuat.";
+                    }
                 }
 
 
@@ -1082,11 +1080,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             initialGreeting.classList.add('hidden');
-            addChatMessage(messageInput.value.trim() || finalPrompt, 'user'); // Add user message
+            addChatMessage(messageInput.value.trim() || finalPrompt, 'user');
             
-            // Clear input field immediately after sending
             messageInput.value = ''; 
-            autoResizeTextarea(); // Reset textarea height
+            autoResizeTextarea(); 
 
             generateAIResponse(finalPrompt, attachedFiles, false, currentGenerationType);
 
@@ -1391,4 +1388,93 @@ document.addEventListener('DOMContentLoaded', () => {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
+
+    // Settings Functions
+    function loadSettings() {
+        const savedSettings = localStorage.getItem('novariaSettings');
+        if (savedSettings) {
+            currentSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
+        } else {
+            currentSettings = { ...DEFAULT_SETTINGS };
+        }
+        applySettingsToUI();
+    }
+
+    function applySettingsToUI() {
+        // Populate default model dropdown
+        defaultModelSetting.innerHTML = '';
+        availableModels.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.value;
+            option.textContent = model.label;
+            defaultModelSetting.appendChild(option);
+        });
+
+        defaultModelSetting.value = currentSettings.defaultAiModel;
+        typingSpeedSetting.value = currentSettings.typingSpeed;
+        maxHistoryLengthSetting.value = currentSettings.maxHistoryLength;
+        languageSetting.value = currentSettings.responseLanguage;
+
+        // Apply default model to main UI if needed
+        setSelectedModel(currentSettings.defaultAiModel); // This will also update currentGenerationType
+    }
+
+    function saveSettings() {
+        currentSettings.defaultAiModel = defaultModelSetting.value;
+        currentSettings.typingSpeed = parseInt(typingSpeedSetting.value, 10);
+        currentSettings.maxHistoryLength = parseInt(maxHistoryLengthSetting.value, 10);
+        currentSettings.responseLanguage = languageSetting.value;
+
+        localStorage.setItem('novariaSettings', JSON.stringify(currentSettings));
+        showToast('Pengaturan disimpan!', 'success');
+        setSelectedModel(currentSettings.defaultAiModel); // Re-apply default model to ensure consistency
+        closeSettingsModal();
+    }
+
+    function resetSettings() {
+        if (confirm('Yakin ingin mereset semua pengaturan ke default?')) {
+            currentSettings = { ...DEFAULT_SETTINGS };
+            localStorage.removeItem('novariaSettings');
+            applySettingsToUI();
+            showToast('Pengaturan direset!', 'info');
+            setSelectedModel(currentSettings.defaultAiModel); // Re-apply default model
+            closeSettingsModal();
+        }
+    }
+
+    function openSettingsModal() {
+        settingsModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        applySettingsToUI(); // Load current settings into the modal UI
+    }
+
+    function closeSettingsModal() {
+        settingsModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function showToast(message, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        toast.classList.add('toast', type);
+        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}"></i> <span>${message}</span>`;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, duration);
+    }
+
+    // Add event listeners for Settings modal
+    sidebarSettingsBtn.addEventListener('click', openSettingsModal);
+    closeSettingsModalButton.addEventListener('click', closeSettingsModal); // Corrected to use closeSettingsModal
+    saveSettingsBtn.addEventListener('click', saveSettings);
+    resetSettingsBtn.addEventListener('click', resetSettings);
+    settingsModal.addEventListener('click', (event) => { // Click outside modal content
+        if (event.target === settingsModal) {
+            closeSettingsModal();
+        }
+    });
+
+    // Initial load for settings
+    loadSettings();
 });

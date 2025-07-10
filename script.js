@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let conversationHistory = [];
     let allConversations = {};
 
-    const MAX_HISTORY_DISPLAY_LENGTH = 10;
+    const MAX_HISTORY_DISPLAY_LENGTH = 10; // This will be dynamic based on settings
 
     const customModelSelectorTrigger = document.getElementById('customModelSelectorTrigger');
     const selectedModelName = document.getElementById('selectedModelName');
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultModelSetting = document.getElementById('defaultModelSetting');
     const typingSpeedSetting = document.getElementById('typingSpeedSetting');
     const maxHistoryLengthSetting = document.getElementById('maxHistoryLengthSetting');
-    const languageSetting = document.getElementById('languageSetting');
+    const responseLanguageSetting = document.getElementById('languageSetting'); // This ID is 'languageSetting' in index.html
     const saveSettingsBtn = document.getElementById('saveSettingsBtn');
     const resetSettingsBtn = document.getElementById('resetSettingsBtn');
     const toastContainer = document.getElementById('toastContainer');
@@ -118,9 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultAiModel: availableModels[0].value,
         typingSpeed: 5,
         maxHistoryLength: 10,
-        responseLanguage: 'id-ID' // Default to Indonesian
+        responseLanguage: 'id-ID'
     };
-    let currentSettings = { ...DEFAULT_SETTINGS }; // Make a copy
+    let currentSettings = { ...DEFAULT_SETTINGS };
 
     function generateUniqueId() {
         return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -353,11 +353,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function openSidebar() {
         appContainer.classList.add('sidebar-open');
         sidebarOverlay.classList.add('active');
+        // Pastikan sidebar tetap terbuka saat settings modal dibuka
+        settingsModal.style.zIndex = '1010'; // Z-index settings modal lebih tinggi
+        sidebar.style.zIndex = '1001'; // Z-index sidebar agar tidak tertutup overlay settings
     }
 
     function closeSidebar() {
         appContainer.classList.remove('sidebar-open');
         sidebarOverlay.classList.remove('active');
+        // Kembalikan z-index default saat sidebar ditutup
+        settingsModal.style.zIndex = '1000'; // Default settings z-index
+        sidebar.style.zIndex = '1001'; // Default sidebar z-index
     }
 
     function setSelectedModel(modelValue) {
@@ -446,6 +452,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!modelSelectModal.contains(e.target) && modelSelectModal.classList.contains('active')) {
              closeModelSelectModal();
         }
+        // Pastikan settings modal juga tertutup jika klik di luar
+        if (!settingsModal.contains(e.target) && settingsModal.classList.contains('active')) {
+            closeSettingsModal();
+        }
     });
 
     exportChatBtn.addEventListener('click', () => {
@@ -525,9 +535,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (customModelSelectorTrigger) {
         customModelSelectorTrigger.addEventListener('click', openModelSelectModal);
     }
-    if (closeModelModalButton) {
-        closeModelModalButton.addEventListener('click', closeModelModalButton); // Fixed this listener to close settings modal
-    }
+    // closeModelModalButton berfungsi untuk model selector modal, bukan settings
+    // if (closeModelModalButton) {
+    //     closeModelModalButton.addEventListener('click', closeModelModalButton);
+    // }
     if (modelSelectModal) {
         modelSelectModal.addEventListener('click', (event) => {
             if (event.target === modelSelectModal) {
@@ -794,8 +805,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 let segmentIndex = 0;
-                const typingSpeed = currentSettings.typingSpeed; // Use setting here
-
+                const typingSpeed = currentSettings.typingSpeed;
+                
                 const processNextSegment = () => {
                     if (segmentIndex < segments.length) {
                         const segment = segments[segmentIndex];
@@ -826,12 +837,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 processNextSegment();
             }
-            if (!isErrorMessageToSave) { // Only save to history if it's not a temporary error message
+            if (!isErrorMessageToSave) {
                 conversationHistory.push({ role: 'assistant', content: aiResponseRawText, modelUsed: modelTag, imageUrl: imageUrl });
             }
         }
 
-        if (conversationHistory.length > currentSettings.maxHistoryLength * 2) { // Use setting here
+        if (conversationHistory.length > currentSettings.maxHistoryLength * 2) {
             conversationHistory = conversationHistory.slice(conversationHistory.length - (currentSettings.maxHistoryLength * 2));
         }
 
@@ -897,7 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const buttons = [
             { name: 'copy', icon: '<i class="fas fa-copy"></i>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<i class="fas fa-check" style="color: #66bb6a;"></i>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = currentSettings.responseLanguage; // Use setting here
+            { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = currentSettings.responseLanguage;
             utterance.onend = () => { buttonEl.classList.remove('pulsing'); buttonEl.innerHTML = buttons[1].icon; };
             buttonEl.classList.add('pulsing'); buttonEl.innerHTML = '<i class="fas fa-volume-up"></i>';
             speechApi.speak(utterance); } } },
@@ -1000,7 +1011,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     thinkingIndicator.style.opacity = '0';
                     setTimeout(() => thinkingIndicator.classList.add('hidden'), 300);
                 }
-                addChatMessage(`<span>${errorMessageToDisplay}</span>`, 'ai');
+                addChatMessage(`<span>${errorMessageToDisplay}</span>`, 'ai', null, null, null, true); // Mark as error
                 return;
             }
 
@@ -1027,14 +1038,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (rawAiResponseText.trim() === genericGreeting && generatedImageUrl) {
                     finalContent = "";
                 } else if (rawAiResponseText && rawAiResponseText.trim().startsWith("```") && !generatedImageUrl) {
-                    // This handles cases where Gemini sends markdown code block but no image, for image request.
-                    // Or if it's text request and text is just a code block.
-                    // Keep the content as is, but if it's for image and no image, maybe show specific message.
                     if (generationType === 'image') {
                          finalContent = rawAiResponseText + "\n\n" + "Maaf, gambar tidak dapat dibuat.";
                     }
                 }
-
 
                 addChatMessage(finalContent, 'ai', finalImageUrl, modelUsed, rawAiResponseText, isErrorMessageToSave);
 
@@ -1053,8 +1060,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
                 const genericErrorMessage = `Maaf, terjadi masalah koneksi atau server: ${error.message || 'Silakan coba lagi.'}`;
-                addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai');
-
+                addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai', null, null, null, true); // Mark as error
                 const regenerateBtn = document.querySelector('.ai-action-btn.rotating');
                 if (regenerateBtn) {
                     regenerateBtn.classList.remove('rotating');
@@ -1401,7 +1407,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function applySettingsToUI() {
-        // Populate default model dropdown
         defaultModelSetting.innerHTML = '';
         availableModels.forEach(model => {
             const option = document.createElement('option');
@@ -1413,21 +1418,20 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultModelSetting.value = currentSettings.defaultAiModel;
         typingSpeedSetting.value = currentSettings.typingSpeed;
         maxHistoryLengthSetting.value = currentSettings.maxHistoryLength;
-        languageSetting.value = currentSettings.responseLanguage;
+        responseLanguageSetting.value = currentSettings.responseLanguage;
 
-        // Apply default model to main UI if needed
-        setSelectedModel(currentSettings.defaultAiModel); // This will also update currentGenerationType
+        setSelectedModel(currentSettings.defaultAiModel);
     }
 
     function saveSettings() {
         currentSettings.defaultAiModel = defaultModelSetting.value;
         currentSettings.typingSpeed = parseInt(typingSpeedSetting.value, 10);
         currentSettings.maxHistoryLength = parseInt(maxHistoryLengthSetting.value, 10);
-        currentSettings.responseLanguage = languageSetting.value;
+        currentSettings.responseLanguage = responseLanguageSetting.value;
 
         localStorage.setItem('novariaSettings', JSON.stringify(currentSettings));
         showToast('Pengaturan disimpan!', 'success');
-        setSelectedModel(currentSettings.defaultAiModel); // Re-apply default model to ensure consistency
+        setSelectedModel(currentSettings.defaultAiModel);
         closeSettingsModal();
     }
 
@@ -1437,7 +1441,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('novariaSettings');
             applySettingsToUI();
             showToast('Pengaturan direset!', 'info');
-            setSelectedModel(currentSettings.defaultAiModel); // Re-apply default model
+            setSelectedModel(currentSettings.defaultAiModel);
             closeSettingsModal();
         }
     }
@@ -1445,36 +1449,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function openSettingsModal() {
         settingsModal.classList.add('active');
         document.body.style.overflow = 'hidden';
-        applySettingsToUI(); // Load current settings into the modal UI
+        sidebar.style.zIndex = '1000'; // Make sidebar appear below modal overlay
+        sidebarOverlay.style.zIndex = '1005'; // Make overlay for sidebar appear below modal
+        appContainer.classList.remove('sidebar-open'); // Ensure sidebar is closed to prevent visual issues
+        sidebarOverlay.classList.remove('active'); // Deactivate sidebar overlay
+        applySettingsToUI();
     }
 
     function closeSettingsModal() {
         settingsModal.classList.remove('active');
         document.body.style.overflow = '';
+        sidebar.style.zIndex = '1001'; // Restore sidebar z-index
+        sidebarOverlay.style.zIndex = '1000'; // Restore sidebar overlay z-index
     }
 
-    function showToast(message, type = 'info', duration = 3000) {
-        const toast = document.createElement('div');
-        toast.classList.add('toast', type);
-        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}"></i> <span>${message}</span>`;
-        toastContainer.appendChild(toast);
-
-        setTimeout(() => {
-            toast.remove();
-        }, duration);
-    }
-
-    // Add event listeners for Settings modal
     sidebarSettingsBtn.addEventListener('click', openSettingsModal);
-    closeSettingsModalButton.addEventListener('click', closeSettingsModal); // Corrected to use closeSettingsModal
+    closeSettingsModalButton.addEventListener('click', closeSettingsModal);
     saveSettingsBtn.addEventListener('click', saveSettings);
     resetSettingsBtn.addEventListener('click', resetSettings);
-    settingsModal.addEventListener('click', (event) => { // Click outside modal content
+    settingsModal.addEventListener('click', (event) => {
         if (event.target === settingsModal) {
             closeSettingsModal();
         }
     });
 
-    // Initial load for settings
     loadSettings();
 });

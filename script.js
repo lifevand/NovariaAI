@@ -608,10 +608,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
         });
 
-        // Modified: Replaced **bold** and __bold__ with ▶️ UPPERCASE_TEXT
-        html = html.replace(/\*\*(.*?)\*\*/g, (match, p1) => `▶️ ${p1.toUpperCase()}`);
-        html = html.replace(/__(.*?)__/g, (match, p1) => `▶️ ${p1.toUpperCase()}`);
-
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
         html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
         html = html.replace(/_(.*?)_/g, '<em>$1</em>');
         html = html.replace(/~~(.*?)~~/g, '<del>$1</del>');

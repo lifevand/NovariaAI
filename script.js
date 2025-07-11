@@ -101,25 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentTypingAnimationInterval = null;
     let currentTypingAnimationTimeout = null;
 
-    const settingsModal = document.getElementById('settingsModal');
-    const sidebarSettingsBtn = document.getElementById('sidebarSettingsBtn');
-    const closeSettingsModalButton = document.getElementById('closeSettingsModal');
-    const defaultModelSetting = document.getElementById('defaultModelSetting');
-    const typingSpeedSetting = document.getElementById('typingSpeedSetting');
-    const maxHistoryLengthSetting = document.getElementById('maxHistoryLengthSetting');
-    const responseLanguageSetting = document.getElementById('languageSetting');
-    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-    const resetSettingsBtn = document.getElementById('resetSettingsBtn');
-    const toastContainer = document.getElementById('toastContainer');
-
-    const DEFAULT_SETTINGS = {
-        defaultAiModel: availableModels[0].value,
-        typingSpeed: 5,
-        maxHistoryLength: 10,
-        responseLanguage: 'id-ID'
-    };
-    let currentSettings = { ...DEFAULT_SETTINGS };
-
     function generateUniqueId() {
         return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
@@ -351,15 +332,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function openSidebar() {
         appContainer.classList.add('sidebar-open');
         sidebarOverlay.classList.add('active');
-        settingsModal.style.zIndex = '1000'; // Ensure settings modal is behind sidebar when sidebar is open
-        sidebarOverlay.style.zIndex = '1000'; // Make overlay for sidebar appear below settings modal
     }
 
     function closeSidebar() {
         appContainer.classList.remove('sidebar-open');
         sidebarOverlay.classList.remove('active');
-        settingsModal.style.zIndex = '1010'; // Settings modal should be above everything else
-        sidebarOverlay.style.zIndex = '1000'; // Back to normal for general use
     }
 
     function setSelectedModel(modelValue) {
@@ -409,7 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             optionItem.addEventListener('click', () => {
                 setSelectedModel(model.value);
-                setTimeout(closeModelSelectModal, 200);
+                setTimeout(closeModelModalButton, 200);
             });
             modelOptionsContainer.appendChild(optionItem);
         });
@@ -447,9 +424,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (!modelSelectModal.contains(e.target) && modelSelectModal.classList.contains('active')) {
              closeModelSelectModal();
-        }
-        if (!settingsModal.contains(e.target) && settingsModal.classList.contains('active')) {
-            closeSettingsModal();
         }
     });
 
@@ -634,8 +608,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>`;
         });
 
-        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+        // Modified: Replaced **bold** and __bold__ with ▶️ UPPERCASE_TEXT
+        html = html.replace(/\*\*(.*?)\*\*/g, (match, p1) => `▶️ ${p1.toUpperCase()}`);
+        html = html.replace(/__(.*?)__/g, (match, p1) => `▶️ ${p1.toUpperCase()}`);
+
         html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
         html = html.replace(/_(.*?)_/g, '<em>$1</em>');
         html = html.replace(/~~(.*?)~~/g, '<del>$1</del>');
@@ -714,7 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, delay);
     }
 
-    function addChatMessage(content, sender = 'user', imageUrl = null, modelTag = "Novaria", aiResponseRawText = null, isErrorMessageToSave = false) {
+    function addChatMessage(content, sender = 'user', imageUrl = null, modelTag = "Novaria", aiResponseRawText = null) {
         const messageElement = document.createElement('div');
         messageElement.classList.add('chat-message', sender === 'user' ? 'user-message' : 'ai-message');
         messageElement.style.opacity = '0';
@@ -777,11 +753,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 aiContentContainer.appendChild(imageActionsContainer);
             }
             
-            let currentTextContent = content;
-            
-            if (currentTextContent.startsWith('<span')) {
+            let currentTextContent = content; // Ini akan menjadi konten yang akan di-parse markdown atau ditampilkan
+            let isErrorMessage = false;
+
+            // Periksa jika content adalah pesan error span dari generateAIResponse
+            if (content.startsWith('<span')) {
+                isErrorMessage = true;
+            } 
+            // Periksa jika content adalah sapaan default yang tidak diinginkan
+            else if (aiResponseRawText && aiResponseRawText.trim() === `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},`) { // Sesuaikan dengan sapaan defaultmu
+                if (!imageUrl) { // Jika hanya sapaan dan tidak ada gambar
+                    currentTextContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
+                    if (modelTag.includes('Image')) currentTextContent = "Maaf, gambar tidak dapat dibuat.";
+                    isErrorMessage = true; // Tandai sebagai pesan error untuk tidak disimpan ke history jika tidak relevan
+                } else {
+                    currentTextContent = ""; // Jika ada gambar, hapus sapaan default
+                }
+            } else if (!content && !imageUrl) { // Jika content kosong dan tidak ada gambar
+                currentTextContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
+                if (modelTag.includes('Image')) currentTextContent = "Maaf, gambar tidak dapat dibuat.";
+                isErrorMessage = true;
+            }
+
+
+            if (currentTextContent.startsWith('<span') || isErrorMessage) { // Jika content adalah error span atau pesan error fallback
                 aiContentContainer.innerHTML = currentTextContent;
-            } else {
+            } else { // Jika ada teks yang berarti, lakukan parsing markdown
                 const segments = [];
                 const codeBlockRegex = /(```(\w+)?\n([\s\S]*?)```)/g;
                 let lastIndex = 0;
@@ -799,8 +796,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 let segmentIndex = 0;
-                const typingSpeed = currentSettings.typingSpeed;
-                
+                const typingSpeed = 5;
+
                 const processNextSegment = () => {
                     if (segmentIndex < segments.length) {
                         const segment = segments[segmentIndex];
@@ -823,7 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             processNextSegment();
                         }
                     } else {
-                        addAiMessageActions(messageElement);
+                        addAiMessageActions(messageElement); // Add actions after all typing/parsing
                         clearAttachedFiles();
                         checkScrollable();
                     }
@@ -831,13 +828,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 processNextSegment();
             }
-            if (!isErrorMessageToSave) {
+
+            // Only add to conversation history if it's not a temporary error message from frontend
+            if (!isErrorMessage) {
                 conversationHistory.push({ role: 'assistant', content: aiResponseRawText, modelUsed: modelTag, imageUrl: imageUrl });
             }
         }
 
-        if (conversationHistory.length > currentSettings.maxHistoryLength * 2) {
-            conversationHistory = conversationHistory.slice(conversationHistory.length - (currentSettings.maxHistoryLength * 2));
+        if (conversationHistory.length > MAX_HISTORY_DISPLAY_LENGTH * 2) {
+            conversationHistory = conversationHistory.slice(conversationHistory.length - (MAX_HISTORY_DISPLAY_LENGTH * 2));
         }
 
         if (chatDisplay && thinkingIndicator) {
@@ -902,7 +901,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const buttons = [
             { name: 'copy', icon: '<i class="fas fa-copy"></i>', title: 'Copy Response', action: (buttonEl, _messageEl) => { const fullContent = getFullRawContent(aiMessageElement); navigator.clipboard.writeText(fullContent).then(() => { buttonEl.innerHTML = '<i class="fas fa-check" style="color: #66bb6a;"></i>'; buttonEl.title = 'Copied!'; setTimeout(() => { buttonEl.innerHTML = buttons[0].icon; buttonEl.title = buttons[0].title; }, 2000); }).catch(err => { console.error('Failed to copy: ', err); }); } },
-            { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = currentSettings.responseLanguage;
+            { name: 'speak', icon: '<i class="fas fa-volume-up"></i>', title: 'Read Aloud', action: (buttonEl, _messageEl) => { const textToSpeak = getFullRawContent(aiMessageElement); const speechApi = window.speechSynthesis; if (speechApi.speaking) { speechApi.cancel(); return; } if (textToSpeak) { const utterance = new SpeechSynthesisUtterance(textToSpeak); utterance.lang = 'id-ID';
             utterance.onend = () => { buttonEl.classList.remove('pulsing'); buttonEl.innerHTML = buttons[1].icon; };
             buttonEl.classList.add('pulsing'); buttonEl.innerHTML = '<i class="fas fa-volume-up"></i>';
             speechApi.speak(utterance); } } },
@@ -1005,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     thinkingIndicator.style.opacity = '0';
                     setTimeout(() => thinkingIndicator.classList.add('hidden'), 300);
                 }
-                addChatMessage(`<span>${errorMessageToDisplay}</span>`, 'ai', null, null, null, true);
+                addChatMessage(`<span>${errorMessageToDisplay}</span>`, 'ai');
                 return;
             }
 
@@ -1017,25 +1016,29 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
 
-                let finalContent = rawAiResponseText;
-                let finalImageUrl = generatedImageUrl;
-                let isErrorMessageToSave = false;
+                // Logic to determine what to display
+                let finalContent = rawAiResponseText; // Default to raw text from API
+                let finalImageUrl = generatedImageUrl; // Default to image from API
+                let isErrorMessageToSave = false; // Flag to prevent saving generic messages to history
 
+                // Handle cases where the model might just return the generic greeting or no meaningful content
                 const genericGreeting = `Hii ${currentUser.givenName || currentUser.name.split(' ')[0]},`;
                 
+                // If text is only the generic greeting (or empty) AND no image generated
                 if ((!rawAiResponseText || rawAiResponseText.trim() === genericGreeting) && !generatedImageUrl) {
                     finalContent = "Maaf, saya tidak dapat menghasilkan respons yang sesuai.";
                     if (generationType === 'image') {
                         finalContent = "Maaf, gambar tidak dapat dibuat.";
                     }
-                    isErrorMessageToSave = true;
+                    isErrorMessageToSave = true; // Mark as error for history purposes
                 } else if (rawAiResponseText.trim() === genericGreeting && generatedImageUrl) {
-                    finalContent = "";
-                } else if (rawAiResponseText && rawAiResponseText.trim().startsWith("```") && !generatedImageUrl) {
-                    if (generationType === 'image') {
-                         finalContent = rawAiResponseText + "\n\n" + "Maaf, gambar tidak dapat dibuat.";
-                    }
+                    finalContent = ""; // Clear the greeting if there's an image
                 }
+                // If an image was requested and returned, but also some generic text we want to ignore
+                else if (generationType === 'image' && generatedImageUrl && rawAiResponseText.trim() === genericGreeting) {
+                    finalContent = ""; // Display image only, discard the greeting text
+                }
+
 
                 addChatMessage(finalContent, 'ai', finalImageUrl, modelUsed, rawAiResponseText, isErrorMessageToSave);
 
@@ -1054,7 +1057,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (thinkingIndicator) thinkingIndicator.classList.add('hidden');
                 const genericErrorMessage = `Maaf, terjadi masalah koneksi atau server: ${error.message || 'Silakan coba lagi.'}`;
-                addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai', null, null, null, true);
+                addChatMessage(`<span>${genericErrorMessage}</span>`, 'ai');
+
                 const regenerateBtn = document.querySelector('.ai-action-btn.rotating');
                 if (regenerateBtn) {
                     regenerateBtn.classList.remove('rotating');
@@ -1073,17 +1077,18 @@ document.addEventListener('DOMContentLoaded', () => {
             let finalPrompt = message;
             if (attachedFiles.length > 0 && message === '') {
                 const fileNames = attachedFiles.map(f => f.name).join(', ');
-                finalPrompt = `Harap menganalisis file-lain ini: ${fileNames}`;
+                finalPrompt = `Harap menganalisis file-file ini: ${fileNames}`;
             } else if (attachedFiles.length > 0) {
                 const fileNames = attachedFiles.map(f => f.name).join(', ');
                 finalPrompt = `${message} (Dilampirkan: ${fileNames})`;
             }
 
             initialGreeting.classList.add('hidden');
-            addChatMessage(messageInput.value.trim() || finalPrompt, 'user');
+            addChatMessage(messageInput.value.trim() || finalPrompt, 'user'); // Add user message
             
+            // Clear input field immediately after sending
             messageInput.value = ''; 
-            autoResizeTextarea(); 
+            autoResizeTextarea(); // Reset textarea height
 
             generateAIResponse(finalPrompt, attachedFiles, false, currentGenerationType);
 
@@ -1388,100 +1393,4 @@ document.addEventListener('DOMContentLoaded', () => {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
-
-    function loadSettings() {
-        const savedSettings = localStorage.getItem('novariaSettings');
-        if (savedSettings) {
-            currentSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(savedSettings) };
-        } else {
-            currentSettings = { ...DEFAULT_SETTINGS };
-        }
-        applySettingsToUI();
-    }
-
-    function applySettingsToUI() {
-        defaultModelSetting.innerHTML = '';
-        availableModels.forEach(model => {
-            const option = document.createElement('option');
-            option.value = model.value;
-            option.textContent = model.label;
-            defaultModelSetting.appendChild(option);
-        });
-
-        defaultModelSetting.value = currentSettings.defaultAiModel;
-        typingSpeedSetting.value = currentSettings.typingSpeed;
-        maxHistoryLengthSetting.value = currentSettings.maxHistoryLength;
-        responseLanguageSetting.value = currentSettings.responseLanguage;
-
-        setSelectedModel(currentSettings.defaultAiModel);
-    }
-
-    function saveSettings() {
-        currentSettings.defaultAiModel = defaultModelSetting.value;
-        currentSettings.typingSpeed = parseInt(typingSpeedSetting.value, 10);
-        currentSettings.maxHistoryLength = parseInt(maxHistoryLengthSetting.value, 10);
-        currentSettings.responseLanguage = responseLanguageSetting.value;
-
-        localStorage.setItem('novariaSettings', JSON.stringify(currentSettings));
-        showToast('Pengaturan disimpan!', 'success');
-        setSelectedModel(currentSettings.defaultAiModel);
-        closeSettingsModal();
-    }
-
-    function resetSettings() {
-        if (confirm('Yakin ingin mereset semua pengaturan ke default?')) {
-            currentSettings = { ...DEFAULT_SETTINGS };
-            localStorage.removeItem('novariaSettings');
-            applySettingsToUI();
-            showToast('Pengaturan direset!', 'info');
-            setSelectedModel(currentSettings.defaultAiModel);
-            closeSettingsModal();
-        }
-    }
-
-    function openSettingsModal() {
-        settingsModal.classList.add('active');
-        document.body.style.overflow = 'hidden'; // Mencegah scroll body
-        appContainer.classList.remove('sidebar-open'); // Pastikan sidebar tertutup saat modal terbuka
-        sidebarOverlay.classList.remove('active'); // Pastikan overlay sidebar juga non-aktif
-        // Menyesuaikan z-index untuk urutan yang benar
-        settingsModal.style.zIndex = '1010'; // Settings modal paling atas
-        modelSelectModal.style.zIndex = '1000'; // Model selector modal di bawah settings
-        sidebar.style.zIndex = '999'; // Sidebar di bawah semua modal
-        sidebarOverlay.style.zIndex = '998'; // Overlay sidebar juga di bawah semua modal
-        applySettingsToUI(); // Memuat pengaturan saat modal dibuka
-    }
-
-    function closeSettingsModal() {
-        settingsModal.classList.remove('active');
-        document.body.style.overflow = ''; // Mengizinkan scroll body kembali
-        // Mengembalikan z-index ke normal setelah modal ditutup
-        settingsModal.style.zIndex = '1000'; // Kembali ke z-index default
-        modelSelectModal.style.zIndex = '1000'; // Kembali ke z-index default
-        sidebar.style.zIndex = '1001'; // Kembali ke z-index default
-        sidebarOverlay.style.zIndex = '1000'; // Kembali ke z-index default
-    }
-
-    function showToast(message, type = 'info', duration = 3000) {
-        const toast = document.createElement('div');
-        toast.classList.add('toast', type);
-        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}"></i> <span>${message}</span>`;
-        toastContainer.appendChild(toast);
-
-        setTimeout(() => {
-            toast.remove();
-        }, duration);
-    }
-
-    sidebarSettingsBtn.addEventListener('click', openSettingsModal);
-    closeSettingsModalButton.addEventListener('click', closeSettingsModal);
-    saveSettingsBtn.addEventListener('click', saveSettings);
-    resetSettingsBtn.addEventListener('click', resetSettings);
-    settingsModal.addEventListener('click', (event) => {
-        if (event.target === settingsModal) {
-            closeSettingsModal();
-        }
-    });
-
-    loadSettings();
 });

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="google-site-verification" content="Yu5SrqKysJNrowL7W3-1r6kAGOf6GyertHg2MR-QMvg" />
   <meta name="google-signin-client_id" content="870787988649-sj4pcmpa5t6ms6a1kgvsmvsc1tuh1ngu.apps.googleusercontent.com">
-  <title>Novaria - AI Assistant</title>
+  <title>QWEN - AI Assistant</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -17,7 +17,7 @@
   <div class="app-container">
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>Novaria</h3>
+            <h3>QWEN</h3>
             <button class="new-chat-btn" id="sidebarNewChatBtn">
                 <i class="fas fa-plus"></i> New Chat
             </button>
@@ -28,9 +28,7 @@
             </ul>
         </div>
         <div class="sidebar-footer">
-            <button class="settings-btn" id="sidebarSettingsBtn">
-                <i class="fas fa-cog"></i> Settings
-            </button>
+            <!-- Tombol Settings dihapus sesuai permintaan -->
             <div class="user-info" id="sidebarUserProfile">
                 <img id="profilePicture" src="placeholder-user.png" alt="User Avatar" class="user-avatar">
                 <div class="profile-details">
@@ -51,7 +49,7 @@
                 <i class="fas fa-bars"></i>
             </button>
             <div class="novaria-title-dropdown" id="novariaTitleDropdown">
-                <span id="novaria-main-title">Novaria <i class="fas fa-angle-down"></i></span>
+                <span id="novaria-main-title">QWEN <i class="fas fa-angle-down"></i></span>
                 <div class="dropdown-menu" id="novariaDropdownMenu">
                     <a href="#" class="dropdown-item" id="exportChatBtn"><i class="fas fa-file-export"></i> Export Chat</a>
                     <a href="#" class="dropdown-item" id="shareChatBtn"><i class="fas fa-share-alt"></i> Share Chat</a>
@@ -84,7 +82,7 @@
 
         <section id="chatSection" class="page-section chat-active">
             <div id="chatHistory" class="chat-display">
-                <div class="initial-greeting">Hi Fariz, I Can Help You?</div>
+                <div class="initial-greeting">Hi, I Can Help You?</div>
                 <div id="quickPrompts" class="quick-prompts-container">
                     <button class="quick-prompt-btn">Berikan ide konten menarik</button>
                     <button class="quick-prompt-btn">Apa berita teknologi terbaru?</button>
@@ -139,7 +137,7 @@
         </div>
 
         <footer class="disclaimer-footer">
-            Novaria dapat melakukan kesalahan mohon perhatikan.
+            QWEN dapat melakukan kesalahan mohon perhatikan.
         </footer>
     </main>
   </div>
@@ -155,6 +153,7 @@
       </div>
   </div>
 
+  <!-- Settings Modal tetap ada tapi tidak dipanggil dari sidebar -->
   <div id="settingsModal" class="settings-modal">
     <div class="settings-modal-content">
       <h3>User Settings</h3>
